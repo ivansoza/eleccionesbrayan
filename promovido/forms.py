@@ -32,7 +32,7 @@ class PromovidoForm(forms.ModelForm):
 class ProspectoForm(forms.ModelForm):
        class Meta:
         model = Promovido
-        fields = ['usuario','nombre', 'apellido_paterno', 'apellido_materno', 'genero', 'fechaNacimiento', 'direccion', 'colonia', 'localidad', 'seccion', 'ocupacion', 'celular', 'telefono', 'email','status']
+        fields = ['usuario','nombre', 'apellido_paterno', 'apellido_materno', 'genero', 'fechaNacimiento', 'seccion', 'ocupacion', 'celular', 'telefono', 'email','status']
 
         widgets = {
            'nombre': forms.TextInput(attrs={'placeholder': 'Ingrese el nombre'}),
@@ -41,7 +41,7 @@ class ProspectoForm(forms.ModelForm):
             'fechaNacimiento': forms.DateInput(attrs={'type': 'date', 'placeholder': 'Fecha de Nacimiento'}),
             'direccion': forms.TextInput(attrs={'placeholder': 'Dirección'}),
             'colonia': forms.TextInput(attrs={'placeholder': 'Colonia'}),
-            'localidad': forms.TextInput(attrs={'placeholder': 'Localidad'}),
+            'localidad': forms.TextInput(attrs={'placeholder': 'Calle'}),
             'seccion': forms.TextInput(attrs={'placeholder': 'Sección'}),
             'ocupacion': forms.TextInput(attrs={'placeholder': 'Ocupación'}),
             'celular': forms.TextInput(attrs={'placeholder': 'Celular'}),
@@ -77,17 +77,15 @@ class ProspectoFormNuevo(forms.ModelForm):
     class Meta:
         model = prospecto
         fields = [
-            'nombre', 'apellido_paterno', 'apellido_materno', 'genero', 'fechaNacimiento', 'direccion', 
-            'colonia', 'localidad', 'seccion', 'ocupacion', 'celular', 'telefono', 'email'
+            'nombre', 'apellido_paterno', 'apellido_materno', 'genero', 'fechaNacimiento', 'calle', 'seccion', 'ocupacion', 'celular', 'telefono', 'email'
         ]
         widgets = {
             'nombre': forms.TextInput(attrs={'placeholder': 'Nombre'}),
             'apellido_paterno': forms.TextInput(attrs={'placeholder': 'Apellido Paterno'}),
             'apellido_materno': forms.TextInput(attrs={'placeholder': 'Apellido Materno'}),
             'genero': forms.Select(attrs={'placeholder': 'Selecciona un Género'}),
-            'direccion': forms.TextInput(attrs={'placeholder': 'Dirección Completa'}),
-            'colonia': forms.TextInput(attrs={'placeholder': 'Colonia'}),
-            'localidad': forms.TextInput(attrs={'placeholder': 'Localidad'}),
+            'calle': forms.Select(attrs={'placeholder': 'Calle'}),
+
             'seccion': forms.Select(attrs={'placeholder': 'Sección'}),
             'ocupacion': forms.Select(attrs={'placeholder': 'Ocupación'}),
             'celular': forms.TextInput(attrs={'placeholder': 'Número de Celular'}),
@@ -128,8 +126,7 @@ class ProspectoFormNuevoUpdate(forms.ModelForm):
     class Meta:
         model = prospecto
         fields = [
-            'nombre', 'apellido_paterno', 'apellido_materno', 'genero', 'fechaNacimiento', 'direccion', 
-            'colonia', 'localidad', 'ocupacion', 'celular', 'telefono', 'email', 'tipo_solicitud', 
+            'nombre', 'apellido_paterno', 'apellido_materno', 'genero', 'fechaNacimiento', 'calle', 'ocupacion', 'celular', 'telefono', 'email', 'tipo_solicitud', 
             'detalle_solicitud', 'problema_tipo', 'detalle_problema', 'foto_promovido', 'foto_ine_frontal', 
             'foto_ine_reverso', 'numeroINE', 'latitud', 'longitud'
         ]
@@ -139,9 +136,7 @@ class ProspectoFormNuevoUpdate(forms.ModelForm):
             'apellido_materno': forms.TextInput(attrs={'placeholder': 'Apellido Materno'}),
             'genero': forms.Select(attrs={'placeholder': 'Selecciona un Género'}),
             'fechaNacimiento': forms.DateInput(attrs={'placeholder': 'Fecha de Nacimiento', 'type': 'date'}),
-            'direccion': forms.TextInput(attrs={'placeholder': 'Dirección Completa'}),
-            'colonia': forms.TextInput(attrs={'placeholder': 'Colonia'}),
-            'localidad': forms.TextInput(attrs={'placeholder': 'Localidad'}),
+
             'ocupacion': forms.Select(attrs={'placeholder': 'Ocupación'}),
             'celular': forms.TextInput(attrs={'placeholder': 'Número de Celular'}),
             'telefono': forms.TextInput(attrs={'placeholder': 'Número de Teléfono'}),
@@ -188,8 +183,7 @@ class PromovidoFormNuevo(forms.ModelForm):
     class Meta:
         model = prospecto
         fields = [
-            'nombre', 'apellido_paterno', 'apellido_materno', 'genero', 'fechaNacimiento', 'direccion', 
-            'colonia', 'localidad', 'seccion', 'ocupacion', 'celular', 'telefono', 'email', 'tipo_solicitud', 
+            'nombre', 'apellido_paterno', 'apellido_materno', 'genero', 'fechaNacimiento', 'calle', 'seccion', 'ocupacion', 'celular', 'telefono', 'email', 'tipo_solicitud', 
             'detalle_solicitud', 'problema_tipo', 'detalle_problema', 'foto_promovido', 'foto_ine_frontal', 
             'foto_ine_reverso', 'numeroINE', 'latitud', 'longitud'
         ]
@@ -198,9 +192,7 @@ class PromovidoFormNuevo(forms.ModelForm):
             'apellido_paterno': forms.TextInput(attrs={'placeholder': 'Apellido Paterno'}),
             'apellido_materno': forms.TextInput(attrs={'placeholder': 'Apellido Materno'}),
             'genero': forms.Select(attrs={'placeholder': 'Selecciona un Género'}),
-            'direccion': forms.TextInput(attrs={'placeholder': 'Dirección Completa'}),
-            'colonia': forms.TextInput(attrs={'placeholder': 'Colonia'}),
-            'localidad': forms.TextInput(attrs={'placeholder': 'Localidad'}),
+          
             'seccion': forms.Select(attrs={'placeholder': 'Sección'}),
             'ocupacion': forms.Select(attrs={'placeholder': 'Ocupación'}),
             'celular': forms.TextInput(attrs={'placeholder': 'Número de Celular'}),

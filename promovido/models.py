@@ -8,9 +8,11 @@ GENERO_CHOICES = [
         ('Mujer', 'Mujer'),
     ]
 STATUS_CHOICES = [
-        ('Prospecto', 'Prospecto'),
-        ('Promovido', 'Promovido'),
-    ]
+    ('Prospecto', 'Prospecto'),
+    ('Promovido', 'Promovido'),
+    ('Verificado', 'Verificado'),
+    ('Rechazado', 'Rechazado'),  # Nuevo estado para reflejar los rechazos
+]
 SOLICITUD_CHOICES = [
         ('Apoyo Económico', 'Apoyo Económico'),
         ('Mejora de Infraestructuras', 'Mejora de Infraestructuras'),
@@ -62,7 +64,7 @@ class Ubicacion(models.Model):
     longitud = models.FloatField()
     def _str_(self):
         return self.promovido
-    
+
 OCUPACIONES_CHOICES = [
     ('Agricultor', 'Agricultor'),
     ('Artista', 'Artista'),
@@ -97,28 +99,52 @@ OCUPACIONES_CHOICES = [
     ('Escritor', 'Escritor'),
     ('Otros', 'Otros'),
 ]
+class Calle(models.Model):
+    nombre = models.CharField(max_length=100)
+    seccion = models.ForeignKey(Seccion, on_delete=models.CASCADE, related_name='calles')
+    meta_promovidos = models.IntegerField(default=0)
+    latitud = models.FloatField(blank=True, null=True)
+    longitud = models.FloatField(blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.nombre} - {self.seccion.nombre}"
+    
 
 class prospecto(models.Model):
     usuario = models.ForeignKey(
         settings.AUTH_USER_MODEL, 
         on_delete=models.CASCADE,
-        related_name='prospecto_creados' , blank=True, null=True # Nombre único para el accesor inverso
+        related_name='prospecto_creados',
+        blank=True, null=True
     )
     usuario_promovido = models.ForeignKey(
         settings.AUTH_USER_MODEL, 
         on_delete=models.CASCADE,
-        related_name='promovidos_asociados', blank=True, null=True  # Otro nombre único para el accesor inverso
+        related_name='promovidos_asociados',
+        blank=True, null=True
+    )
+    usuario_verificador = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.SET_NULL,
+        related_name='promovidos_verificados',
+        blank=True, null=True,
+        verbose_name='Usuario Verificador'
     )
     nombre = models.CharField(max_length=100)
     apellido_paterno = models.CharField(max_length=100)
     apellido_materno = models.CharField(max_length=100)
-    genero = models.CharField(max_length=50,choices=GENERO_CHOICES, verbose_name='Genero')
+    genero = models.CharField(max_length=50, choices=GENERO_CHOICES)
     fechaNacimiento = models.DateField(verbose_name='Fecha de Nacimiento')
-    direccion = models.CharField(max_length=255, verbose_name='Dirección')
-    colonia = models.CharField(max_length=100)
-    localidad = models.CharField(max_length=100)
-    seccion = models.ForeignKey(Seccion, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Sección')
-    ocupacion = models.CharField(max_length=100, choices=OCUPACIONES_CHOICES, blank=True, verbose_name='Ocupación')
+    numeroCasa = models.CharField(max_length=5)
+    calle = models.ForeignKey(
+            Calle, 
+            on_delete=models.SET_NULL, 
+            null=True, blank=True, 
+            related_name='prospectos'
+        )
+
+    seccion = models.ForeignKey(Seccion, on_delete=models.SET_NULL, null=True, blank=True)
+    ocupacion = models.CharField(max_length=100, choices=OCUPACIONES_CHOICES, blank=True)
     celular = models.CharField(max_length=15, blank=True)
     telefono = models.CharField(max_length=15, blank=True)
     email = models.EmailField(blank=True)
@@ -133,7 +159,9 @@ class prospecto(models.Model):
     status = models.CharField(max_length=25, choices=STATUS_CHOICES)
     latitud = models.FloatField(blank=True, null=True)
     longitud = models.FloatField(blank=True, null=True)
-    def _str_(self):
+    fecha_agregado = models.DateTimeField(auto_now_add=True)
+    fecha_promovido = models.DateTimeField(blank=True, null=True)
+    fecha_verificado = models.DateTimeField(blank=True, null=True)
+
+    def __str__(self):
         return f"{self.nombre} {self.apellido_paterno}"
-    
-    
