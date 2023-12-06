@@ -1,0 +1,301 @@
+{% extends "base.html" %}
+{% load static %}
+
+
+{% block contenido %}
+
+    
+<!-- Asegúrate de tener esta estructura dentro del cuerpo de tu documento HTML donde quieras mostrar el título y subtítulo -->
+<div class="dashboard-header">
+    <h1 class="dashboard-title">Centro de Estrategia y Campaña</h1>
+    <p class="dashboard-subtitle">Lleva el pulso de tu campaña política al siguiente nivel.</p>
+</div>
+
+<style>
+.card {
+    border-radius: 0.5rem; /* Bordes redondeados para la tarjeta */
+    overflow: hidden; /* Asegura que todo dentro de la tarjeta se ajuste a los bordes redondeados */
+}
+
+
+
+.progress-bar {
+    line-height: 25px; /* Centra el texto en la barra de progreso */
+    font-weight: bold; /* Hace que el texto del porcentaje sea más grueso */
+}
+
+.shadow-sm {
+    box-shadow: 0 .125rem .25rem rgba(0,0,0,.075)!important; /* Sombra ligera para la tarjeta */
+}
+
+.bg-primary {
+    background-color: #007bff!important; /* Color de fondo para el encabezado de la tarjeta */
+}
+
+.text-white {
+    color: #fff!important; /* Texto blanco para el encabezado */
+}
+
+.bg-success {
+    background-color: #28a745!important; /* Color de la barra de progreso */
+}
+
+.fas {
+    margin-right: 5px; /* Espacio entre el ícono y el texto */
+}
+</style>
+
+
+
+
+
+<div class="row">
+  <div class="col-md-4 col-sm-6 col-12">
+    <div class="info-box shadow-none">
+      <span class="info-box-icon bg-info"><i class="fas fa-users"></i></span>
+
+      <div class="info-box-content">
+        <span class="info-box-text">Prospectos</span>
+        <span class="info-box-number">{{total_prospectos}}</span>
+      </div>
+      <!-- /.info-box-content -->
+    </div>
+    <!-- /.info-box -->
+  </div>
+  <!-- /.col -->
+  <div class="col-md-4 col-sm-6 col-12">
+    <div class="info-box shadow-sm">
+      <span class="info-box-icon bg-success"><i class="fas fa-star"></i></span>
+
+      <div class="info-box-content">
+        <span class="info-box-text">Promovidos</span>
+        <span class="info-box-number">{{prospectos_promovidos}}</span>
+      </div>
+      <!-- /.info-box-content -->
+    </div>
+    <!-- /.info-box -->
+  </div>
+  <!-- /.col -->
+  <div class="col-md-4 col-sm-12 col-12">
+    <div class="info-box shadow">
+      <span class="info-box-icon bg-warning"><i class="fas fa-map-marker-alt"></i></span>
+
+      <div class="info-box-content">
+        <span class="info-box-text">Secciones</span>
+        <span class="info-box-number">{{total_secciones}}</span>
+      </div>
+      <!-- /.info-box-content -->
+    </div>
+    <!-- /.info-box -->
+  </div>
+  <!-- /.col -->
+ 
+  <!-- /.col -->
+</div>
+{% if es_administrador  or es_coordinador_general or es_candidato%}
+<div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+        Progreso hacia la Meta de Promovidos
+    </div>
+    <div class="card-body">
+        <h5 class="card-title">
+            <i class="fas fa-bullseye"></i> Meta de Promovidos:
+            
+        </h5>
+        <div class="progress mb-3" style="height: 25px; border-radius: 0.5rem;">
+            <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" style="width: {{ porcentaje_alcanzado }}%; transition: width 1s ease-in-out;" aria-valuenow="{{ porcentaje_alcanzado }}" aria-valuemin="0" aria-valuemax="100">
+                <strong>{{ porcentaje_alcanzado | floatformat:2 }}%</strong>
+            </div>
+        </div>
+        <div class="text-muted">
+            <i class="fas fa-user-check"></i> Promovidos: {{ prospectos_promovidos }} / {{ meta_promovidos }}
+        </div>
+    </div>
+</div>
+
+
+{% else %}
+
+{% endif %}
+
+
+<div class="row">
+    <!-- Left col -->
+    <section class="col-lg-12 connectedSortable">
+      <!-- Custom tabs (Charts with tabs)-->
+
+         <!-- Map card -->
+         <div class="card bg-gradient-primary">
+            <div class="card-header border-0">
+              <h3 class="card-title">
+                <i class="fas fa-map-marker-alt mr-1"></i>
+                Promovidos
+              </h3>
+              <!-- card tools -->
+              <div class="card-tools">
+     
+                <button type="button" class="btn btn-primary btn-sm" data-card-widget="collapse" title="Collapse">
+                  <i class="fas fa-minus"></i>
+                </button>
+              </div>
+              <!-- /.card-tools -->
+            </div>
+            <div class="card-body">
+                <div id="map" style="height: 450px;"></div> <!-- Div para el mapa -->
+          
+            </div>
+            <!-- /.card-body-->
+            {% comment %} <div class="card-footer bg-transparent">
+              <div class="row">
+                <div class="col-4 text-center">
+                  <div id="sparkline-1"></div>
+                  <div class="text-white">Visitors</div>
+                </div>
+                <!-- ./col -->
+                <div class="col-4 text-center">
+                  <div id="sparkline-2"></div>
+                  <div class="text-white">Online</div>
+                </div>
+                <!-- ./col -->
+                <div class="col-4 text-center">
+                  <div id="sparkline-3"></div>
+                  <div class="text-white">Sales</div>
+                </div>
+                <!-- ./col -->
+              </div>
+              <!-- /.row -->
+            </div> {% endcomment %}
+          </div>
+          <!-- /.card -->
+
+          
+
+
+
+
+
+
+    </section>
+    <!-- /.Left col -->
+    <!-- right col (We are only adding the ID to make the widgets sortable)-->
+    <section class="col-lg-5 connectedSortable">
+
+   
+      <!-- /.card -->
+
+      <!-- Calendar -->
+      <div class="card bg-gradient-success">
+        <div class="card-header border-0">
+
+          <h3 class="card-title">
+            <i class="far fa-calendar-alt"></i>
+            Calendar
+          </h3>
+          <!-- tools card -->
+          <div class="card-tools">
+            <!-- button with a dropdown -->
+            <div class="btn-group">
+              <button type="button" class="btn btn-success btn-sm dropdown-toggle" data-toggle="dropdown" data-offset="-52">
+                <i class="fas fa-bars"></i>
+              </button>
+              <div class="dropdown-menu" role="menu">
+                <a href="#" class="dropdown-item">Add new event</a>
+                <a href="#" class="dropdown-item">Clear events</a>
+                <div class="dropdown-divider"></div>
+                <a href="#" class="dropdown-item">View calendar</a>
+              </div>
+            </div>
+            <button type="button" class="btn btn-success btn-sm" data-card-widget="collapse">
+              <i class="fas fa-minus"></i>
+            </button>
+            <button type="button" class="btn btn-success btn-sm" data-card-widget="remove">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <!-- /. tools -->
+        </div>
+        <!-- /.card-header -->
+        <div class="card-body pt-0">
+          <!--The calendar -->
+          <div id="calendar" style="width: 100%"></div>
+        </div>
+        <!-- /.card-body -->
+      </div>
+      <!-- /.card -->
+    </section>
+    <!-- right col -->
+  </div>
+
+<script>
+function initMap() {
+    var mapCenter = {% if candidato_config %}[{{ candidato_config.latitud }}, {{ candidato_config.longitud }}]{% else %}[19.4091914, -98.1503753]{% endif %};
+    var map = L.map('map').setView(mapCenter, 13);
+
+
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Intentar obtener la ubicación de la primera sección del usuario
+    fetch('/ubicacion-primera-seccion')
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw new Error('Sección no disponible');
+            }
+        })
+        .then(data => {
+            // Actualizar la vista del mapa con la ubicación de la primera sección
+            map.setView([data.latitud, data.longitud], data.zoom);
+        })
+        .catch(error => {
+            console.log(error.message);
+            // Manejar situaciones donde no hay una sección disponible
+        });
+
+    // Cargar los marcadores de los promovidos en el mapa
+    fetch('/obtener-promovidos')
+        .then(response => response.json())
+        .then(data => {
+            data.forEach(prospecto => {
+                var marker = L.marker([prospecto.latitud, prospecto.longitud]);
+                var popupContent = '<div style="max-width: 200px;">';
+
+                // Verifica si la URL de la foto está presente
+                if (prospecto.foto_promovido) {
+                    popupContent += `<img src="${prospecto.foto_promovido}" style="width: 100%; height: auto;">`;
+                } else {
+                    popupContent += '<p>Foto no disponible</p>';
+                }
+
+                // Verifica si los nombres y apellidos están presentes
+                var nombreCompleto = prospecto.nombre || '';
+                if (prospecto.apellido_paterno) nombreCompleto += ' ' + prospecto.apellido_paterno;
+                if (prospecto.apellido_materno) nombreCompleto += ' ' + prospecto.apellido_materno;
+
+                popupContent += `<p>${nombreCompleto}</p></div>`;
+                marker.bindPopup(popupContent).addTo(map);
+            });
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+document.addEventListener('DOMContentLoaded', initMap);
+
+</script>
+
+
+
+{% endblock contenido %}
+
+{% block script2 %}
+<script src="{% static "js/jquery-ui.min.js" %}"></script>
+<script src="{% static "js/pages/dashboard.js" %}"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+{% endblock script2 %}
+
+

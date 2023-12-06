@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block titulo %}Agregar Sección{% endblock titulo %}
+{% block link %}
+<!-- Incluye CSS de Leaflet y Bootstrap -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+
+
+{% endblock link %}
+{% block dashboard %}
+<a class="btn btn-sm btn-icon1 " href="{% url "seccion_list" %}">
+  <i class="fas fa-arrow-left"></i>
+</a>
+{% endblock dashboard %}
+{% block contenido %}
+
+<div class="dashboard-header">
+    <h1 class="dashboard-title">Actualizar Sección</h1>
+</div>
+
+<form method="post" enctype="multipart/form-data" class="card p-3 mt-5">
+    {% csrf_token %}
+      <div class="row">
+            <div class="col-md-6">
+                        {{ form.meta_promovidos|as_crispy_field }}
+            </div>
+        </div>
+
+      <div class="row">
+              
+                    <div class="col-md-6">
+                        {{ form.latitud|as_crispy_field }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.longitud|as_crispy_field }}
+                    </div>
+               
+        </div>
+
+    <div class="form-group">
+        <button type="button" onclick="obtenerUbicacionActual()" class="btn btn-custom1">Capturar Ubicación Actual</button>
+        <button type="button" class="btn btn-custom1" data-toggle="modal" data-target="#mapModal">Seleccionar en Mapa</button>
+    </div>
+
+    <button type="submit" class="btn btn-success">Actualizar Sección</button>
+    
+</form>
+
+<!-- Modal para el mapa -->
+<div class="modal fade" id="mapModal" tabindex="-1" role="dialog" aria-labelledby="mapModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="mapModalLabel">Mapa</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Div para el mapa en el modal -->
+                <div id="mapModalContent" style="height: 400px; position: relative;">
+                    <div id="loadingIndicator" class="text-center" style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                        <i class="fa fa-spinner fa-spin fa-3x" style="color: #6E282D;"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" onclick="recargarMapa()" class="btn btn-secondary">Recargar Mapa</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+{% endblock contenido %}
+
+{% block script1 %}
+<!---    SCRIPTS IMPORTTANTES -->
+<script src="{% static "plugins/jquery/jquery.min.js" %}"></script>
+<script src="{% static "dist/js/adminlte.js" %}"></script>
+<!--- .................................................  -->
+
+
+<!-- Incluye JavaScript de Leaflet, Bootstrap y jQuery -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+
+    var mapModal;
+    var marker;
+    function recargarMapa() {
+        if (mapModal) {
+            mapModal.remove();  // Elimina el mapa actual
+        }
+        initMapModal();  // Inicializa el mapa nuevamente
+    }
+
+    function initMapModal() {
+        // Muestra el indicador de carga
+        $('#loadingIndicator').show();
+
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function (position) {
+                var latitudActual = position.coords.latitude;
+                var longitudActual = position.coords.longitude;
+
+                mapModal = L.map('mapModalContent').setView([latitudActual, longitudActual], 13);
+                configurarMapa();
+
+                // Oculta el indicador de carga después de que el mapa se haya cargado
+                $('#loadingIndicator').hide();
+            }, function () {
+                // Si falla la geolocalización, usa una ubicación predeterminada
+                mapModal = L.map('mapModalContent').setView([19.4091914, -98.1503753], 13);
+                configurarMapa();
+
+                // Oculta el indicador de carga después de que el mapa se haya cargado
+                $('#loadingIndicator').hide();
+            });
+        } else {
+            // Si la geolocalización no está disponible, usa una ubicación predeterminada
+            mapModal = L.map('mapModalContent').setView([19.4091914, -98.1503753], 13);
+            configurarMapa();
+
+            // Oculta el indicador de carga después de que el mapa se haya cargado
+            $('#loadingIndicator').hide();
+        }
+    }
+    
+    function configurarMapa() {
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(mapModal);
+    
+        mapModal.on('click', function(e) {
+            document.getElementById('id_latitud').value = e.latlng.lat;
+            document.getElementById('id_longitud').value = e.latlng.lng;
+    
+            if (marker) {
+                mapModal.removeLayer(marker);
+            }
+    
+            marker = L.marker([e.latlng.lat, e.latlng.lng]).addTo(mapModal);
+        });
+    }
+
+    function obtenerUbicacionActual() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                var latitud = position.coords.latitude;
+                var longitud = position.coords.longitude;
+
+                // Actualiza los campos del formulario
+                document.getElementById('id_latitud').value = latitud;
+                document.getElementById('id_longitud').value = longitud;
+
+                // Centra el mapa y coloca un marcador en la ubicación actual
+                if (!mapModal) {
+                    initMapModal();
+                }
+                mapModal.setView([latitud, longitud], 13);
+                if (marker) {
+                    mapModal.removeLayer(marker);
+                }
+                marker = L.marker([latitud, longitud]).addTo(mapModal);
+            });
+        } else {
+            alert('La geolocalización no es compatible en este navegador.');
+        }
+    }
+
+    // Inicializa el mapa cuando se muestra el modal
+    $('#mapModal').on('shown.bs.modal', function () {
+        initMapModal();
+    });
+</script>
+{% endblock script1 %}

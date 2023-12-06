@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Información del Código Postal</title>
+</head>
+<body>
+    {% if colonias_info %}
+        <h1>Colonias en el Código Postal: {{ codigo_postal }}</h1>
+        <p>Estado: {{ colonias_info.0.d_estado }}</p>
+        <p>Municipio: {{ colonias_info.0.D_mnpio }}</p>
+        {% for colonia in colonias_info %}
+            <h2>Colonia: {{ colonia.d_asenta }}</h2>
+            <p>Tipo de Asentamiento: {{ colonia.d_tipo_asenta }}</p>
+        {% endfor %}
+    {% else %}
+        <p>No se encontró información para este código postal.</p>
+    {% endif %}
+</body>
+</html>

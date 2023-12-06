@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block titulo %}Estaditicas{% endblock titulo %}
+{% block dashboard %}
+<a class="btn btn-sm btn-icon1 " href="{% url "menu" %}">
+  <i class="fas fa-arrow-left"></i>
+</a>
+{% endblock dashboard %}
+{% block contenido %}
+<div class="dashboard-header">
+    <h1 class="dashboard-title">Estadisticas Generales</h1>
+</div>
+<style>
+    .btn-custom{
+        background-color: rgb(17, 87, 157);
+    }
+    .card:hover {
+        transform: scale(1.05); /* Cambia el tamaño de la tarjeta al hacer hover */
+        transition: transform 0.3s ease; /* Agrega una transición suave */
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); /* Agrega una sombra al hacer hover */
+    }
+</style>
+<section class="content">
+    <div class="row">
+    {% for usuario in usuarios_destacados %}
+        <div class="col-lg-4">
+            <div class="card   card-outline" style="background:  linear-gradient(to bottom, #6E282D 62%, #ffffff 38%);background-size: cover;">
+                <div class="card-body box-profile">
+                    <div class="text-center">
+                        {% if usuario.foto %}
+                          <img class="profile-user-img img-fluid img-circle" src="  {{ usuario.foto.url }}" alt="User profile picture">
+                        {% else %}
+                          <img src="{% static 'img/usuariono.png' %}" class="card-img-top" alt="" style="max-width: 100px; height: auto;">
+                        {% endif %}
+                    </div>
+
+                    <h3 class="profile-username text-center" style="color: #ffffff;">{{ usuario.first_name }} {{ usuario.last_name }} </h3>
+
+                    <p class="text-muted text-center">{{ usuario.num_promovidos }} Promovidos | {{ usuario.num_prospectos }} Prospectos</p>
+                    {% if forloop.counter == 1 %}
+                        <span class="badge badge-warning"><i class="fas fa-trophy"></i> 1er Lugar</span>
+                    {% elif forloop.counter == 2 %}
+                        <span class="badge badge-secondary"><i class="fas fa-medal"></i> 2do Lugar</span>
+                    {% elif forloop.counter == 3 %}
+                        <span class="badge badge-danger"><i class="fas fa-award"></i> 3er Lugar</span>
+                    {% endif %}
+
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+    <div class="table-responsive">
+    
+
+        <table id="tabla" class="table table-striped table-bordered display responsive nowrap" style="width:100%">
+            
+            <thead>
+        
+                <tr>
+                    <th>Nombre Usuario</th>
+                    <th>Apellido(s)</th>
+                    <th>Grupo</th>
+                    <th>Promovidos</th>
+                    <th>Prospectos</th>
+                    <th>Hombres</th>
+                    <th>Mujeres</th>
+                    <!-- <th>Puesta</th> -->
+                    <th style="width: 5%;">Graficas</th>
+
+                </tr>
+            </thead>
+            <tbody>
+                {% for extranjero in promovidos %}
+                <tr>
+                    <td>{{ extranjero.first_name}}</td>
+                    <td> {{ extranjero.last_name }} </td>
+                    <td>{{ extranjero.groups.first.name}} </td>
+                    <td>{{ extranjero.num_promovidos }}</td>
+                    <td>{{ extranjero.num_prospectos }}</td>
+                    <td>{{ extranjero.hombres }}</td>
+                    <td>{{ extranjero.mujeres }}</td>
+                    <td>
+                        <a class="btn btn-sm btn-icon1 tooltip-link" href="{% url 'estadisticasDona' extranjero.id %}" data-title="Agregar Datos Biométricos">
+                            <i class="fas fa-chart-pie"></i>                        </a>    
+                    </td>
+
+                </tr>
+                {% endfor %}
+        
+                <tfoot>
+                    <tr>
+                        <th>Nombre Usuario</th>
+                        <th>Apellido(s)</th>
+                        <th>Grupo</th>
+                        <th>Promovidos</th>
+                        <th>Prospectos</th>
+                        <th>Hombres</th>
+                        <th>Mujeres</th>
+                        <th style="width: 5%;">Graficas</th>
+
+                    </tr>
+                </tfoot>
+        
+            </tbody>
+        </table>
+        </div>
+        
+{% endblock contenido%}
+{% block datatable %}
+
+
+  
+{% endblock datatable %}
+{% block filtro %}
+"order": [[3, "desc"]],
+{% endblock filtro %}

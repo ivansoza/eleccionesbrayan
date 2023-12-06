@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block titulo %}Mapa de Promovidos{% endblock titulo %}
+{% block dashboard %}
+<a class="btn btn-sm btn-icon1 " href="{% url "menu" %}">
+  <i class="fas fa-arrow-left"></i>
+</a>
+{% endblock dashboard %}
+{% block contenido %}
+
+<div class="dashboard-header">
+    <h1 class="dashboard-title">Mapa de Promovidos</h1>
+</div>    
+
+<div class="row">
+    <div class="col-lg-4 col-6">
+      <!-- small box -->
+      <div class="small-box bg-info">
+        <div class="inner">
+          <h3>{{ contador_global }}</h3>
+
+          <p>Promovidos</p>
+        </div>
+        <div class="icon">
+            <i class="fas fa-users"></i>
+        </div>
+      </div>
+    </div>
+    <!-- ./col -->
+    <div class="col-lg-4 col-6">
+      <!-- small box -->
+      <div class="small-box bg-success">
+        <div class="inner">
+          <h3>{{num_hombres}}<sup style="font-size: 20px"></sup></h3>
+
+          <p>Hombres</p>
+        </div>
+        <div class="icon">
+          <i class="fas fa-male"></i>
+        </div>
+      </div>
+    </div>
+    <!-- ./col -->
+    <div class="col-lg-4 col-12">
+      <!-- small box -->
+      <div class="small-box bg-warning">
+        <div class="inner">
+          <h3>{{num_mujeres}}</h3>
+
+          <p>Mujeres</p>
+        </div>
+        <div class="icon">
+          <i class="fas fa-female"></i>
+        </div>
+      </div>
+    </div>
+    <!-- ./col -->
+
+    <!-- ./col -->
+  </div>
+<div class="card p-3 mt-5">
+    <div id="map" style="height: 450px;"></div>
+</div>
+
+
+
+<!-- Incluye Leaflet desde CDN -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+    function initMap() {
+        // Crea un mapa en el div con id 'map'
+        var map = L.map('map').setView({{ candidato_config.latitud }}, {{ candidato_config.longitud }}], 13);
+    
+        // Añade un mapa base de OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+    
+        // Recorre las ubicaciones y añade un marcador para cada una
+        {% for ubicacion in ubicaciones %}
+            // Crea un marcador con un popup que muestra el nombre de la persona
+            var marker = L.marker([{{ ubicacion.latitud }}, {{ ubicacion.longitud }}]);
+                
+            // Personaliza el contenido del popup con el nombre de la persona y la foto si está presente
+            var popupContent = '<div style="max-width: 200px;">';
+            
+            // Verifica si la URL de la foto está presente
+            {% if ubicacion.promovido.foto_promovido %}
+                popupContent += '<img src="{{ ubicacion.promovido.foto_promovido.url }}" style="width: 100%; height: auto;">';
+            {% else %}
+                popupContent += '<p>Foto no disponible</p>';
+            {% endif %}
+    
+            popupContent += '<p>{{ ubicacion.promovido.nombre }} {{ ubicacion.promovido.apellido_paterno }} {{ ubicacion.promovido.apellido_materno }}</p>' +
+                '</div>';            
+            marker.bindPopup(popupContent).addTo(map);
+        {% endfor %}
+    }
+    
+    // Inicializa el mapa
+    initMap();
+</script>
+
+{% endblock contenido%}

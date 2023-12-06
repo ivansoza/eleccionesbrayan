@@ -1,0 +1,453 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block titulo %}Crear Promovido{% endblock titulo %}
+{% block link %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+{% endblock link %}
+
+{% block dashboard %}
+<a class="btn btn-sm btn-icon1 " href="{% url "lista_promovidos" %}">
+  <i class="fas fa-arrow-left"></i>
+</a>
+{% endblock dashboard %}
+
+{% block contenido %}
+<style>
+    .mensaje-error {
+        display: block; /* Asegura que el mensaje ocupe una línea completa */
+        margin-top: 5px; /* Espacio superior para separarlo de otros elementos */
+        font-size: 14px; /* Tamaño de fuente */
+        font-weight: bold; /* Texto en negrita para hacerlo más notorio */
+    }
+    .btn-info {
+        background-color: #5bc0de; /* Color de fondo del botón */
+        border-color: #5bc0de; /* Color del borde del botón */
+        color: #fff; /* Color del texto del botón */
+    }
+    #circuloResaltador {
+        position: absolute;
+        background-color: transparent;
+        border: 5px solid #ff0000; /* color del círculo (rojo en este caso) */
+        border-radius: 50%;
+        width: 210px; /* ancho del círculo */
+        height: 60px; /* altura del círculo */
+        display: none; /* inicialmente oculto */
+        top: 59%; /* posición vertical centrada */
+        left: 66%; /* posición horizontal centrada */
+        transform: translate(-50%, -50%); /* centrar el círculo */
+    }
+    @media (max-width: 767px) {
+        #circuloResaltador {
+            position: absolute;
+            background-color: transparent;
+            border: 5px solid #ff0000; /* color del círculo (rojo en este caso) */
+            border-radius: 50%;
+            width: 210px; /* ancho del círculo */
+            height: 60px; /* altura del círculo */
+            display: none; /* inicialmente oculto */
+            top: 55%; /* posición vertical centrada */
+            left: 75%; /* posición horizontal centrada */
+            transform: translate(-50%, -50%); /* centrar el círculo */
+        }
+    }
+    @media (max-width: 400px) {
+        #circuloResaltador {
+            position: absolute;
+            background-color: transparent;
+            border: 5px solid #ff0000; /* color del círculo (rojo en este caso) */
+            border-radius: 50%;
+            width: 166px; /* ancho del círculo */
+            height: 55px; /* altura del círculo */
+            display: none; /* inicialmente oculto */
+            top: 52%; /* posición vertical centrada */
+            left: 75%; /* posición horizontal centrada */
+            transform: translate(-50%, -50%); /* centrar el círculo */
+        }
+    }
+</style>
+<div class="dashboard-header">
+    <h1 class="dashboard-title">Crear Promovido</h1>
+</div>
+
+<form method="post" enctype="multipart/form-data" class="card p-3 mt-5">
+    {% csrf_token %}
+    <div class="row">
+       
+        <div class="col-sm-12 col-md-6 col-lg-6 position-relative">
+            {{ form.numeroINE|as_crispy_field }}
+            <span id="numeroINE-error" class="text-danger mensaje-error"></span>
+            <button type="button" class="btn  position-absolute end-0 top-50 translate-middle-y" data-toggle="modal" data-target="#ayudaModal" style="margin-top: 9px;" >
+                <i class="fas fa-question-circle fa-lg" style="color: #6E282D;" data-title="Ayuda"></i> 
+            </button>
+        </div>
+    
+        <div class="col-sm-12 col-md-6 col-lg-6">
+            {{form.seccion|as_crispy_field}}
+        </div>
+    </div>
+    <div class="row">
+        
+       
+        <div class="col-sm-12 col-md-4 col-lg-4">
+            {{form.nombre|as_crispy_field}}
+        </div>
+        <div class="col-sm-12 col-md-4 col-lg-4">
+            {{form.apellido_paterno|as_crispy_field}}
+        </div>
+        <div class="col-sm-12 col-md-6 col-lg-4">
+            {{form.apellido_materno|as_crispy_field}}
+        </div>
+    </div> 
+    <div class="row">
+        <div class="col-sm-12 col-md-4 col-lg-4">
+            {{form.genero|as_crispy_field}}
+        </div>
+        <div class="col-sm-12 col-md-4 col-lg-4">
+            {{form.fechaNacimiento|as_crispy_field}}
+        </div>
+        <div class="col-sm-12 col-md-4 col-lg-4">
+            {{form.ocupacion|as_crispy_field}}
+        </div>
+    </div>     
+    <div class="row">
+        <div class="col-sm-12 col-md-4 col-lg-4">
+            {{form.direccion|as_crispy_field}}
+        </div>
+        <div class="col-sm-12 col-md-4 col-lg-4">
+            {{form.colonia|as_crispy_field}}
+        </div>
+        <div class="col-sm-12 col-md-4 col-lg-4">
+            {{form.localidad|as_crispy_field}}
+        </div>
+       
+    </div>     
+    <div class="row">
+        <div class="col-sm-12 col-md-4 col-lg-4">
+            {{form.celular|as_crispy_field}}
+        </div>
+        <div class="col-sm-12 col-md-4 col-lg-4">
+            {{form.telefono|as_crispy_field}}
+        </div>
+        <div class="col-sm-12 col-md-4 col-lg-4">
+            {{form.email|as_crispy_field}}
+        </div>
+    </div>    
+    <div class="row">
+        <div class="col-sm-12 col-md-6 col-lg-6">
+            {{form.tipo_solicitud|as_crispy_field}}
+        </div>
+        <div class="col-sm-12 col-md-6 col-lg-6">
+            {{form.detalle_solicitud|as_crispy_field}}
+        </div>
+      
+    </div>    
+    <div class="row">
+        <div class="col-sm-12 col-md-6 col-lg-6">
+            {{form.problema_tipo|as_crispy_field}}
+        </div>
+        <div class="col-sm-12 col-md-6 col-lg-6">
+            {{form.detalle_problema|as_crispy_field}}
+        </div>
+      
+    </div> 
+    <div class="row">
+        <div class="col-sm-12 col-md-4 col-lg-4">
+            {{form.foto_promovido|as_crispy_field}}
+        </div>
+        <div class="col-sm-12 col-md-4 col-lg-4">
+            {{form.foto_ine_frontal|as_crispy_field}}
+        </div>
+        <div class="col-sm-12 col-md-4 col-lg-4">
+            {{form.foto_ine_reverso|as_crispy_field}}
+        </div>
+    </div>       
+    <div class="row">
+       
+        <div class="col-sm-12 col-md-4 col-lg-4">
+            {{form.latitud|as_crispy_field}}
+        </div>
+        <div class="col-sm-12 col-md-4 col-lg-4">
+            {{form.longitud|as_crispy_field}}
+        </div>
+    </div>     
+
+    <div class="form-group">
+        <button type="button" onclick="obtenerUbicacionActual()" class="btn btn-primary">Capturar Ubicación Actual</button>
+        <button type="button" class="btn btn-primary" onclick="recargarMapa();" data-toggle="modal" data-target="#mapModal">Seleccionar en Mapa</button>
+    </div>
+
+        <button class="btn btn-custom float-end btn-success" type="submit">Guardar</button>
+        <br>
+        <a href="{% url 'lista_prospectos' %}" class="btn btn-custom1" style='background-color: rgb(132, 40, 40); color: white;'>Cancelar</a>
+
+</form>
+
+<!-- Modal para el mapa -->
+<div class="modal fade" id="mapModal" tabindex="-1" role="dialog" aria-labelledby="mapModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="mapModalLabel">Mapa</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Div para el mapa en el modal -->
+                <div id="mapModalContent" style="height: 400px; position: relative;">
+                    <div id="loadingIndicator" class="text-center" style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                        <i class="fa fa-spinner fa-spin fa-3x" style="color: #6E282D;"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button type="button" onclick="recargarMapa()" class="btn btn-secondary">Recargar Mapa</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="ayudaModal" tabindex="-1" role="dialog" aria-labelledby="ayudaModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header" style='background: #6E282D;'>
+                <h5 class="modal-title" id="ayudaModalLabel" style='color:white'>Ayuda para llenar el campo 'Número de INE'</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style='color:white'>
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <!-- Contenido del modal: imagen, texto, etc. -->
+                <img src="{% static 'img/creden.jpeg' %}" alt="Ayuda" class="img-fluid" style='width=320px; height:300px'>
+                <div id="circuloResaltador"></div>
+                <h4 class="mt-3" >  <strong>Captura los 13 dígitos que se resaltan en la imagen superior del 'INE'. </strong></h4>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Contenido del formulario aquí, similar a tu ejemplo anterior -->
+{% endblock contenido %}
+{% block script1 %}
+<!---    SCRIPTS IMPORTTANTES -->
+
+<!---    SCRIPTS IMPORTTANTES -->
+<script src="{% static "plugins/jquery/jquery.min.js" %}"></script>
+<script src="{% static "dist/js/adminlte.js" %}"></script>
+<!--- .................................................  -->
+
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+
+    var mapModal;
+    var marker;
+    function recargarMapa() {
+        if (mapModal) {
+            mapModal.remove();  // Elimina el mapa actual
+        }
+        initMapModal();  // Inicializa el mapa nuevamente
+    }
+
+    
+    function initMapModal() {
+        // Muestra el indicador de carga
+        $('#loadingIndicator').show();
+
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function (position) {
+                var latitudActual = position.coords.latitude;
+                var longitudActual = position.coords.longitude;
+
+                mapModal = L.map('mapModalContent').setView([latitudActual, longitudActual], 13);
+                configurarMapa();
+
+                // Oculta el indicador de carga después de que el mapa se haya cargado
+                $('#loadingIndicator').hide();
+            }, function () {
+                // Si falla la geolocalización, usa una ubicación predeterminada
+                mapModal = L.map('mapModalContent').setView([19.4091914, -98.1503753], 13);
+                configurarMapa();
+
+                // Oculta el indicador de carga después de que el mapa se haya cargado
+                $('#loadingIndicator').hide();
+            });
+        } else {
+            // Si la geolocalización no está disponible, usa una ubicación predeterminada
+            mapModal = L.map('mapModalContent').setView([19.4091914, -98.1503753], 13);
+            configurarMapa();
+
+            // Oculta el indicador de carga después de que el mapa se haya cargado
+            $('#loadingIndicator').hide();
+        }
+    }
+
+    
+    function configurarMapa() {
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(mapModal);
+    
+        mapModal.on('click', function(e) {
+            document.getElementById('id_latitud').value = e.latlng.lat;
+            document.getElementById('id_longitud').value = e.latlng.lng;
+    
+            if (marker) {
+                mapModal.removeLayer(marker);
+            }
+    
+            marker = L.marker([e.latlng.lat, e.latlng.lng]).addTo(mapModal);
+        });
+    }
+
+    function obtenerUbicacionActual() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                var latitud = position.coords.latitude;
+                var longitud = position.coords.longitude;
+
+                // Actualiza los campos del formulario
+                document.getElementById('id_latitud').value = latitud;
+                document.getElementById('id_longitud').value = longitud;
+
+                // Centra el mapa y coloca un marcador en la ubicación actual
+                if (!mapModal) {
+                    initMapModal();
+                }
+                mapModal.setView([latitud, longitud], 13);
+                if (marker) {
+                    mapModal.removeLayer(marker);
+                }
+                marker = L.marker([latitud, longitud]).addTo(mapModal);
+            });
+        } else {
+            alert('La geolocalización no es compatible en este navegador.');
+        }
+    }
+
+    // Inicializa el mapa cuando se muestra el modal
+    $('#mapModal').on('shown.bs.modal', function () {
+        initMapModal();
+    });
+</script>
+<script>
+    jQuery(document).ready(function() {
+        var numeroINEInput = jQuery('#id_numeroINE');
+        var numeroINEError = jQuery('#numeroINE-error');
+
+        var verificacionInterval;
+
+        numeroINEInput.on('input', function() {
+            clearInterval(verificacionInterval);
+
+            var numeroINEValue = numeroINEInput.val();
+
+            if (numeroINEValue.length === 13) {
+                verificacionInterval = setInterval(function() {
+                    jQuery.ajax({
+                        url: '{% url "verificar_numero_ine" %}',
+                        method: 'POST',
+                        data: { 'numeroINE': numeroINEValue },
+                        success: function(data) {
+                            if (data.existe) {
+                                numeroINEError.text('¡Este número de INE ya existe!');
+                            } else {
+                                numeroINEError.text('');
+                            }
+                        },
+                        error: function() {
+                            console.error('Error al verificar el número de INE.');
+                        }
+                    });
+                }, 1000);
+            } else {
+                numeroINEError.text('');
+            }
+        });
+    });
+</script>
+
+<script>
+    $(document).ready(function () {
+        var circuloResaltador = $('#circuloResaltador');
+
+        function mostrarCirculo() {
+            circuloResaltador.fadeIn(500, function () {
+                circuloResaltador.fadeOut(500);
+            });
+        }
+
+        // Muestra y oculta el círculo cada 1 segundo (ajusta según sea necesario)
+        var intervalo = setInterval(mostrarCirculo, 1000);
+
+        // Detén el intervalo después de n repeticiones (ajusta según sea necesario)
+        var repeticiones = 30;
+        setTimeout(function () {
+            clearInterval(intervalo);
+            circuloResaltador.hide(); // Asegúrate de que esté oculto al final
+        }, repeticiones * 2000); // Multiplica el número de repeticiones por 2000 ms (1 segundo de fadeIn + 1 segundo de fadeOut)
+    });
+</script>
+
+
+<script>
+    $(document).ready(function() {
+      $('#date').on('input', function() {
+        // Eliminar cualquier carácter que no sea número y añadir slashes automáticamente
+        var value = $(this).val();
+        var newValue = value.replace(/[^0-9]/g, '')
+                            .replace(/(\d{2})(\d{2})?(\d{4})?/, function(match, p1, p2, p3) {
+                              var dateStr = p1;
+                              if(p2) {
+                                dateStr += '/' + p2;
+                              }
+                              if(p3) {
+                                dateStr += '/' + p3;
+                              }
+                              return dateStr;
+                            })
+                            .substring(0, 10);  // Limita la longitud a 10 caracteres: DD/MM/YYYY
+  
+        // Si el valor nuevo es diferente al valor actual, actualiza el campo de fecha
+        if (newValue !== value) {
+          $(this).val(newValue);
+        }
+  
+        // Calcula la edad y actualiza el campo de edad
+        var dob = $(this).val();
+        if (dob && dob.length === 10) {
+          var parts = dob.split('/');
+          var birthDate = new Date(parts[2], parts[1] - 1, parts[0]);
+          var today = new Date();
+          var age = today.getFullYear() - birthDate.getFullYear();
+  
+          // Comprueba si ya pasó el cumpleaños de este año
+          if (today.getMonth() < birthDate.getMonth() || 
+              (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate())) {
+            age--;
+          }
+  
+          // Actualiza el campo de edad si es una fecha válida
+          if (!isNaN(age)) {
+            $('#id_edad').val(age);
+          } else {
+            $('#id_edad').val(''); // Fecha no válida
+          }
+        } else {
+          // Si la fecha de nacimiento no es válida o no está completa, deja el campo de edad en blanco
+          $('#id_edad').val('');
+        }
+      });
+    });
+  </script>
+
+{% endblock script1 %}
+

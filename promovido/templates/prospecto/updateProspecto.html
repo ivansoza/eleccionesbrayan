@@ -1,0 +1,294 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block titulo %}Actualizar Prospecto{% endblock titulo %}
+{% block link %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+{% endblock link %}
+
+{% block dashboard %}
+<a class="btn btn-sm btn-icon1 " href="{% url "lista_prospectos" %}">
+  <i class="fas fa-arrow-left"></i>
+</a>
+{% endblock dashboard %}
+
+
+{% block contenido %}
+<div class="dashboard-header">
+    <h1 class="dashboard-title">Promover Prospecto</h1>
+</div>
+
+<form method="post" enctype="multipart/form-data" class="card p-3 mt-5">
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-sm-12 col-md-6 col-lg-6">
+            {{form.numeroINE|as_crispy_field}}
+        </div>
+    </div>
+    <div class="row">
+        
+       
+        <div class="col-sm-12 col-md-4 col-lg-4">
+            {{form.nombre|as_crispy_field}}
+        </div>
+        <div class="col-sm-12 col-md-4 col-lg-4">
+            {{form.apellido_paterno|as_crispy_field}}
+        </div>
+        <div class="col-sm-12 col-md-6 col-lg-4">
+            {{form.apellido_materno|as_crispy_field}}
+        </div>
+    </div> 
+    <div class="row">
+        <div class="col-sm-12 col-md-4 col-lg-4">
+            {{form.genero|as_crispy_field}}
+        </div>
+        <div class="col-sm-12 col-md-4 col-lg-4">
+            {{form.fechaNacimiento|as_crispy_field}}
+        </div>
+        <div class="col-sm-12 col-md-4 col-lg-4">
+            {{form.ocupacion|as_crispy_field}}
+        </div>
+    </div>     
+    <div class="row">
+        <div class="col-sm-12 col-md-4 col-lg-3">
+            {{form.direccion|as_crispy_field}}
+        </div>
+        <div class="col-sm-12 col-md-4 col-lg-3">
+            {{form.colonia|as_crispy_field}}
+        </div>
+        <div class="col-sm-12 col-md-6 col-lg-3">
+            {{form.localidad|as_crispy_field}}
+        </div>
+       
+    </div>     
+    <div class="row">
+        <div class="col-sm-12 col-md-4 col-lg-4">
+            {{form.celular|as_crispy_field}}
+        </div>
+        <div class="col-sm-12 col-md-4 col-lg-4">
+            {{form.telefono|as_crispy_field}}
+        </div>
+        <div class="col-sm-12 col-md-4 col-lg-4">
+            {{form.email|as_crispy_field}}
+        </div>
+    </div>    
+    <div class="row">
+        <div class="col-sm-12 col-md-6 col-lg-6">
+            {{form.tipo_solicitud|as_crispy_field}}
+        </div>
+        <div class="col-sm-12 col-md-6 col-lg-6">
+            {{form.detalle_solicitud|as_crispy_field}}
+        </div>
+      
+    </div>    
+    <div class="row">
+        <div class="col-sm-12 col-md-6 col-lg-6">
+            {{form.problema_tipo|as_crispy_field}}
+        </div>
+        <div class="col-sm-12 col-md-6 col-lg-6">
+            {{form.detalle_problema|as_crispy_field}}
+        </div>
+      
+    </div> 
+    <div class="row">
+        <div class="col-sm-12 col-md-4 col-lg-4">
+            {{form.foto_promovido|as_crispy_field}}
+        </div>
+        <div class="col-sm-12 col-md-4 col-lg-4">
+            {{form.foto_ine_frontal|as_crispy_field}}
+        </div>
+        <div class="col-sm-12 col-md-4 col-lg-4">
+            {{form.foto_ine_reverso|as_crispy_field}}
+        </div>
+    </div>       
+    <div class="row">
+       
+        <div class="col-sm-12 col-md-4 col-lg-4">
+            {{form.latitud|as_crispy_field}}
+        </div>
+        <div class="col-sm-12 col-md-4 col-lg-4">
+            {{form.longitud|as_crispy_field}}
+        </div>
+    </div>     
+
+    <div class="form-group">
+        <button type="button" onclick="obtenerUbicacionActual()" class="btn btn-primary">Capturar Ubicación Actual</button>
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#mapModal">Seleccionar en Mapa</button>
+    </div>
+
+        <button class="btn btn-custom float-end btn-success" type="submit">Guardar</button>
+        <br>
+        <a href="{% url 'lista_prospectos' %}" class="btn btn-custom1" style='background-color: rgb(132, 40, 40); color: white;'>Cancelar</a>
+
+</form>
+
+<!-- Modal para el mapa -->
+<div class="modal fade" id="mapModal" tabindex="-1" role="dialog" aria-labelledby="mapModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="mapModalLabel">Mapa</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Div para el mapa en el modal -->
+                <div id="mapModalContent" style="height: 400px;"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" onclick="recargarMapa()" class="btn btn-secondary">Recargar Mapa</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Contenido del formulario aquí, similar a tu ejemplo anterior -->
+{% endblock contenido %}
+{% block script1 %}
+<!---    SCRIPTS IMPORTTANTES -->
+<script src="{% static "plugins/jquery/jquery.min.js" %}"></script>
+<script src="{% static "dist/js/adminlte.js" %}"></script>
+<!--- .................................................  -->
+
+
+<!-- Incluye JavaScript de Leaflet, Bootstrap y jQuery -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+
+    var mapModal;
+    var marker;
+    function recargarMapa() {
+        if (mapModal) {
+            mapModal.remove();  // Elimina el mapa actual
+        }
+        initMapModal();  // Inicializa el mapa nuevamente
+    }
+
+    function initMapModal() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                var latitudActual = position.coords.latitude;
+                var longitudActual = position.coords.longitude;
+    
+                mapModal = L.map('mapModalContent').setView([latitudActual, longitudActual], 13);
+                configurarMapa();
+            }, function() {
+                // Si falla la geolocalización, usa una ubicación predeterminada
+                mapModal = L.map('mapModalContent').setView([19.4091914, -98.1503753], 13);
+                configurarMapa();
+            });
+        } else {
+            // Si la geolocalización no está disponible, usa una ubicación predeterminada
+            mapModal = L.map('mapModalContent').setView([19.4091914, -98.1503753], 13);
+            configurarMapa();
+        }
+    }
+    
+    function configurarMapa() {
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(mapModal);
+    
+        mapModal.on('click', function(e) {
+            document.getElementById('id_latitud').value = e.latlng.lat;
+            document.getElementById('id_longitud').value = e.latlng.lng;
+    
+            if (marker) {
+                mapModal.removeLayer(marker);
+            }
+    
+            marker = L.marker([e.latlng.lat, e.latlng.lng]).addTo(mapModal);
+        });
+    }
+
+    function obtenerUbicacionActual() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                var latitud = position.coords.latitude;
+                var longitud = position.coords.longitude;
+
+                // Actualiza los campos del formulario
+                document.getElementById('id_latitud').value = latitud;
+                document.getElementById('id_longitud').value = longitud;
+
+                // Centra el mapa y coloca un marcador en la ubicación actual
+                if (!mapModal) {
+                    initMapModal();
+                }
+                mapModal.setView([latitud, longitud], 13);
+                if (marker) {
+                    mapModal.removeLayer(marker);
+                }
+                marker = L.marker([latitud, longitud]).addTo(mapModal);
+            });
+        } else {
+            alert('La geolocalización no es compatible en este navegador.');
+        }
+    }
+
+    // Inicializa el mapa cuando se muestra el modal
+    $('#mapModal').on('shown.bs.modal', function () {
+        initMapModal();
+    });
+</script>{% endblock script1 %}
+
+
+{% block script2 %}
+
+<script>
+    $(document).ready(function() {
+      $('#date').on('input', function() {
+        // Eliminar cualquier carácter que no sea número y añadir slashes automáticamente
+        var value = $(this).val();
+        var newValue = value.replace(/[^0-9]/g, '')
+                            .replace(/(\d{2})(\d{2})?(\d{4})?/, function(match, p1, p2, p3) {
+                              var dateStr = p1;
+                              if(p2) {
+                                dateStr += '/' + p2;
+                              }
+                              if(p3) {
+                                dateStr += '/' + p3;
+                              }
+                              return dateStr;
+                            })
+                            .substring(0, 10);  // Limita la longitud a 10 caracteres: DD/MM/YYYY
+  
+        // Si el valor nuevo es diferente al valor actual, actualiza el campo de fecha
+        if (newValue !== value) {
+          $(this).val(newValue);
+        }
+  
+        // Calcula la edad y actualiza el campo de edad
+        var dob = $(this).val();
+        if (dob && dob.length === 10) {
+          var parts = dob.split('/');
+          var birthDate = new Date(parts[2], parts[1] - 1, parts[0]);
+          var today = new Date();
+          var age = today.getFullYear() - birthDate.getFullYear();
+  
+          // Comprueba si ya pasó el cumpleaños de este año
+          if (today.getMonth() < birthDate.getMonth() || 
+              (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate())) {
+            age--;
+          }
+  
+          // Actualiza el campo de edad si es una fecha válida
+          if (!isNaN(age)) {
+            $('#id_edad').val(age);
+          } else {
+            $('#id_edad').val(''); // Fecha no válida
+          }
+        } else {
+          // Si la fecha de nacimiento no es válida o no está completa, deja el campo de edad en blanco
+          $('#id_edad').val('');
+        }
+      });
+    });
+  </script>
+
+{% endblock script2 %}

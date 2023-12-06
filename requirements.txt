@@ -1,0 +1,15 @@
+asgiref==3.7.2
+certifi==2023.11.17
+chardet==4.0.0
+crispy-bootstrap5==2023.10
+Django==4.2
+django-crispy-forms==2.1
+django-jazzmin==2.6.0
+django-model-utils==4.3.1
+django-postalcodes-mexico==0.6.0
+idna==2.10
+Pillow==10.1.0
+psycopg2-binary==2.9.9
+requests==2.25.1
+sqlparse==0.4.4
+urllib3==1.26.18

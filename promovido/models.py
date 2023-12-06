@@ -1,0 +1,139 @@
+from django.db import models
+from django.conf import settings
+from django.contrib.auth.models import User
+from usuarios.models import Seccion
+# Create your models here.
+GENERO_CHOICES = [
+        ('Hombre', 'Hombre'),
+        ('Mujer', 'Mujer'),
+    ]
+STATUS_CHOICES = [
+        ('Prospecto', 'Prospecto'),
+        ('Promovido', 'Promovido'),
+    ]
+SOLICITUD_CHOICES = [
+        ('Apoyo Económico', 'Apoyo Económico'),
+        ('Mejora de Infraestructuras', 'Mejora de Infraestructuras'),
+        ('Programas Sociales', 'Programas Sociales'),
+        ('Educación', 'Educación'),
+        ('Salud', 'Salud'),
+        ('Otros', 'Otros'),
+    ]
+PROBLEMATICAS_CHOICES = [
+        ('Seguridad', 'Seguridad'),
+        ('Desempleo', 'Desempleo'),
+        ('Educación', 'Educación'),
+        ('Salud', 'Salud'),
+        ('Medio Ambiente', 'Medio Ambiente'),
+        ('Corrupción', 'Corrupción'),
+        ('Otros', 'Otros'),
+    ]
+class Promovido(models.Model):
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    nombre = models.CharField(max_length=100)
+    apellido_paterno = models.CharField(max_length=100)
+    apellido_materno = models.CharField(max_length=100)
+    genero = models.CharField(max_length=50,choices=GENERO_CHOICES, verbose_name='Genero')
+    fechaNacimiento = models.DateField(verbose_name='Fecha de Nacimiento')
+    direccion = models.CharField(max_length=255, verbose_name='Dirección')
+    colonia = models.CharField(max_length=100)
+    localidad = models.CharField(max_length=100)
+    seccion = models.CharField(max_length=100, blank=True, verbose_name='Sección')
+    ocupacion = models.CharField(max_length=100, blank=True, verbose_name='Ocupación')
+    celular = models.CharField(max_length=15, blank=True)
+    telefono = models.CharField(max_length=15, blank=True)
+    email = models.EmailField(blank=True)
+    tipo_solicitud = models.CharField(max_length=100, choices=SOLICITUD_CHOICES)
+    detalle_solicitud = models.TextField(blank=True)
+    problema_tipo = models.CharField(max_length=100, choices=PROBLEMATICAS_CHOICES)
+    detalle_problema = models.TextField(blank=True)
+    foto_promovido = models.ImageField(upload_to='fotos_promovidos/', blank=True)
+    foto_ine_frontal = models.ImageField(upload_to='fotos_ine/', blank=True)
+    foto_ine_reverso = models.ImageField(upload_to='fotos_ine/', blank=True)
+    numeroINE = models.CharField(max_length=13)
+    status = models.CharField(max_length=25, choices=STATUS_CHOICES)
+
+    def _str_(self):
+        return f"{self.nombre} {self.apellido_paterno}"
+    
+class Ubicacion(models.Model):
+    promovido = models.ForeignKey(Promovido, on_delete=models.CASCADE)
+    latitud = models.FloatField()
+    longitud = models.FloatField()
+    def _str_(self):
+        return self.promovido
+    
+OCUPACIONES_CHOICES = [
+    ('Agricultor', 'Agricultor'),
+    ('Artista', 'Artista'),
+    ('Comerciante', 'Comerciante'),
+    ('Docente', 'Docente'),
+    ('Enfermero/a', 'Enfermero/a'),
+    ('Ingeniero', 'Ingeniero'),
+    ('Médico', 'Médico'),
+    ('Abogado', 'Abogado'),
+    ('Arquitecto', 'Arquitecto'),
+    ('Contador', 'Contador'),
+    ('Estudiante', 'Estudiante'),
+    ('Obrero', 'Obrero'),
+    ('Empresario', 'Empresario'),
+    ('Chofer', 'Chofer'),
+    ('Cocinero', 'Cocinero'),
+    ('Camarero', 'Camarero'),
+    ('Ama de casa', 'Ama de casa'),
+    ('Mecánico', 'Mecánico'),
+    ('Electricista', 'Electricista'),
+    ('Carpintero', 'Carpintero'),
+    ('Plomero', 'Plomero'),
+    ('Vendedor', 'Vendedor'),
+    ('Empleado de oficina', 'Empleado de oficina'),
+    ('Técnico', 'Técnico'),
+    ('Científico', 'Científico'),
+    ('Dentista', 'Dentista'),
+    ('Fotógrafo', 'Fotógrafo'),
+    ('Diseñador', 'Diseñador'),
+    ('Musico', 'Musico'),
+    ('Pintor', 'Pintor'),
+    ('Escritor', 'Escritor'),
+    ('Otros', 'Otros'),
+]
+
+class prospecto(models.Model):
+    usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE,
+        related_name='prospecto_creados' , blank=True, null=True # Nombre único para el accesor inverso
+    )
+    usuario_promovido = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE,
+        related_name='promovidos_asociados', blank=True, null=True  # Otro nombre único para el accesor inverso
+    )
+    nombre = models.CharField(max_length=100)
+    apellido_paterno = models.CharField(max_length=100)
+    apellido_materno = models.CharField(max_length=100)
+    genero = models.CharField(max_length=50,choices=GENERO_CHOICES, verbose_name='Genero')
+    fechaNacimiento = models.DateField(verbose_name='Fecha de Nacimiento')
+    direccion = models.CharField(max_length=255, verbose_name='Dirección')
+    colonia = models.CharField(max_length=100)
+    localidad = models.CharField(max_length=100)
+    seccion = models.ForeignKey(Seccion, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Sección')
+    ocupacion = models.CharField(max_length=100, choices=OCUPACIONES_CHOICES, blank=True, verbose_name='Ocupación')
+    celular = models.CharField(max_length=15, blank=True)
+    telefono = models.CharField(max_length=15, blank=True)
+    email = models.EmailField(blank=True)
+    tipo_solicitud = models.CharField(max_length=100, choices=SOLICITUD_CHOICES)
+    detalle_solicitud = models.TextField(blank=True)
+    problema_tipo = models.CharField(max_length=100, choices=PROBLEMATICAS_CHOICES)
+    detalle_problema = models.TextField(blank=True)
+    foto_promovido = models.ImageField(upload_to='fotos_promovidos/', blank=True)
+    foto_ine_frontal = models.ImageField(upload_to='fotos_ine/', blank=True)
+    foto_ine_reverso = models.ImageField(upload_to='fotos_ine/', blank=True)
+    numeroINE = models.CharField(max_length=13, unique=True, null=True, blank=True)
+    status = models.CharField(max_length=25, choices=STATUS_CHOICES)
+    latitud = models.FloatField(blank=True, null=True)
+    longitud = models.FloatField(blank=True, null=True)
+    def _str_(self):
+        return f"{self.nombre} {self.apellido_paterno}"
+    
+    

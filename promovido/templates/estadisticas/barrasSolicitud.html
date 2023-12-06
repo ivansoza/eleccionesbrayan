@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block link %}
+{% endblock link %}
+{% block dashboard %}
+<a class="btn btn-sm btn-icon1 " href="{% url "estadisticas" %}">
+  <i class="fas fa-arrow-left"></i>
+</a>
+{% endblock dashboard %}
+
+{% block contenido %}
+<div class="dashboard-header">
+    <h1 class="dashboard-title">Estaditicas de Solicitudes y Problemas</h1>
+</div>
+<br>
+    <!-- Main content -->
+    <section class="content">
+        <div>
+           <div class="row">
+            <div class="col-md-12">
+            <!-- DONUT CHART -->
+            <div class="card">
+              <div class="card-header" style='background:#9E8364'>
+                <h3 class="card-title" style='color:#ffffff'>Solicitudes</h3>
+
+                <div class="card-tools">
+                  <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                    <i class="fas fa-minus" style='color:#ffffff'></i>
+                  </button>
+                  <button type="button" class="btn btn-tool" data-card-widget="remove">
+                    <i class="fas fa-times" style='color:#ffffff'></i>
+                  </button>
+                </div>
+              </div>
+              <div class="card-body">
+                <canvas id="solici" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+              </div>
+              <!-- /.card-body -->
+            </div>
+        </div>
+            <!-- /.card -->
+
+            <!-- PIE CHART -->
+            <div class="col-md-12">
+
+            <div class="card">
+              <div class="card-header" style='background:#9E8364'>
+                <h3 class="card-title" style='color:#ffffff'>Problemas</h3>
+
+                <div class="card-tools">
+                  <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                    <i class="fas fa-minus" style='color:#ffffff'></i>
+                  </button>
+                  <button type="button" class="btn btn-tool" data-card-widget="remove">
+                    <i class="fas fa-times"  style='color:#ffffff'></i>
+                  </button>
+                </div>
+              </div>
+              <div class="card-body">
+                <canvas id="problema"style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+              </div>
+              <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+
+          </div>
+         
+
+            <!-- /.card -->
+
+           </div>
+        </div>
+         </div>
+          <!-- /.col (RIGHT) -->
+        </div>
+        <!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </section>
+    <!-- /.content -->
+  </div>
+
+  <!-- Control Sidebar -->
+  <aside class="control-sidebar control-sidebar-dark">
+    <!-- Add Content Here -->
+  </aside>
+  <!-- /.control-sidebar -->
+</div>
+
+
+
+
+{% endblock contenido %}
+{% block script1 %}
+<script src="{% static 'js/jquery.min.js' %}"></script>
+<script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'js/Chart.min.js' %}"></script>
+<script src="{% static 'js/adminlte.min.js' %}"></script>
+<!-- Script para la gráfica de tipo_solicitud -->
+<!-- Script para la gráfica de tipo_solicitud -->
+<script>
+  $(function () {
+    var tipoSolicitudChartCanvas = $('#solici').get(0).getContext('2d');
+    var tipoSolicitudData = {
+      labels: [{% for data in tipo_solicitud_data %}{% if data.tipo_solicitud %}'{{ data.tipo_solicitud }}',{% endif %}{% endfor %}],
+      datasets: [{
+        label: 'Frecuencia',
+        data: [{% for data in tipo_solicitud_data %}{% if data.tipo_solicitud %}{{ data.count }},{% endif %}{% endfor %}],
+        backgroundColor: 'rgba(43, 136, 230, 0.5)',
+        borderColor: 'rgba(54, 162, 235, 1)',
+        borderWidth: 1
+      }]
+    };
+    var tipoSolicitudOptions = {
+      maintainAspectRatio: false,
+      responsive: true
+    };
+    new Chart(tipoSolicitudChartCanvas, {
+      type: 'bar',
+      data: tipoSolicitudData,
+      options: tipoSolicitudOptions
+    });
+  });
+</script>
+
+<!-- Script para la gráfica de problema_tipo -->
+<script>
+  $(function () {
+    var problemaTipoChartCanvas = $('#problema').get(0).getContext('2d');
+    var problemaTipoData = {
+      labels: [{% for data in problema_tipo_data %}{% if data.problema_tipo %}'{{ data.problema_tipo }}',{% endif %}{% endfor %}],
+      datasets: [{
+        label: 'Frecuencia',
+        data: [{% for data in problema_tipo_data %}{% if data.problema_tipo %}{{ data.count }},{% endif %}{% endfor %}],
+        backgroundColor: 'rgba(25, 199, 132, 0.5)',
+        borderColor: 'rgba(255, 99, 132, 1)',
+        borderWidth: 1
+      }]
+    };
+    var problemaTipoOptions = {
+      maintainAspectRatio: false,
+      responsive: true
+    };
+    new Chart(problemaTipoChartCanvas, {
+      type: 'bar',
+      data: problemaTipoData,
+      options: problemaTipoOptions
+    });
+  });
+</script>
+
+{% endblock script1 %}
+
+
+

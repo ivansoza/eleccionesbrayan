@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+{% load static %}
+{% block titulo %}
+Registrar Promotor
+{% endblock titulo %}
+
+{% block link %}
+<link rel="stylesheet" href="{% static "plugins/select2/css/select2.css" %}?v1.1">
+
+{% endblock link %}
+
+
+{% block dashboard %}
+<a class="btn btn-sm btn-icon1 " href="{% url "UserListViewCordiPromo" %}">
+  <i class="fas fa-arrow-left"></i>
+</a>
+{% endblock dashboard %}
+
+{% block contenido %}
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<div class="dashboard-header">
+    <h1 class="dashboard-title">Registrar Nuevo Promotor</h1>
+</div>
+
+{% if form.non_field_errors %}
+    <script>
+        Swal.fire({
+            title: 'Error!',
+            text: '{{ form.non_field_errors|striptags }}',
+            icon: 'error',
+            confirmButtonText: 'Ok'
+        });
+    </script>
+{% endif %}
+
+{% for field in form %}
+    {% if field.errors %}
+        <script>
+            Swal.fire({
+                title: 'Error en {{ field.label }}!',
+                text: '{{ field.errors|striptags }}',
+                icon: 'error',
+                confirmButtonText: 'Ok'
+            });
+        </script>
+    {% endif %}
+{% endfor %}
+
+{% load crispy_forms_tags %}
+
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            Registrar Nuevo Promotor
+        </div>
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="row">
+                    <div class="col-md-6">
+                        {{ form.username|as_crispy_field }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.email|as_crispy_field }}
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-4">
+                        {{ form.first_name|as_crispy_field }}
+                    </div>
+                    <div class="col-md-4">
+                        {{ form.last_name|as_crispy_field }}
+                    </div>
+                    <div class="col-md-4">
+                        {{ form.apellido_materno|as_crispy_field }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        {{ form.seccion|as_crispy_field }}
+                    </div>
+               
+                    <div class="col-md-4">
+                        {{ form.direccion|as_crispy_field }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        {{ form.colonia|as_crispy_field }}
+                    </div>
+                    <div class="col-md-4">
+                        {{ form.localidad|as_crispy_field }}
+                    </div>
+                    <div class="col-md-4">
+                        {{ form.ocupacion|as_crispy_field }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        {{ form.celular|as_crispy_field }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.telefono_fijo|as_crispy_field }}
+                    </div>
+                
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-4">
+                        {{ form.foto|as_crispy_field }}
+                    </div>
+                    <div class="col-md-4">
+                        {{ form.foto_ine_frontal|as_crispy_field }}
+                    </div>
+                    <div class="col-md-4">
+                        {{ form.foto_ine_reverso|as_crispy_field }}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        {{ form.password1|as_crispy_field }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.password2|as_crispy_field }}
+                    </div>
+                </div>
+                    <button type="submit" class="btn btn-custom2">Registrar Usuario</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock contenido %}
+
+{% block script1 %}
+<script src="{% static "plugins/jquery/jquery.min.js" %}"></script>
+<script src="{% static "plugins/bootstrap/js/bootstrap.bundle.min.js" %}"></script>
+
+<script src="{% static "plugins/select2/js/select2.full.min.js" %}"></script>
+
+<script src="{% static "dist/js/adminlte.min.js" %}"></script>
+<script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+
+
+<script>
+    $(function () {
+        $('.select2').select2()
+      });
+    </script>
+{% endblock script1 %}
+
+{% block script2 %}
+
+<script>
+    $(document).ready(function() {
+      $('#date').on('input', function() {
+        // Eliminar cualquier carácter que no sea número y añadir slashes automáticamente
+        var value = $(this).val();
+        var newValue = value.replace(/[^0-9]/g, '')
+                            .replace(/(\d{2})(\d{2})?(\d{4})?/, function(match, p1, p2, p3) {
+                              var dateStr = p1;
+                              if(p2) {
+                                dateStr += '/' + p2;
+                              }
+                              if(p3) {
+                                dateStr += '/' + p3;
+                              }
+                              return dateStr;
+                            })
+                            .substring(0, 10);  // Limita la longitud a 10 caracteres: DD/MM/YYYY
+  
+        // Si el valor nuevo es diferente al valor actual, actualiza el campo de fecha
+        if (newValue !== value) {
+          $(this).val(newValue);
+        }
+  
+        // Calcula la edad y actualiza el campo de edad
+        var dob = $(this).val();
+        if (dob && dob.length === 10) {
+          var parts = dob.split('/');
+          var birthDate = new Date(parts[2], parts[1] - 1, parts[0]);
+          var today = new Date();
+          var age = today.getFullYear() - birthDate.getFullYear();
+  
+          // Comprueba si ya pasó el cumpleaños de este año
+          if (today.getMonth() < birthDate.getMonth() || 
+              (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate())) {
+            age--;
+          }
+  
+          // Actualiza el campo de edad si es una fecha válida
+          if (!isNaN(age)) {
+            $('#id_edad').val(age);
+          } else {
+            $('#id_edad').val(''); // Fecha no válida
+          }
+        } else {
+          // Si la fecha de nacimiento no es válida o no está completa, deja el campo de edad en blanco
+          $('#id_edad').val('');
+        }
+      });
+    });
+  </script>
+
+{% endblock script2 %}

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Consulta de Código Postal</title>
+</head>
+<body>
+    <form id="postal-code-form">
+        <label for="postal-code">Código Postal:</label>
+        <input type="text" id="postal-code" name="postal-code">
+        <button type="submit">Buscar</button>
+    </form>
+
+    <div>
+        <label for="estado">Estado:</label>
+        <input type="text" id="estado" name="estado" disabled>
+    </div>
+    <div>
+        <label for="municipio">Municipio:</label>
+        <input type="text" id="municipio" name="municipio" disabled>
+    </div>
+    <div>
+        <label for="colonias">Colonias:</label>
+        <select id="colonias" name="colonias">
+            <!-- Las opciones de colonias se añadirán aquí -->
+        </select>
+    </div>
+    <div>
+        <label for="tipo-asentamiento">Tipo de Asentamiento:</label>
+        <input type="text" id="tipo-asentamiento" name="tipo-asentamiento" disabled>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#postal-code-form').on('submit', function(e) {
+                e.preventDefault();
+                var postalCode = $('#postal-code').val();
+
+                $.ajax({
+                    url: '/catalogos/postal-code2/' + postalCode + '/',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.colonias.length > 0) {
+                            $('#estado').val(response.colonias[0].d_estado);
+                            $('#municipio').val(response.colonias[0].D_mnpio);
+
+                            $('#colonias').empty();
+                            response.colonias.forEach(function(colonia) {
+                                $('#colonias').append(
+                                    $('<option>', {
+                                        value: colonia.d_asenta,
+                                        text: colonia.d_asenta
+                                    })
+                                );
+                            });
+
+                            // Actualizar el tipo de asentamiento según la colonia seleccionada
+                            $('#colonias').change(function() {
+                                var selectedColonia = response.colonias.find(c => c.d_asenta === this.value);
+                                $('#tipo-asentamiento').val(selectedColonia.d_tipo_asenta);
+                            }).change(); // Disparar el evento change inicialmente
+                        } else {
+                            $('#estado').val('');
+                            $('#municipio').val('');
+                            $('#colonias').empty();
+                            $('#tipo-asentamiento').val('');
+                            alert('No se encontraron colonias para este código postal.');
+                        }
+                    },
+                    error: function() {
+                        alert('Error al buscar información para este código postal.');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

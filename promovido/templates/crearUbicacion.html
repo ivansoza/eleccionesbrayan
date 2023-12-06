@@ -1,0 +1,199 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block titulo %}Agregar Ubicación{% endblock titulo %}
+
+{% block contenido %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<div class="dashboard-header">
+    <h1 class="dashboard-title">Agregar Ubicación</h1>
+</div>
+
+<!-- Campos para la ubicación y el formulario de almacenamiento -->
+<form method="post" enctype="multipart/form-data" class="card p-3 mt-5">
+    <h1>Datos de ubicación del promovido</h1>
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-sm-12 col-md-4 col-lg-12 form-group">
+            <label for="promovido">Promovido:</label>
+            <input type="hidden" id="promovido" name="promovido" value="{{ promovido.id }}">
+            <!-- Agrega un campo oculto para almacenar el ID del promovido -->
+            <input type="text" class="form-control" value="{{ promovido.nombre }} {{promovido.apellido_paterno}} {{promovido.apellido_materno}}" readonly>
+            <!-- Muestra el nombre del promovido como solo lectura -->
+        </div>
+        <div class="col-sm-12 col-md-4 col-lg-3 form-group">
+            <label for="latitud">Latitud:</label>
+            <input type="text" id="latitud" name="latitud" class="form-control" readonly>
+        </div>
+        <div class="col-sm-12 col-md-4 col-lg-3 form-group">
+            <label for="longitud">Longitud:</label>
+            <input type="text" id="longitud" name="longitud" class="form-control" readonly>
+            
+        </div>
+        <div class="col-sm-12 col-md-4 col-lg-3 form-group">
+            <br>
+            <button type="button" onclick="obtenerUbicacionActual()" class="btn btn-primary">Obtener Ubicación Actual</button>
+            
+        </div>
+        <div class="col-sm-12 col-md-4 col-lg-3 form-group">
+            <br>
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#mapModal">
+                Abrir Mapa en Modal
+            </button>
+        </div>
+    </div>
+    <button type="button" class="btn btn-success" onclick="guardarUbicacion()">Guardar</button>
+
+    <!-- Resto del formulario ... -->
+
+</form>
+
+<!-- Modal para el mapa -->
+<div class="modal fade" id="mapModal" tabindex="-1" role="dialog" aria-labelledby="mapModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="mapModalLabel">Mapa</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Div para el mapa en el modal -->
+                <div id="mapModalContent" style="height: 400px;"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success"  data-dismiss="modal">Seleccionar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Incluye Leaflet desde CDN -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+    var mapModal;
+
+    function initMapModal() {
+        mapModal = L.map('mapModalContent').setView([19.4091914, -98.1503753], 13);
+    
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(mapModal);
+    
+        var marker;
+    
+        mapModal.on('click', function(e) {
+            // Actualiza los campos y coloca un marcador en la ubicación seleccionada
+            document.getElementById('latitud').value = e.latlng.lat;
+            document.getElementById('longitud').value = e.latlng.lng;
+    
+            // Elimina el marcador anterior, si existe
+            if (marker) {
+                mapModal.removeLayer(marker);
+            }
+    
+            // Crea un nuevo marcador en la ubicación seleccionada
+            marker = L.marker([e.latlng.lat, e.latlng.lng]).addTo(mapModal);
+        });
+    }
+    
+
+    function capturarUbicacion() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                var latitud = position.coords.latitude;
+                var longitud = position.coords.longitude;
+    
+                // Centra el mapa en la ubicación actual
+                mapModal.setView([latitud, longitud], 13);
+    
+                // Actualiza los campos
+                document.getElementById('latitud').value = latitud;
+                document.getElementById('longitud').value = longitud;
+    
+                // Cierra el modal
+                $('#mapModal').modal('hide');
+            });
+        } else {
+            alert('La geolocalización no es compatible en este navegador.');
+        }
+    }
+    function obtenerUbicacionActual() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                var latitud = position.coords.latitude;
+                var longitud = position.coords.longitude;
+    
+                // Actualiza los campos y coloca un marcador en la ubicación actual
+                document.getElementById('latitud').value = latitud;
+                document.getElementById('longitud').value = longitud;
+    
+                // Elimina el marcador anterior, si existe
+                if (marker) {
+                    mapModal.removeLayer(marker);
+                }
+    
+                // Crea un nuevo marcador en la ubicación actual
+                marker = L.marker([latitud, longitud]).addTo(mapModal);
+    
+                // Centra el mapa en la ubicación actual
+                mapModal.setView([latitud, longitud], 13);
+    
+                // Cierra el modal
+                $('#mapModal').modal('hide');
+            });
+        } else {
+            alert('La geolocalización no es compatible en este navegador.');
+        }
+    }
+    
+
+    function guardarUbicacion(promovidoId) {
+    var latitud = document.getElementById('latitud').value;
+    var longitud = document.getElementById('longitud').value;
+    var promovido = document.getElementById('promovido').value;
+    // Establece el valor del campo "promovido"
+    console.log('ID del promovido:', promovido);  // Agrega este log para verificar el ID
+
+    // Envía las coordenadas al servidor Django
+    fetch('{% url "guardar_ubicacion" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': '{{ csrf_token }}'  // Asegúrate de incluir el token CSRF
+        },
+        body: 'latitud=' + latitud + '&longitud=' + longitud + '&promovido=' + encodeURIComponent(promovido)
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert('Ubicación guardada exitosamente');
+        console.log(data);
+        document.getElementById('latitud').value = '';
+        document.getElementById('longitud').value = '';
+
+        // Redirige a la página deseada
+        window.location.href = '{% url "lista_promovidos" %}';  // Reemplaza 'nombre_de_la_vista' con el nombre de la vista a la que deseas redirigir
+    })
+    .catch(error => {
+        alert('Error al guardar la ubicación');
+        console.error('Error:', error);
+    });
+}
+
+
+    // Inicializa el mapa en el modal
+    $('#mapModal').on('shown.bs.modal', function () {
+        initMapModal();
+    });
+</script>
+
+<!-- Incluye Bootstrap desde CDN -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+{% endblock contenido %}

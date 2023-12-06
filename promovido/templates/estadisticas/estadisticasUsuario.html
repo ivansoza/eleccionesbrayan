@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block link %}
+{% endblock link %}
+{% block dashboard %}
+<a class="btn btn-sm btn-icon1 " href="{% url "estadisticas" %}">
+  <i class="fas fa-arrow-left"></i>
+</a>
+{% endblock dashboard %}
+
+{% block contenido %}
+<div class="dashboard-header">
+    <h1 class="dashboard-title">Estadisticas Generales de <strong style='color:#6E282D'> {{nombre}} <strong></h1>
+</div>
+<br>
+    <!-- Main content -->
+    <section class="content">
+        <div>
+           <div class="row">
+            <div class="col-md-6">
+            <!-- DONUT CHART -->
+            <div class="card">
+              <div class="card-header" style='background:#9E8364'>
+                <h3 class="card-title" style='color:#ffffff'>Genero</h3>
+
+                <div class="card-tools">
+                  <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                    <i class="fas fa-minus" style='color:#ffffff'></i>
+                  </button>
+                  <button type="button" class="btn btn-tool" data-card-widget="remove">
+                    <i class="fas fa-times" style='color:#ffffff'></i>
+                  </button>
+                </div>
+              </div>
+              <div class="card-body">
+                <canvas id="donutChartGeneroPorUsuario" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+              </div>
+              <!-- /.card-body -->
+            </div>
+        </div>
+            <!-- /.card -->
+
+            <!-- PIE CHART -->
+            <div class="col-md-6">
+
+            <div class="card">
+              <div class="card-header" style='background:#9E8364'>
+                <h3 class="card-title" style='color:#ffffff'>Prospectos y Promovidos</h3>
+
+                <div class="card-tools">
+                  <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                    <i class="fas fa-minus" style='color:#ffffff'></i>
+                  </button>
+                  <button type="button" class="btn btn-tool" data-card-widget="remove">
+                    <i class="fas fa-times"  style='color:#ffffff'></i>
+                  </button>
+                </div>
+              </div>
+              <div class="card-body">
+                <canvas id="donutChartPromovidosPorUsuario"style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+              </div>
+              <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+
+          </div>
+         
+
+            <!-- /.card -->
+
+           </div>
+        </div>
+         </div>
+          <!-- /.col (RIGHT) -->
+        </div>
+        <!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </section>
+    <!-- /.content -->
+  </div>
+
+  <!-- Control Sidebar -->
+  <aside class="control-sidebar control-sidebar-dark">
+    <!-- Add Content Here -->
+  </aside>
+  <!-- /.control-sidebar -->
+</div>
+
+
+
+{% endblock contenido %}
+
+{% block script1 %}
+<!-- ./wrapper -->
+<script src="{% static 'js/jquery.min.js' %}"></script>
+<!-- Bootstrap 4 -->
+<script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+<!-- ChartJS -->
+<script src="{% static 'js/Chart.min.js' %}"></script>
+<!-- AdminLTE App -->
+<script src="{% static 'js/adminlte.min.js' %}"></script>
+<!-- AdminLTE for demo purposes -->
+
+
+<!-- Page specific script -->
+<!-- Page specific script -->
+<!-- Page specific script -->
+<!-- Page specific script -->
+<script>
+    $(function () {
+      // Datos para el gráfico de género
+      var generoChartCanvas = $('#donutChartGeneroPorUsuario').get(0).getContext('2d');
+      var generoData = {
+        labels: ['Hombres', 'Mujeres'],
+        datasets: [{
+          data: [
+            {{ num_hombres }},
+            {{ num_mujeres }},
+          ],
+          backgroundColor: ['#2A62B2', '#9D4D91']
+        }]
+      };
+      var generoOptions = {
+        maintainAspectRatio: false,
+        responsive: true
+      };
+      new Chart(generoChartCanvas, {
+        type: 'doughnut',
+        data: generoData,
+        options: generoOptions
+      });
+  
+      // Datos para el gráfico de prospectos y promovidos
+      var promovidosChartCanvas = $('#donutChartPromovidosPorUsuario').get(0).getContext('2d');
+      var promovidosData = {
+        labels: ['Promovidos', 'Prospectos'],
+        datasets: [{
+          data: [
+            {{ num_promovidos }},
+            {{ num_prospectos }},
+          ],
+          backgroundColor: ['#CD856F', '#1DAE82']
+        }]
+      };
+      var promovidosOptions = {
+        maintainAspectRatio: false,
+        responsive: true
+      };
+      new Chart(promovidosChartCanvas, {
+        type: 'doughnut',
+        data: promovidosData,
+        options: promovidosOptions
+      });
+    });
+</script>
+
+{% endblock script1 %}
+
+

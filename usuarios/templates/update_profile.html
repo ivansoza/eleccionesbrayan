@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block completar_usuario %}
+{% endblock completar_usuario %}
+
+{% block contenido %}
+  <h2>Actualizar Perfil</h2>
+  <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit">Actualizar</button>
+  </form>
+{% endblock contenido%}
