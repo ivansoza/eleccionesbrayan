@@ -454,23 +454,7 @@ class seccionlist(LoginRequiredMixin,UserPassesTestMixin, ListView):
         return redirect('templeteDenegado')
     
 
-class callesList(LoginRequiredMixin, ListView):
-    model = Calle
-    template_name = 'calles/list_calles.html'
-    context_object_name = 'calle'
 
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        
-
-        context['navbar'] = 'seccion'
-        context['seccion'] = 'calle'
-        return context
-    
-    def handle_no_permission(self):
-        # Redirigir a alguna página de error o inicio si el usuario no cumple el test
-        return redirect('templeteDenegado')
     
 class SeccionCreateView(LoginRequiredMixin,UserPassesTestMixin,CreateView):
     model = Seccion
@@ -513,7 +497,23 @@ class SeccionUpdateView(LoginRequiredMixin,UpdateView):
         return context
     
 
+class callesList(LoginRequiredMixin, ListView):
+    model = Calle
+    template_name = 'calles/list_calles.html'
+    context_object_name = 'calle'
 
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+
+        context['navbar'] = 'seccion'
+        context['seccion'] = 'calle'
+        return context
+    
+    def handle_no_permission(self):
+        # Redirigir a alguna página de error o inicio si el usuario no cumple el test
+        return redirect('templeteDenegado')
 
 @login_required
 def update_user_status(request, user_id):
