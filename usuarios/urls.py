@@ -2,7 +2,7 @@
 
 from django.urls import path
 from .views import CustomUserUpdateView, UserCreateView, UserListView,UserCreateCordiGeneView,UserListViewCordiGen, UserListViewCordiArea,UserListViewCordiSeccion, UserListViewCordiPromo,UserCreateViewCordiArea, UserCreateViewCordiSeccion,UserCreateViewPromotor,seccionlist,SeccionCreateView, update_user_status, update_user_statusCordiGene,\
-SeccionUpdateView,update_user_statusCordiSeccion, update_user_statusPromotor
+SeccionUpdateView,update_user_statusCordiSeccion, update_user_statusPromotor,callesList
 from django.contrib.auth import views as auth_views
 
 
@@ -34,6 +34,11 @@ urlpatterns = [
     path('secciones/', seccionlist.as_view(), name='seccion_list'),
     path('crear-secciones/', SeccionCreateView.as_view(), name='seccion_create'),
     path('update-secciones/<int:pk>/', SeccionUpdateView.as_view(), name='seccion_update'),
+
+
+
+    path('calles/', callesList.as_view(), name='calle_list'),
+
 
     path('update_user_status/<int:user_id>/', update_user_status, name='update_user_status'),
     path('update_user_status_general/<int:user_id>/', update_user_statusCordiGene, name='update_user_status_gene'),

@@ -16,6 +16,7 @@ from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth import get_user_model
+from promovido.models import Calle
 User = get_user_model()
 
 
@@ -446,6 +447,25 @@ class seccionlist(LoginRequiredMixin,UserPassesTestMixin, ListView):
         context['secciones_con_promovidos'] = secciones_con_promovidos
         context['navbar'] = 'seccion'
         context['seccion'] = 'secciones'
+        return context
+    
+    def handle_no_permission(self):
+        # Redirigir a alguna página de error o inicio si el usuario no cumple el test
+        return redirect('templeteDenegado')
+    
+
+class callesList(LoginRequiredMixin, ListView):
+    model = Calle
+    template_name = 'calles/list_calles.html'
+    context_object_name = 'calle'
+
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+
+        context['navbar'] = 'seccion'
+        context['seccion'] = 'calle'
         return context
     
     def handle_no_permission(self):

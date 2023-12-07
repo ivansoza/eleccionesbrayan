@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% load static %}
+{% block titulo %}
+Secciones
+{% endblock titulo %}
+
+{% block dashboard %}
+<a class="btn btn-sm btn-icon1 " href="{% url "menu" %}">
+  <i class="fas fa-arrow-left"></i>
+</a>
+{% endblock dashboard %}
+
+
+{% block contenido %}
+<div class="dashboard-header">
+    <h1 class="dashboard-title">Lista de Calles</h1>
+</div>
+
+<div class="table-responsive">
+    <table id="tabla" class="table table-striped table-bordered display responsive nowrap" style="width:100%">
+        <thead>
+            <tr>
+                <th>Nombre de la Calle</th>
+                <th>Sección</th>
+                <th>Latitud</th>
+                <th>Longitud</th>
+                <th>Meta de Promovidos</th>
+
+                <th style="width: 5%;">Opciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for calle in calles %}
+            <tr>
+                <td>{{ calle.nombre }}</td>
+                <td>{{ calle.seccion }}</td>
+                <td>{{ calle.latitud }} </td>
+                <td>{{ calle.longitud }}</td>
+            <td>
+            {{seccion.meta_promovidos}}
+            </td>
+                <td>
+                    <a class="btn btn-sm btn-icon1 tooltip-link" href="#" data-title="Editar Ubicación">
+                        <i class="fas fa-edit"></i>
+                    </a>                
+                    </td>
+                    
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <th>Nombre de la Calle</th>
+                <th>Sección</th>
+                <th>Latitud</th>
+                <th>Longitud</th>
+                <th>Meta de Promovidos</th>
+
+                <th style="width: 5%;">Opciones</th>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+
+{% endblock contenido %}
+
+
+{% block datatable %}
+
+ {
+    text: 'Agregar Nueva Calle',
+    className: 'btn btn-custom1 mr-2',
+    action: function (e, dt, node, config) {
+      // Redirigir a la URL relativa a la ubicación actual
+      window.location.href = '{% url "seccion_create" %}';
+   }
+  },
+  
+{% endblock datatable %}
