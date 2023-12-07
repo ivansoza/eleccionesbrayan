@@ -1,20 +1,72 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8" />
-    <title>Leaflet Map with Clickable Waypoints and Highlighted Area</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
-    <style>
-        #map {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-        }
-    </style>
-</head>
-<body>
-    <div id="map"></div>
+{% extends "base.html" %}
+
+{% load static %}
+{% load crispy_forms_tags %}
+{% block titulo %}Agregar Publicidad{% endblock titulo %}
+{% block link %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+<style>
+    #map {
+        position: absolute;
+        width: 80%;
+        height: 80%;
+    }
+</style>
+{% endblock link %}
+
+{% block contenido %}
+
+
+<div class="dashboard-header">
+    <h1 class="dashboard-title">Agregar Publicidad</h1>
+</div>
+
+<form method="post" enctype="multipart/form-data" class="card p-3 mt-5">
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-md-4">
+            {{ form.nombre|as_crispy_field }}
+        </div>
+        <div class="col-md-4">
+            {{ form.seccion|as_crispy_field }}
+        </div>
+        <div class="col-md-4">
+            {{ form.meta_promovidos|as_crispy_field }}
+        </div>
+    
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            {{ form.latitud|as_crispy_field }}
+        </div>
+        <div class="col-md-12">
+            {{ form.longitud|as_crispy_field }}
+        </div>  
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            {{ form.ruta|as_crispy_field }}
+        </div>
+
+    </div>
+    <div class="form-group">
+        <button type="button" onclick="obtenerUbicacionActual()" class="btn btn-primary">Capturar Ubicación Actual</button>
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#mapModal">Seleccionar en Mapa</button>
+    </div>
+
+    <button type="submit" class="btn btn-success">Guardar Sección</button>
+</form>
+
+<div id="map"></div>
+{% endblock contenido %}
+{% block script1 %}
+
+    <script src="{% static "plugins/jquery/jquery.min.js" %}"></script>
+    <script src="{% static "dist/js/adminlte.js" %}"></script>
+
+
     <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
     <script>
@@ -35,6 +87,21 @@
             if (waypoints.length < 2) {
                 waypoints.push(L.latLng(e.latlng.lat, e.latlng.lng));
                 routingControl.setWaypoints(waypoints);
+    
+                if (waypoints.length === 2) {
+                    // Escuchar cuando se encuentra una ruta
+                    routingControl.on('routesfound', function(e) {
+                        var routes = e.routes;
+                        var summary = routes[0].summary;
+                        // Aquí se puede mejorar la lógica para elegir la mejor ruta si hay varias
+                        // Convertir la ruta en una cadena de texto JSON para almacenarla en el campo del formulario
+                        var rutaJson = JSON.stringify(routes[0].coordinates);
+                        // Suponiendo que tienes un campo oculto en tu formulario con el id 'id_ruta'
+                        document.getElementById('id_ruta').value = rutaJson;
+    
+
+                    });
+                }
             }
         });
         var geojsonData = {
@@ -97,5 +164,6 @@
         // Centrar el mapa en la línea
         map.fitBounds(geojsonLayer.getBounds());
     </script>
-</body>
-</html>
+
+
+{% endblock script1%}

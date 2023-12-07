@@ -35,7 +35,7 @@ class PublicidadForm(forms.ModelForm):
 
 class CalleForm(forms.ModelForm):
 
-    ruta = forms.CharField(widget=forms.HiddenInput(), required=False)
+    ruta = forms.CharField( required=False)
 
     latitud = forms.FloatField(
         required=False,

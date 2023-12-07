@@ -9,6 +9,7 @@ from usuarios.models import Seccion
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect
 import json
+from django.shortcuts import render, get_object_or_404
 
 class crearPublicidad(CreateView):
     template_name = 'crearPublicidad.html'
@@ -166,26 +167,7 @@ class CalleCreateView(CreateView):
     template_name = 'calles/calle_create.html'
     success_url = reverse_lazy('calle_list')
 
-    def form_valid(self, form):
-        calle = form.save(commit=False)
-        
-        # Procesar la ruta JSON del formulario
-        ruta_json = form.cleaned_data.get('ruta')
-        if ruta_json:
-            try:
-                # Convertir la cadena JSON en un objeto Python
-                ruta = json.loads(ruta_json)
-                calle.ruta = json.dumps(ruta)  # Guardar la ruta como JSON en el modelo
-            except json.JSONDecodeError:
-                # Manejar el error en caso de que el JSON no sea válido
-                form.add_error('ruta', 'Formato de ruta inválido')
-                return self.form_invalid(form)
 
-        calle.save()
-        return super().form_valid(form)
-
-
-def mostrar_mapa(request, latitud, longitud):
-    latitud = float(latitud)
-    longitud = float(longitud)
-    return render(request, 'calles/mostrar_mapa.html', {'latitud': latitud, 'longitud': longitud})
+def mostrar_mapa(request, calle_id):
+    calle = get_object_or_404(Calle, pk=calle_id)
+    return render(request, 'calles/mostrar_mapa.html', {'calle': calle})

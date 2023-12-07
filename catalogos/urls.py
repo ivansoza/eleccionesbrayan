@@ -15,6 +15,6 @@ urlpatterns = [
 
     path('calles/', callesList.as_view(), name='calle_list'),
     path('calle/create/', CalleCreateView.as_view(), name='calle_create'),
-    path('mostrar_mapa/<str:latitud>/<str:longitud>/', mostrar_mapa, name='mostrar_mapa'),
+    path('mostrar_mapa/<int:calle_id>/', mostrar_mapa, name='mostrar_mapa'),
 
 ]
