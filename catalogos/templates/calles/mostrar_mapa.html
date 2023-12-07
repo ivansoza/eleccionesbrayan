@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block titulo %}Mapa de Calle{% endblock titulo %}
+{% block dashboard %}
+<a class="btn btn-sm btn-icon1 " href="{% url "menu" %}">
+  <i class="fas fa-arrow-left"></i>
+</a>
+{% endblock dashboard %}
+
+{% block contenido %}
+
+
+<div class="dashboard-header">
+    <h1 class="dashboard-title">Mapa de Calle</h1>
+</div>   
+
+
+<div id="mapid" style="height: 400px;"></div>
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+    var mymap = L.map('mapid').setView([{{ latitud }}, {{ longitud }}], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(mymap);
+    var marker = L.marker([{{ latitud }}, {{ longitud }}]).addTo(mymap);
+</script>
+{% endblock contenido %}

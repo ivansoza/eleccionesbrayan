@@ -1,5 +1,5 @@
 from django import forms
-from .models import Publicidad
+from .models import Calle, Publicidad
 from usuarios.models import Seccion
 
 
@@ -31,3 +31,26 @@ class PublicidadForm(forms.ModelForm):
         # Asegúrate de que 'seccion' use el queryset correcto si necesitas filtrar las secciones disponibles
         self.fields['seccion'].queryset = Seccion.objects.all()
         # Otras inicializaciones si son necesarias
+
+
+class CalleForm(forms.ModelForm):
+
+    ruta = forms.CharField(widget=forms.HiddenInput(), required=False)
+
+    latitud = forms.FloatField(
+        required=False,
+        widget=forms.NumberInput(attrs={'readonly': 'readonly'})
+    )
+    longitud = forms.FloatField(
+        required=False,
+        widget=forms.NumberInput(attrs={'readonly': 'readonly'})
+    )
+
+    class Meta:
+        model = Calle
+        fields = ['nombre', 'seccion', 'meta_promovidos', 'latitud', 'longitud', 'ruta']
+        widgets = {
+            'nombre': forms.TextInput(attrs={'placeholder': 'Nombre de la calle'}),
+            'seccion': forms.Select(attrs={'placeholder': 'Sección'}),
+            'meta_promovidos': forms.NumberInput(attrs={'placeholder': 'Meta de promovidos'}),
+        }

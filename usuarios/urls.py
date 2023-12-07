@@ -37,7 +37,6 @@ urlpatterns = [
 
 
 
-    path('calles/', callesList.as_view(), name='calle_list'),
 
 
     path('update_user_status/<int:user_id>/', update_user_status, name='update_user_status'),

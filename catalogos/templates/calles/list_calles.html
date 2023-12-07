@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 {% block titulo %}
-Secciones
+Calles
 {% endblock titulo %}
 
 {% block dashboard %}
@@ -30,20 +30,26 @@ Secciones
             </tr>
         </thead>
         <tbody>
-            {% for calle in calles %}
+            {% for calle in calle %}
             <tr>
                 <td>{{ calle.nombre }}</td>
                 <td>{{ calle.seccion }}</td>
                 <td>{{ calle.latitud }} </td>
                 <td>{{ calle.longitud }}</td>
             <td>
-            {{seccion.meta_promovidos}}
+            {{calle.meta_promovidos}}
             </td>
                 <td>
                     <a class="btn btn-sm btn-icon1 tooltip-link" href="#" data-title="Editar Ubicación">
                         <i class="fas fa-edit"></i>
-                    </a>                
-                    </td>
+                    </a>            
+                    
+                    <a class="btn btn-sm btn-icon1 tooltip-link" href="{% url 'mostrar_mapa' calle.latitud calle.longitud %}" data-title="Ver Mapa">
+                        <i class="fas fa-eye"></i>
+                    </a>
+                
+                
+                </td>
                     
             </tr>
             {% endfor %}
@@ -72,7 +78,7 @@ Secciones
     className: 'btn btn-custom1 mr-2',
     action: function (e, dt, node, config) {
       // Redirigir a la URL relativa a la ubicación actual
-      window.location.href = '{% url "seccion_create" %}';
+      window.location.href = '{% url "calle_create" %}';
    }
   },
   

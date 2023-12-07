@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Promovido, GENERO_CHOICES,prospecto
+from .models import Calle, Promovido, GENERO_CHOICES,prospecto
 from django.core.exceptions import ValidationError
 import datetime
 
@@ -204,4 +204,24 @@ class PromovidoFormNuevo(forms.ModelForm):
             'detalle_problema': forms.Textarea(attrs={'placeholder': 'Detalles del Problema'}),
             'numeroINE': forms.TextInput(attrs={'placeholder': 'Número de INE'}),
             # No es necesario agregar placeholders a los campos de imagen
+        }
+
+
+class CalleForm(forms.ModelForm):
+    latitud = forms.FloatField(
+        required=False,
+        widget=forms.NumberInput(attrs={'readonly': 'readonly'})
+    )
+    longitud = forms.FloatField(
+        required=False,
+        widget=forms.NumberInput(attrs={'readonly': 'readonly'})
+    )
+
+    class Meta:
+        model = Calle
+        fields = ['nombre', 'seccion', 'meta_promovidos', 'latitud', 'longitud']
+        widgets = {
+            'nombre': forms.TextInput(attrs={'placeholder': 'Nombre de la calle'}),
+            'seccion': forms.Select(attrs={'placeholder': 'Sección'}),
+            'meta_promovidos': forms.NumberInput(attrs={'placeholder': 'Meta de promovidos'}),
         }

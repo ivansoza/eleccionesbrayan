@@ -1,11 +1,14 @@
 from typing import Any
-from .models import Publicidad
-from .forms import PublicidadForm
-from django.views.generic import CreateView, TemplateView
+from .models import Calle, Publicidad
+from .forms import CalleForm, PublicidadForm
+from django.views.generic import CreateView, TemplateView, ListView
 # Create your views here.
 from django.urls import reverse_lazy
 from django.contrib.auth.models import Group
 from usuarios.models import Seccion
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import redirect
+import json
 
 class crearPublicidad(CreateView):
     template_name = 'crearPublicidad.html'
@@ -137,3 +140,52 @@ def postal_code_view_test(request, postal_code):
 
 def pruebacp(request):
     return render(request,"formpostal.html")
+
+
+class callesList(LoginRequiredMixin, ListView):
+    model = Calle
+    template_name = 'calles/list_calles.html'
+    context_object_name = 'calle'
+
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+
+        context['navbar'] = 'seccion'
+        context['seccion'] = 'calle'
+        return context
+    
+    def handle_no_permission(self):
+        # Redirigir a alguna página de error o inicio si el usuario no cumple el test
+        return redirect('templeteDenegado')
+    
+class CalleCreateView(CreateView):
+    model = Calle
+    form_class = CalleForm
+    template_name = 'calles/calle_create.html'
+    success_url = reverse_lazy('calle_list')
+
+    def form_valid(self, form):
+        calle = form.save(commit=False)
+        
+        # Procesar la ruta JSON del formulario
+        ruta_json = form.cleaned_data.get('ruta')
+        if ruta_json:
+            try:
+                # Convertir la cadena JSON en un objeto Python
+                ruta = json.loads(ruta_json)
+                calle.ruta = json.dumps(ruta)  # Guardar la ruta como JSON en el modelo
+            except json.JSONDecodeError:
+                # Manejar el error en caso de que el JSON no sea válido
+                form.add_error('ruta', 'Formato de ruta inválido')
+                return self.form_invalid(form)
+
+        calle.save()
+        return super().form_valid(form)
+
+
+def mostrar_mapa(request, latitud, longitud):
+    latitud = float(latitud)
+    longitud = float(longitud)
+    return render(request, 'calles/mostrar_mapa.html', {'latitud': latitud, 'longitud': longitud})
