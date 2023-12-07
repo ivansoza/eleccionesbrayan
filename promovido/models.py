@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import User
+from catalogos.models import Calle
 from usuarios.models import Seccion
 # Create your models here.
 GENERO_CHOICES = [
@@ -99,8 +100,6 @@ OCUPACIONES_CHOICES = [
     ('Escritor', 'Escritor'),
     ('Otros', 'Otros'),
 ]
-
-    
 
 class prospecto(models.Model):
     usuario = models.ForeignKey(
