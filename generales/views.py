@@ -53,7 +53,8 @@ def menu(request):
         'total_prospectos': TotalProspectos,
         'total_secciones': TotalSecciones,
         'meta_promovidos': meta_promovidos,
-        'porcentaje_alcanzado': porcentaje_alcanzado,  # Añadir esta línea
+        'porcentaje_alcanzado': porcentaje_alcanzado, 
+        'navbar': "home",
     }
 
 

@@ -26,8 +26,6 @@ class Calle(models.Model):
     nombre = models.CharField(max_length=100)
     seccion = models.ForeignKey(Seccion, on_delete=models.CASCADE, related_name='calles_catalogos')
     meta_promovidos = models.IntegerField(default=0)
-    latitud = models.FloatField(blank=True, null=True)
-    longitud = models.FloatField(blank=True, null=True)
     ruta = models.TextField(blank=True, null=True)  # Almacenar la ruta en formato JSON
 
 

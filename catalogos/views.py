@@ -1,7 +1,7 @@
 from typing import Any
 from .models import Calle, Publicidad
 from .forms import CalleForm, PublicidadForm
-from django.views.generic import CreateView, TemplateView, ListView
+from django.views.generic import CreateView, TemplateView, ListView, DetailView
 # Create your views here.
 from django.urls import reverse_lazy
 from django.contrib.auth.models import Group
@@ -10,6 +10,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect
 import json
 from django.shortcuts import render, get_object_or_404
+from django.db.models import Avg, Count
+from django.db.models import Sum
 
 class crearPublicidad(CreateView):
     template_name = 'crearPublicidad.html'
@@ -152,6 +154,16 @@ class callesList(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
+   # Estadísticas
+        total_calles = Calle.objects.count()
+        calles_por_seccion = Calle.objects.values('seccion__nombre').annotate(total=Count('id'))
+        calles_con_ruta = Calle.objects.exclude(ruta='').count()
+        total_meta_promovidos = Calle.objects.aggregate(Sum('meta_promovidos'))
+
+        context['total_calles'] = total_calles
+        context['total_meta_promovidos'] = total_meta_promovidos['meta_promovidos__sum']
+        context['calles_por_seccion'] = calles_por_seccion
+        context['calles_con_ruta'] = calles_con_ruta
 
         context['navbar'] = 'seccion'
         context['seccion'] = 'calle'
@@ -161,13 +173,28 @@ class callesList(LoginRequiredMixin, ListView):
         # Redirigir a alguna página de error o inicio si el usuario no cumple el test
         return redirect('templeteDenegado')
     
+
+    
 class CalleCreateView(CreateView):
     model = Calle
     form_class = CalleForm
     template_name = 'calles/calle_create.html'
     success_url = reverse_lazy('calle_list')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['navbar'] = 'seccion'
+        context['seccion'] = 'calle'
+        return context
 
 
 def mostrar_mapa(request, calle_id):
     calle = get_object_or_404(Calle, pk=calle_id)
-    return render(request, 'calles/mostrar_mapa.html', {'calle': calle})
+
+    context = {
+        'calle': calle,
+        'navbar': 'publicidad',  # Cambia esto según la página activa
+        'seccion': 'ver_publicidad'
+    }
+    
+    return render(request, 'calles/mostrar_mapa.html', context)

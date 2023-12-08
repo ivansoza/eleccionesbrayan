@@ -16,14 +16,46 @@ Calles
     <h1 class="dashboard-title">Lista de Calles</h1>
 </div>
 
+
+<div class="row">
+    <div class="col-lg-6 col-6">
+      <!-- small box -->
+      <div class="small-box bg-info">
+        <div class="inner">
+          <h3>{{ total_calles }}</h3>
+
+          <p>Calles</p>
+        </div>
+        <div class="icon">
+            <i class="fas fa-road"></i>
+        </div>
+      </div>
+    </div>
+    <!-- ./col -->
+    <div class="col-lg-6 col-6">
+      <!-- small box -->
+      <div class="small-box bg-success">
+        <div class="inner">
+          <h3>{{total_meta_promovidos}}<sup style="font-size: 20px"></sup></h3>
+
+          <p>Meta de Promovidos Totales</p>
+        </div>
+        <div class="icon">
+            <i class="fas fa-users"></i>
+        </div>
+      </div>
+    </div>
+
+  </div>
+ 
+
 <div class="table-responsive">
     <table id="tabla" class="table table-striped table-bordered display responsive nowrap" style="width:100%">
         <thead>
             <tr>
                 <th>Nombre de la Calle</th>
                 <th>Sección</th>
-                <th>Latitud</th>
-                <th>Longitud</th>
+       
                 <th>Meta de Promovidos</th>
 
                 <th style="width: 5%;">Opciones</th>
@@ -34,8 +66,7 @@ Calles
             <tr>
                 <td>{{ calle.nombre }}</td>
                 <td>{{ calle.seccion }}</td>
-                <td>{{ calle.latitud }} </td>
-                <td>{{ calle.longitud }}</td>
+         
             <td>
             {{calle.meta_promovidos}}
             </td>
@@ -58,8 +89,7 @@ Calles
             <tr>
                 <th>Nombre de la Calle</th>
                 <th>Sección</th>
-                <th>Latitud</th>
-                <th>Longitud</th>
+          
                 <th>Meta de Promovidos</th>
 
                 <th style="width: 5%;">Opciones</th>

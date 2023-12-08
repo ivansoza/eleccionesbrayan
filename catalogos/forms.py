@@ -2,6 +2,7 @@ from django import forms
 from .models import Calle, Publicidad
 from usuarios.models import Seccion
 
+from django.core.validators import RegexValidator
 
 class PublicidadForm(forms.ModelForm):
     seccion = forms.ModelChoiceField(
@@ -34,23 +35,29 @@ class PublicidadForm(forms.ModelForm):
 
 
 class CalleForm(forms.ModelForm):
-
-    ruta = forms.CharField( required=False)
-
-    latitud = forms.FloatField(
-        required=False,
-        widget=forms.NumberInput(attrs={'readonly': 'readonly'})
+    ruta = forms.CharField(
+        required=True,
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Selecciona en el mapa para agregar la ruta',
+            'readonly': 'readonly'
+        })
     )
-    longitud = forms.FloatField(
-        required=False,
-        widget=forms.NumberInput(attrs={'readonly': 'readonly'})
+
+    # Validador para asegurarse de que solo se acepten números enteros positivos y no el número 0
+    positive_integer_validator = RegexValidator(
+        regex=r'^[1-9]\d*$',
+        message="Por favor, ingresa un número entero positivo y no cero."
+    )
+
+    meta_promovidos = forms.CharField(
+        validators=[positive_integer_validator],
+        widget=forms.NumberInput(attrs={'placeholder': 'Meta de promovidos'})
     )
 
     class Meta:
         model = Calle
-        fields = ['nombre', 'seccion', 'meta_promovidos', 'latitud', 'longitud', 'ruta']
+        fields = ['nombre', 'seccion', 'meta_promovidos', 'ruta']
         widgets = {
             'nombre': forms.TextInput(attrs={'placeholder': 'Nombre de la calle'}),
             'seccion': forms.Select(attrs={'placeholder': 'Sección'}),
-            'meta_promovidos': forms.NumberInput(attrs={'placeholder': 'Meta de promovidos'}),
         }
