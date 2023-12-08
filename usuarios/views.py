@@ -435,11 +435,17 @@ class seccionlist(LoginRequiredMixin, UserPassesTestMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        total_secciones = Seccion.objects.count()  # Número total de secciones
+        total_calles = Calle.objects.count() 
         # Añade el total de meta de promovidos a cada sección
         for seccion in context['secciones']:
             total_meta_promovidos = Calle.objects.filter(seccion=seccion).aggregate(Sum('meta_promovidos'))['meta_promovidos__sum'] or 0
-            seccion.total_meta_promovidos = total_meta_promovidos
+            numero_de_calles = Calle.objects.filter(seccion=seccion).count()
 
+            seccion.total_meta_promovidos = total_meta_promovidos
+            seccion.numero_de_calles = numero_de_calles  # Añade el número de calles
+        context['total_secciones'] = total_secciones
+        context['total_calles'] = total_calles
         context['navbar'] = 'seccion'
         context['seccion'] = 'secciones'
         return context

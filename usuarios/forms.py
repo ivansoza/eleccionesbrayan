@@ -349,7 +349,6 @@ class SeccionForm(forms.ModelForm):
         self.fields['latitud'].widget.attrs['placeholder'] = 'Ej: 19.432608'
         self.fields['longitud'].widget.attrs['placeholder'] = 'Ej: -99.133209'
 class SeccionFormUpdate(forms.ModelForm):
-    meta_promovidos = forms.IntegerField(validators=[MinValueValidator(0)])
 
     class Meta:
         model = Seccion
