@@ -4,6 +4,8 @@ from django.urls import reverse_lazy
 # Create your views here.from django.urls import reverse_lazy
 from django.views.generic.edit import UpdateView, CreateView
 from django.views.generic.list import ListView
+from django.views.generic.detail import DetailView
+
 from django.contrib.auth.mixins import UserPassesTestMixin
 
 from .forms import CustomUserUpdateForm, CustomUserCreationFormTemplate, CustomCoordinatorCreationFormTemplate, CustomPromotorCreationFormTemplate,CustomCoordinatorResCreationFormTemplate,CustomUserCreationFormTemplateCordiArea,CustomUserCreationFormTemplateCordiSeccion,CustomUserCreationFormTemplatePromotor, SeccionForm, UserStatusForm, \
@@ -18,6 +20,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth import get_user_model
 from promovido.models import Calle
 from django.db.models import Sum
+from django.http import JsonResponse
 
 User = get_user_model()
 
@@ -496,6 +499,16 @@ class SeccionUpdateView(LoginRequiredMixin,UpdateView):
         context['seccion'] = 'secciones'
         return context
     
+class SeccionDetailView(DetailView):
+    model = Seccion
+    template_name = 'seccion/mostrar_seccion.html'  # Especifica tu template aquí
+    context_object_name = 'secciones'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['navbar'] = 'seccion'
+        context['seccion'] = 'secciones'
+        return context
 
 class callesList(LoginRequiredMixin, ListView):
     model = Calle
