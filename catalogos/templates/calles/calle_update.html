@@ -2,20 +2,20 @@
 
 {% load static %}
 {% load crispy_forms_tags %}
-{% block titulo %}Agregar Publicidad{% endblock titulo %}
+
+{% block titulo %}Actualizar Calle{% endblock titulo %}
+
 {% block link %}
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css" />
 <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
 <style>
-
+    /* Aquí puedes añadir estilos CSS adicionales si lo necesitas */
 </style>
 {% endblock link %}
 
 {% block contenido %}
-
-
 <div class="dashboard-header">
-    <h1 class="dashboard-title">Agregar Calle</h1>
+    <h1 class="dashboard-title">Actualizar Calle</h1>
 </div>
 
 <form method="post" enctype="multipart/form-data" class="card p-3 mt-5">
@@ -30,29 +30,23 @@
         <div class="col-md-4">
             {{ form.meta_promovidos|as_crispy_field }}
         </div>
-    
     </div>
     <div class="row">
         <div class="col-md-6">
             {{ form.ruta|as_crispy_field }}
         </div>
-
     </div>
-
-
-    <button type="submit" class="btn btn-success">Guardar Sección</button>
+    <button type="submit" class="btn btn-success">Actualizar Calle</button>
 </form>
 
 <div class="card p-3 mt-5">
     <div id="map" style="height: 450px;"></div>
 </div>
 {% endblock contenido %}
+
 {% block script1 %}
-
-    <script src="{% static "plugins/jquery/jquery.min.js" %}"></script>
-    <script src="{% static "dist/js/adminlte.js" %}"></script>
-
-
+    <script src="{% static 'plugins/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'dist/js/adminlte.js' %}"></script>
     <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
     <script>
@@ -69,27 +63,25 @@
             showAlternatives: false
         }).addTo(map);
 
+
+
         map.on('click', function(e) {
             if (waypoints.length < 2) {
                 waypoints.push(L.latLng(e.latlng.lat, e.latlng.lng));
                 routingControl.setWaypoints(waypoints);
-    
+
                 if (waypoints.length === 2) {
-                    // Escuchar cuando se encuentra una ruta
                     routingControl.on('routesfound', function(e) {
                         var routes = e.routes;
                         var summary = routes[0].summary;
-                        // Aquí se puede mejorar la lógica para elegir la mejor ruta si hay varias
-                        // Convertir la ruta en una cadena de texto JSON para almacenarla en el campo del formulario
                         var rutaJson = JSON.stringify(routes[0].coordinates);
-                        // Suponiendo que tienes un campo oculto en tu formulario con el id 'id_ruta'
                         document.getElementById('id_ruta').value = rutaJson;
-    
-
                     });
                 }
             }
         });
+
+
         var geojsonData = {
             "type": "FeatureCollection",
             "features": [
@@ -147,9 +139,6 @@
             }
         }).addTo(map);
 
-        // Centrar el mapa en la línea
-        map.fitBounds(geojsonLayer.getBounds());
-
 
     document.addEventListener('DOMContentLoaded', function () {
         var nombreInput = document.querySelector('[name="nombre"]'); // Asegúrate de que este selector coincida con tu campo de nombre
@@ -159,7 +148,6 @@
             });
         }
     });
+        // Aquí puedes agregar la carga de la ruta existente si es necesario
     </script>
-
-
-{% endblock script1%}
+{% endblock script1 %}

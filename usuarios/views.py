@@ -17,6 +17,8 @@ from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth import get_user_model
 from promovido.models import Calle
+from django.db.models import Sum
+
 User = get_user_model()
 
 
@@ -422,37 +424,29 @@ class UserListViewCordiPromo(LoginRequiredMixin, ListView):
 
 
 
-class seccionlist(LoginRequiredMixin,UserPassesTestMixin, ListView):
+class seccionlist(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = Seccion
     template_name = 'seccion/list_seccion.html'
     context_object_name = 'secciones'
 
-
     def test_func(self):
-        return self.request.user.groups.filter(name__in=['Administrador', 'Candidato','Coordinador General']).exists()
+        return self.request.user.groups.filter(name__in=['Administrador', 'Candidato', 'Coordinador General']).exists()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        
-        # Añade el conteo de promovidos a cada sección en el contexto
-        secciones_con_promovidos = []
+
+        # Añade el total de meta de promovidos a cada sección
         for seccion in context['secciones']:
-            promovidos_count = prospecto.objects.filter(seccion=seccion, status="Promovido").count()
-            secciones_con_promovidos.append({
-                'seccion': seccion,
-                'promovidos_count': promovidos_count,
-                'porcentaje_alcanzado': (promovidos_count / seccion.meta_promovidos * 100) if seccion.meta_promovidos > 0 else 0
-            })
-        
-        context['secciones_con_promovidos'] = secciones_con_promovidos
+            total_meta_promovidos = Calle.objects.filter(seccion=seccion).aggregate(Sum('meta_promovidos'))['meta_promovidos__sum'] or 0
+            seccion.total_meta_promovidos = total_meta_promovidos
+
         context['navbar'] = 'seccion'
         context['seccion'] = 'secciones'
         return context
-    
+
     def handle_no_permission(self):
         # Redirigir a alguna página de error o inicio si el usuario no cumple el test
-        return redirect('templeteDenegado')
-    
+        return redirect('templateDenegado')
 
 
     

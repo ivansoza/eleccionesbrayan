@@ -13,7 +13,6 @@ class Seccion(models.Model):
     descripcion = models.TextField()
     latitud = models.FloatField()
     longitud = models.FloatField()
-    meta_promovidos = models.IntegerField(default=0)  # Agregado con un valor predeterminado
 
     def __str__(self):
         return self.nombre

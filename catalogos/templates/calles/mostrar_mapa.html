@@ -15,7 +15,12 @@
 {% endblock dashboard %}
 {% block contenido %}
 <div class="dashboard-header">
-    <h1 class="dashboard-title">Mapa de Calle</h1>
+    <h1 class="dashboard-title">
+        Mapa de Calle: 
+        <strong style="color: #3D5B2E;">{{ calle.nombre }}</strong> 
+        Sección: 
+        <strong style="color: #3D5B2E;">{{ calle.seccion }}</strong>
+    </h1>
 </div>
 
 

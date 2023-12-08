@@ -36,9 +36,9 @@ Secciones
                 <td>{{ seccion.descripcion }}</td>
                 <td>{{ seccion.latitud }} </td>
                 <td>{{ seccion.longitud }}</td>
-            <td>
-            {{seccion.meta_promovidos}}
-            </td>
+                <td>{{ seccion.total_meta_promovidos }}</td>
+
+        
                 <td>
                     <a class="btn btn-sm btn-icon1 tooltip-link" href="{% url 'seccion_update' seccion.id %}" data-title="Editar Ubicación">
                         <i class="fas fa-edit"></i>

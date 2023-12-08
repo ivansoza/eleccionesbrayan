@@ -1,7 +1,7 @@
 from typing import Any
 from .models import Calle, Publicidad
 from .forms import CalleForm, PublicidadForm
-from django.views.generic import CreateView, TemplateView, ListView, DetailView
+from django.views.generic import CreateView, TemplateView, ListView, DetailView, UpdateView
 # Create your views here.
 from django.urls import reverse_lazy
 from django.contrib.auth.models import Group
@@ -187,14 +187,25 @@ class CalleCreateView(CreateView):
         context['seccion'] = 'calle'
         return context
 
+class CalleUpdateView(UpdateView):
+    model = Calle
+    form_class = CalleForm
+    template_name = 'calles/calle_update.html'  # Debes crear este template
+    success_url = reverse_lazy('calle_list')  # Asegúrate de que esta URL exista
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['navbar'] = 'seccion'
+        context['seccion'] = 'calle'
+        return context
 
 def mostrar_mapa(request, calle_id):
     calle = get_object_or_404(Calle, pk=calle_id)
 
     context = {
         'calle': calle,
-        'navbar': 'publicidad',  # Cambia esto según la página activa
-        'seccion': 'ver_publicidad'
+        'navbar': 'seccion',  # Cambia esto según la página activa
+        'seccion': 'calle'
     }
     
     return render(request, 'calles/mostrar_mapa.html', context)

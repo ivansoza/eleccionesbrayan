@@ -23,7 +23,7 @@ class Publicidad(models.Model):
     
 
 class Calle(models.Model):
-    nombre = models.CharField(max_length=100)
+    nombre = models.CharField(max_length=100, unique=True)
     seccion = models.ForeignKey(Seccion, on_delete=models.CASCADE, related_name='calles_catalogos')
     meta_promovidos = models.IntegerField(default=0)
     ruta = models.TextField(blank=True, null=True)  # Almacenar la ruta en formato JSON

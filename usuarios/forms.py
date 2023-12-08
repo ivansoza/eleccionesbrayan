@@ -330,10 +330,9 @@ class CustomUserCreationFormTemplatePromotor(UserCreationForm):
                  field.widget.attrs.update({'class': 'form-control'})
 
 class SeccionForm(forms.ModelForm):
-    meta_promovidos = forms.IntegerField(validators=[MinValueValidator(0)])
     class Meta:
         model = Seccion
-        fields = ['nombre', 'descripcion', 'latitud', 'longitud', 'meta_promovidos']
+        fields = ['nombre', 'descripcion', 'latitud', 'longitud']
         help_texts = {
             'longitud': 'Puedes capturar la Longitud con alguna de las opciones que se muestran en la parte inferior.',
             'latitud': 'Puedes capturar la Latitud con alguna de las opciones que se muestran en la parte inferior.',
@@ -349,13 +348,12 @@ class SeccionForm(forms.ModelForm):
         self.fields['descripcion'].widget.attrs['placeholder'] = 'Descripción breve de la sección'
         self.fields['latitud'].widget.attrs['placeholder'] = 'Ej: 19.432608'
         self.fields['longitud'].widget.attrs['placeholder'] = 'Ej: -99.133209'
-        self.fields['meta_promovidos'].widget.attrs['placeholder'] = 'Meta de promovidos para la sección'
 class SeccionFormUpdate(forms.ModelForm):
     meta_promovidos = forms.IntegerField(validators=[MinValueValidator(0)])
 
     class Meta:
         model = Seccion
-        fields = ['latitud', 'longitud','meta_promovidos']
+        fields = ['latitud', 'longitud']
         help_texts = {
         'longitud': 'Puedes capturar la Longitud con alguna de las opciones que se muestran en la parte inferior.',
         'latitud': 'Puedes capturar la Latitud  con alguna de las opciones que se muestran en la parte inferior.',

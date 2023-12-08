@@ -2,7 +2,7 @@
 
 from django.urls import path
 from .views import CalleCreateView, crearPublicidad, mapaPublicidad, mostrar_mapa
-from .views import postal_code_view,postal_code_view_test,pruebacp, callesList
+from .views import postal_code_view,postal_code_view_test,pruebacp, callesList,CalleUpdateView
 
 urlpatterns = [
     # ... tus otras urls
@@ -16,5 +16,6 @@ urlpatterns = [
     path('calles/', callesList.as_view(), name='calle_list'),
     path('calle/create/', CalleCreateView.as_view(), name='calle_create'),
     path('mostrar_mapa/<int:calle_id>/', mostrar_mapa, name='mostrar_mapa'),
+    path('calle/update/<int:pk>/', CalleUpdateView.as_view(), name='calle_update'),
 
 ]
