@@ -180,12 +180,20 @@ class PromovidoFormNuevo(forms.ModelForm):
         widget=forms.NumberInput(attrs={'placeholder': 'Ejemplo: -99.133209', 'readonly': 'readonly'})
     )
 
+    calle = forms.ModelChoiceField(
+        queryset=Calle.objects.all(),
+        required=True,  # Esto hará que el campo sea requerido en el formulario
+        label='Calle',
+        empty_label="Seleccione una calle",  # Mensaje para la opción por defecto que no tiene valor
+        widget=forms.Select(attrs={'class': 'mi-clase-select-css'})  # Aquí puedes agregar más atributos si es necesario
+    )
+
     class Meta:
         model = prospecto
         fields = [
-            'nombre', 'apellido_paterno', 'apellido_materno', 'genero', 'fechaNacimiento', 'calle', 'seccion', 'ocupacion', 'celular', 'telefono', 'email', 'tipo_solicitud', 
-            'detalle_solicitud', 'problema_tipo', 'detalle_problema', 'foto_promovido', 'foto_ine_frontal', 
-            'foto_ine_reverso', 'numeroINE', 'latitud', 'longitud'
+            'nombre', 'apellido_paterno', 'apellido_materno', 'genero', 'fechaNacimiento', 'calle', 'ocupacion', 'celular', 'telefono', 'email', 'tipo_solicitud', 
+            'detalle_solicitud', 'problema_tipo', 'detalle_problema', 'foto_promovido', 
+            'latitud', 'longitud'
         ]
         widgets = {
             'nombre': forms.TextInput(attrs={'placeholder': 'Nombre'}),
@@ -193,7 +201,6 @@ class PromovidoFormNuevo(forms.ModelForm):
             'apellido_materno': forms.TextInput(attrs={'placeholder': 'Apellido Materno'}),
             'genero': forms.Select(attrs={'placeholder': 'Selecciona un Género'}),
           
-            'seccion': forms.Select(attrs={'placeholder': 'Sección'}),
             'ocupacion': forms.Select(attrs={'placeholder': 'Ocupación'}),
             'celular': forms.TextInput(attrs={'placeholder': 'Número de Celular'}),
             'telefono': forms.TextInput(attrs={'placeholder': 'Número de Teléfono'}),
@@ -202,8 +209,6 @@ class PromovidoFormNuevo(forms.ModelForm):
             'detalle_solicitud': forms.Textarea(attrs={'placeholder': 'Detalles de la Solicitud'}),
             'problema_tipo': forms.Select(attrs={'placeholder': 'Tipo de Problema'}),
             'detalle_problema': forms.Textarea(attrs={'placeholder': 'Detalles del Problema'}),
-            'numeroINE': forms.TextInput(attrs={'placeholder': 'Número de INE'}),
-            # No es necesario agregar placeholders a los campos de imagen
         }
 
 

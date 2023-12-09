@@ -72,20 +72,7 @@
 
 <form method="post" enctype="multipart/form-data" class="card p-3 mt-5">
     {% csrf_token %}
-    <div class="row">
-       
-        <div class="col-sm-12 col-md-6 col-lg-6 position-relative">
-            {{ form.numeroINE|as_crispy_field }}
-            <span id="numeroINE-error" class="text-danger mensaje-error"></span>
-            <button type="button" class="btn  position-absolute end-0 top-50 translate-middle-y" data-toggle="modal" data-target="#ayudaModal" style="margin-top: 9px;" >
-                <i class="fas fa-question-circle fa-lg" style="color: #6E282D;" data-title="Ayuda"></i> 
-            </button>
-        </div>
-    
-        <div class="col-sm-12 col-md-6 col-lg-6">
-            {{form.seccion|as_crispy_field}}
-        </div>
-    </div>
+
     <div class="row">
         
        
@@ -150,12 +137,7 @@
         <div class="col-sm-12 col-md-4 col-lg-4">
             {{form.foto_promovido|as_crispy_field}}
         </div>
-        <div class="col-sm-12 col-md-4 col-lg-4">
-            {{form.foto_ine_frontal|as_crispy_field}}
-        </div>
-        <div class="col-sm-12 col-md-4 col-lg-4">
-            {{form.foto_ine_reverso|as_crispy_field}}
-        </div>
+
     </div>       
     <div class="row">
        
@@ -333,42 +315,7 @@
         initMapModal();
     });
 </script>
-<script>
-    jQuery(document).ready(function() {
-        var numeroINEInput = jQuery('#id_numeroINE');
-        var numeroINEError = jQuery('#numeroINE-error');
 
-        var verificacionInterval;
-
-        numeroINEInput.on('input', function() {
-            clearInterval(verificacionInterval);
-
-            var numeroINEValue = numeroINEInput.val();
-
-            if (numeroINEValue.length === 13) {
-                verificacionInterval = setInterval(function() {
-                    jQuery.ajax({
-                        url: '{% url "verificar_numero_ine" %}',
-                        method: 'POST',
-                        data: { 'numeroINE': numeroINEValue },
-                        success: function(data) {
-                            if (data.existe) {
-                                numeroINEError.text('¡Este número de INE ya existe!');
-                            } else {
-                                numeroINEError.text('');
-                            }
-                        },
-                        error: function() {
-                            console.error('Error al verificar el número de INE.');
-                        }
-                    });
-                }, 1000);
-            } else {
-                numeroINEError.text('');
-            }
-        });
-    });
-</script>
 
 <script>
     $(document).ready(function () {
