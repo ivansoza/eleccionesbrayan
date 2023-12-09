@@ -148,11 +148,10 @@
             {{form.longitud|as_crispy_field}}
         </div>
     </div>     
+        <div class="form-group">
+            <button type="button" class="btn btn-primary" id="botonAbrirModal">Seleccionar en Mapa</button>
+        </div>
 
-    <div class="form-group">
-        <button type="button" onclick="obtenerUbicacionActual()" class="btn btn-primary">Capturar Ubicación Actual</button>
-        <button type="button" class="btn btn-primary" onclick="recargarMapa();" data-toggle="modal" data-target="#mapModal">Seleccionar en Mapa</button>
-    </div>
 
         <button class="btn btn-custom float-end btn-success" type="submit">Guardar</button>
         <br>
@@ -222,10 +221,13 @@
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         var calleSelect = document.getElementById('id_calle');
         var seccionesCoords = {{ secciones_coords|safe }};
+        var botonAbrirModal = document.getElementById('botonAbrirModal');
+        var mapModalElement = document.getElementById('mapModalContent');
 
         calleSelect.addEventListener('change', function() {
             var calleId = this.value;
@@ -236,132 +238,68 @@
         });
 
         function actualizarMapa(lat, lng) {
-            // Asegúrate de que 'mapModal' es la instancia de tu mapa y 'marker' es el marcador que deseas mover
             if (mapModal && marker) {
                 var nuevaUbicacion = new L.LatLng(lat, lng);
-                marker.setLatLng(nuevaUbicacion); // Actualiza la ubicación del marcador
-                mapModal.panTo(nuevaUbicacion); // Centra el mapa en la nueva ubicación
+                marker.setLatLng(nuevaUbicacion);
+                mapModal.setView(nuevaUbicacion, 16);
             }
         }
-    });
-</script>
-<script>
 
-    var mapModal;
-    var marker;
-    function recargarMapa() {
-        if (mapModal) {
-            mapModal.remove();  // Elimina el mapa actual
-        }
-        initMapModal();  // Inicializa el mapa nuevamente
-    }
-
-    
-    function initMapModal() {
-        // Muestra el indicador de carga
-        $('#loadingIndicator').show();
-
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(function (position) {
-                var latitudActual = position.coords.latitude;
-                var longitudActual = position.coords.longitude;
-
-                mapModal = L.map('mapModalContent').setView([latitudActual, longitudActual], 13);
-                configurarMapa();
-
-                // Oculta el indicador de carga después de que el mapa se haya cargado
-                $('#loadingIndicator').hide();
-            }, function () {
-                // Si falla la geolocalización, usa una ubicación predeterminada
-                mapModal = L.map('mapModalContent').setView([19.4091914, -98.1503753], 13);
-                configurarMapa();
-
-                // Oculta el indicador de carga después de que el mapa se haya cargado
-                $('#loadingIndicator').hide();
-            });
-        } else {
-            // Si la geolocalización no está disponible, usa una ubicación predeterminada
-            mapModal = L.map('mapModalContent').setView([19.4091914, -98.1503753], 13);
-            configurarMapa();
-
-            // Oculta el indicador de carga después de que el mapa se haya cargado
-            $('#loadingIndicator').hide();
-        }
-    }
-
-    
-    function configurarMapa() {
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(mapModal);
-    
-        mapModal.on('click', function(e) {
-            document.getElementById('id_latitud').value = e.latlng.lat;
-            document.getElementById('id_longitud').value = e.latlng.lng;
-    
-            if (marker) {
-                mapModal.removeLayer(marker);
-            }
-    
-            marker = L.marker([e.latlng.lat, e.latlng.lng]).addTo(mapModal);
-        });
-    }
-
-    function obtenerUbicacionActual() {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(function(position) {
-                var latitud = position.coords.latitude;
-                var longitud = position.coords.longitude;
-
-                // Actualiza los campos del formulario
-                document.getElementById('id_latitud').value = latitud;
-                document.getElementById('id_longitud').value = longitud;
-
-                // Centra el mapa y coloca un marcador en la ubicación actual
-                if (!mapModal) {
-                    initMapModal();
+        botonAbrirModal.addEventListener('click', function() {
+            var calleId = calleSelect.value;
+            if (!calleId) {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Por favor selecciona una calle',
+                    icon: 'error',
+                    confirmButtonText: 'Ok'
+                });
+            } else {
+                var coords = seccionesCoords[calleId];
+                if (coords) {
+                    $('#mapModal').modal('show');
                 }
-                mapModal.setView([latitud, longitud], 13);
+            }
+        });
+
+        $('#mapModal').on('shown.bs.modal', function () {
+            var calleId = calleSelect.value;
+            var coords = seccionesCoords[calleId];
+            if (coords) {
+                initMapModal(coords.lat, coords.lng);
+            }
+        });
+
+        var mapModal;
+        var marker;
+
+        function initMapModal(lat, lng) {
+            if (!mapModal) {
+                mapModal = L.map(mapModalElement).setView([lat, lng], 16);
+                configurarMapa();
+            } else {
+                mapModal.setView([lat, lng], 16);
+            }
+
+
+        }
+
+        function configurarMapa() {
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(mapModal);
+
+            mapModal.on('click', function(e) {
                 if (marker) {
                     mapModal.removeLayer(marker);
                 }
-                marker = L.marker([latitud, longitud]).addTo(mapModal);
-            });
-        } else {
-            alert('La geolocalización no es compatible en este navegador.');
-        }
-    }
-
-    // Inicializa el mapa cuando se muestra el modal
-    $('#mapModal').on('shown.bs.modal', function () {
-        initMapModal();
-    });
-</script>
-
-
-<script>
-    $(document).ready(function () {
-        var circuloResaltador = $('#circuloResaltador');
-
-        function mostrarCirculo() {
-            circuloResaltador.fadeIn(500, function () {
-                circuloResaltador.fadeOut(500);
+                marker = L.marker([e.latlng.lat, e.latlng.lng]).addTo(mapModal);
+                document.getElementById('id_latitud').value = e.latlng.lat;
+                document.getElementById('id_longitud').value = e.latlng.lng;
             });
         }
-
-        // Muestra y oculta el círculo cada 1 segundo (ajusta según sea necesario)
-        var intervalo = setInterval(mostrarCirculo, 1000);
-
-        // Detén el intervalo después de n repeticiones (ajusta según sea necesario)
-        var repeticiones = 30;
-        setTimeout(function () {
-            clearInterval(intervalo);
-            circuloResaltador.hide(); // Asegúrate de que esté oculto al final
-        }, repeticiones * 2000); // Multiplica el número de repeticiones por 2000 ms (1 segundo de fadeIn + 1 segundo de fadeOut)
     });
 </script>
-
-
 <script>
     $(document).ready(function() {
       $('#date').on('input', function() {
