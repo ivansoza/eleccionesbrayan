@@ -182,10 +182,9 @@ class PromovidoFormNuevo(forms.ModelForm):
 
     calle = forms.ModelChoiceField(
         queryset=Calle.objects.all(),
-        required=True,  # Esto hará que el campo sea requerido en el formulario
         label='Calle',
-        empty_label="Seleccione una calle",  # Mensaje para la opción por defecto que no tiene valor
-        widget=forms.Select(attrs={'class': 'mi-clase-select-css'})  # Aquí puedes agregar más atributos si es necesario
+        widget=forms.Select(attrs={'id': 'id_calle'}),  # Asegúrate de que el id sea único y correcto
+        required=True
     )
 
     class Meta:

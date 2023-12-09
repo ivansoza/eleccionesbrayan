@@ -414,6 +414,9 @@ class CreatePromovidoNuevo(CreateView):
         return reverse('lista_promovidos')
 
     def get_context_data(self, **kwargs):
+
+        secciones = Seccion.objects.all()
+        context['secciones_coords'] = {seccion.calle_set.first().id: {'lat': seccion.latitud, 'lng': seccion.longitud} for seccion in secciones}
         context = super().get_context_data(**kwargs)
         context['navbar'] = 'promovidos'  # Cambia esto según la página activa
         context['seccion'] = 'ver_promovidos' 
