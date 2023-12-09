@@ -4,6 +4,7 @@ from django.contrib.auth import logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView
 from django.urls import reverse_lazy
+from catalogos.models import Calle
 from promovido.models import prospecto
 from django.http import JsonResponse
 from promovido.models import prospecto
@@ -47,6 +48,7 @@ def menu(request):
     # Calcula el porcentaje de la meta alcanzada
     porcentaje_alcanzado = (ProspectosPromovidos / meta_promovidos * 100) if meta_promovidos else 0
     porcentaje_alcanzado = min(porcentaje_alcanzado, 100)  # Asegura que no exceda el 100%
+    TotalCalles = Calle.objects.all().count()
 
     context = {
         'prospectos_promovidos': ProspectosPromovidos,
@@ -55,6 +57,8 @@ def menu(request):
         'meta_promovidos': meta_promovidos,
         'porcentaje_alcanzado': porcentaje_alcanzado, 
         'navbar': "home",
+        'total_calles': TotalCalles,  # Agrega esta línea para incluir el total de calles
+
     }
 
 
