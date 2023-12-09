@@ -21,6 +21,7 @@ from django.contrib.auth import get_user_model
 from promovido.models import Calle
 from django.db.models import Sum
 from django.http import JsonResponse
+import json
 
 User = get_user_model()
 
@@ -501,15 +502,33 @@ class SeccionUpdateView(LoginRequiredMixin,UpdateView):
     
 class SeccionDetailView(DetailView):
     model = Seccion
-    template_name = 'seccion/mostrar_seccion.html'  # Especifica tu template aquí
+    template_name = 'seccion/mostrar_seccion.html'
     context_object_name = 'secciones'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        seccion = self.get_object()
+
+        # Obtiene todas las calles asociadas con la sección
+        calles = Calle.objects.filter(seccion=seccion)
+
+        # Calcula el total de calles
+        total_calles = calles.count()
+
+        rutas_con_nombre = []
+        for calle in calles:
+            if calle.ruta:
+                ruta = json.loads(calle.ruta)
+                rutas_con_nombre.append({
+                    'nombre': calle.nombre,
+                    'ruta': ruta
+                })
+
+        context['rutas'] = rutas_con_nombre
+        context['total_calles'] = total_calles  # Agrega el total de calles al contexto
         context['navbar'] = 'seccion'
         context['seccion'] = 'secciones'
         return context
-
 class callesList(LoginRequiredMixin, ListView):
     model = Calle
     template_name = 'calles/list_calles.html'

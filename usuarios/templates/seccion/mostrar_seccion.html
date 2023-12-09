@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
+{% load static %}
+
 {% load crispy_forms_tags %}
-{% block titulo %}Mapa de Promovidos{% endblock titulo %}
+{% block titulo %}Mapa de las Secciones{% endblock titulo %}
 {% block dashboard %}
 <a class="btn btn-sm btn-icon1 " href="{% url "seccion_list" %}">
   <i class="fas fa-arrow-left"></i>
@@ -17,51 +19,20 @@
     </h1>
 </div>
 <div class="row">
-    <div class="col-lg-4 col-6">
-      <!-- small box -->
-      <div class="small-box bg-info">
+<div class="col-lg-12 col-12">
+    <!-- small box -->
+    <div class="small-box bg-info">
         <div class="inner">
-          <h3>{{ contador_global }}</h3>
+            <h3>{{ total_calles }}</h3>
 
-          <p>Promovidos</p>
+            <p>{% if total_calles == 1 %}Calle{% else %}Calles{% endif %}</p>
         </div>
         <div class="icon">
-            <i class="fas fa-users"></i>
+            <i class="fas fa-road"></i>
         </div>
-      </div>
     </div>
-    <!-- ./col -->
-    <div class="col-lg-4 col-6">
-      <!-- small box -->
-      <div class="small-box bg-success">
-        <div class="inner">
-          <h3>{{num_hombres}}<sup style="font-size: 20px"></sup></h3>
+</div>
 
-          <p>Hombres</p>
-        </div>
-        <div class="icon">
-          <i class="fas fa-male"></i>
-        </div>
-      </div>
-    </div>
-    <!-- ./col -->
-    <div class="col-lg-4 col-12">
-      <!-- small box -->
-      <div class="small-box bg-warning">
-        <div class="inner">
-          <h3>{{num_mujeres}}</h3>
-
-          <p>Mujeres</p>
-        </div>
-        <div class="icon">
-          <i class="fas fa-female"></i>
-        </div>
-      </div>
-    </div>
-    <!-- ./col -->
-
-    <!-- ./col -->
-  </div>
 <div class="card p-3 mt-5">
     <div id="map" style="height: 450px;"></div>
 </div>
@@ -87,9 +58,26 @@
         var marker = L.marker([{{ secciones.latitud }}, {{ secciones.longitud }}]).addTo(map);
         marker.bindPopup("<b>Sección: {{ secciones.nombre }}</b><br>{{ secciones.descripcion }}").openPopup();
 
-        // Llama a cargarGeoJson para mostrar las líneas en el mapa
-        cargarGeoJson();
+        {% for calle in rutas %}
+            var ruta = {{ calle.ruta|safe }};
+            var rutaLayer = L.polyline(ruta, {color: 'red'}).addTo(map);
+
+            // Crear un icono personalizado
+            var streetIcon = L.icon({
+                iconUrl: '{% static "icons/maps-icon-19.png" %}',
+                iconSize: [45, 45], // tamaño del icono
+                iconAnchor: [12, 12], // punto del icono que corresponderá a la localización del marcador
+                popupAnchor: [0, -12] // punto desde donde se abrirá el popup
+            });
+
+            // Crear un marcador con el icono personalizado
+            var rutaMarker = L.marker(rutaLayer.getBounds().getCenter(), {icon: streetIcon}).addTo(map);
+            rutaMarker.bindPopup("<b>Calle: {{ calle.nombre }}</b>").openPopup();
+        {% endfor %}
+
+                cargarGeoJson();
     }
+
 
 
     function cargarGeoJson() {
