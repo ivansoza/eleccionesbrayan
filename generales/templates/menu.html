@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 {% load static %}
+{% block link %}
+    <link rel="stylesheet" href=" {% static 'css/cards/style.css' %}?v1.3s">
 
+{% endblock link %}
 
 {% block contenido %}
 
@@ -43,6 +46,27 @@
 .fas {
     margin-right: 5px; /* Espacio entre el ícono y el texto */
 }
+
+
+
+.subtitle-container {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.subtitle {
+  font-size: 1.5em; /* Tamaño menor que tu título principal */
+  color: #333; /* Asumiendo que quieres mantener el color similar al título principal */
+  margin-bottom: 5px; /* Espacio por encima de la línea */
+  font-weight: 500;
+}
+
+.subtitle-underline {
+  width: 40%; /* Ancho más corto que el del título principal para diferenciar */
+  margin: 0 auto; /* Centrar la línea debajo del subtítulo */
+  border: 2px solid #587F45; /* Color de línea similar al título principal */
+}
+
 </style>
 
 
@@ -93,25 +117,7 @@
   <!-- /.col -->
 </div>
 {% if es_administrador  or es_coordinador_general or es_candidato%}
-<div class="card shadow-sm">
-    <div class="card-header bg-primary text-white">
-        Progreso hacia la Meta de Promovidos
-    </div>
-    <div class="card-body">
-        <h5 class="card-title">
-            <i class="fas fa-bullseye"></i> Meta de Promovidos:
-            
-        </h5>
-        <div class="progress mb-3" style="height: 25px; border-radius: 0.5rem;">
-            <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" style="width: {{ porcentaje_alcanzado }}%; transition: width 1s ease-in-out;" aria-valuenow="{{ porcentaje_alcanzado }}" aria-valuemin="0" aria-valuemax="100">
-                <strong>{{ porcentaje_alcanzado | floatformat:2 }}%</strong>
-            </div>
-        </div>
-        <div class="text-muted">
-            <i class="fas fa-user-check"></i> Promovidos: {{ prospectos_promovidos }} / {{ meta_promovidos }}
-        </div>
-    </div>
-</div>
+
 
 
 {% else %}
@@ -119,172 +125,110 @@
 {% endif %}
 
 
-<div class="row">
-    <!-- Left col -->
-    <section class="col-lg-12 connectedSortable">
-      <!-- Custom tabs (Charts with tabs)-->
 
-         <!-- Map card -->
-         <div class="card bg-gradient-primary">
-            <div class="card-header border-0">
-              <h3 class="card-title">
-                <i class="fas fa-map-marker-alt mr-1"></i>
-                Promovidos
-              </h3>
-              <!-- card tools -->
-              <div class="card-tools">
-     
-                <button type="button" class="btn btn-primary btn-sm" data-card-widget="collapse" title="Collapse">
-                  <i class="fas fa-minus"></i>
-                </button>
-              </div>
-              <!-- /.card-tools -->
-            </div>
-            <div class="card-body">
-                <div id="map" style="height: 450px;"></div> <!-- Div para el mapa -->
-          
-            </div>
-            <!-- /.card-body-->
-            {% comment %} <div class="card-footer bg-transparent">
-              <div class="row">
-                <div class="col-4 text-center">
-                  <div id="sparkline-1"></div>
-                  <div class="text-white">Visitors</div>
-                </div>
-                <!-- ./col -->
-                <div class="col-4 text-center">
-                  <div id="sparkline-2"></div>
-                  <div class="text-white">Online</div>
-                </div>
-                <!-- ./col -->
-                <div class="col-4 text-center">
-                  <div id="sparkline-3"></div>
-                  <div class="text-white">Sales</div>
-                </div>
-                <!-- ./col -->
-              </div>
-              <!-- /.row -->
-            </div> {% endcomment %}
-          </div>
-          <!-- /.card -->
-
-          
-
-
-
-
-
-
-    </section>
-    <!-- /.Left col -->
-    <!-- right col (We are only adding the ID to make the widgets sortable)-->
-    <section class="col-lg-5 connectedSortable">
-
-   
-      <!-- /.card -->
-
-      <!-- Calendar -->
-      <div class="card bg-gradient-success">
-        <div class="card-header border-0">
-
-          <h3 class="card-title">
-            <i class="far fa-calendar-alt"></i>
-            Calendar
-          </h3>
-          <!-- tools card -->
-          <div class="card-tools">
-            <!-- button with a dropdown -->
-            <div class="btn-group">
-              <button type="button" class="btn btn-success btn-sm dropdown-toggle" data-toggle="dropdown" data-offset="-52">
-                <i class="fas fa-bars"></i>
-              </button>
-              <div class="dropdown-menu" role="menu">
-                <a href="#" class="dropdown-item">Add new event</a>
-                <a href="#" class="dropdown-item">Clear events</a>
-                <div class="dropdown-divider"></div>
-                <a href="#" class="dropdown-item">View calendar</a>
-              </div>
-            </div>
-            <button type="button" class="btn btn-success btn-sm" data-card-widget="collapse">
-              <i class="fas fa-minus"></i>
-            </button>
-            <button type="button" class="btn btn-success btn-sm" data-card-widget="remove">
-              <i class="fas fa-times"></i>
-            </button>
-          </div>
-          <!-- /. tools -->
-        </div>
-        <!-- /.card-header -->
-        <div class="card-body pt-0">
-          <!--The calendar -->
-          <div id="calendar" style="width: 100%"></div>
-        </div>
-        <!-- /.card-body -->
-      </div>
-      <!-- /.card -->
-    </section>
-    <!-- right col -->
+    <div class="subtitle-container">
+      <h2 class="subtitle">Accesos Directos</h2>
+      <hr class="subtitle-underline">
+    </div>
   </div>
-
-<script>
-function initMap() {
-    var mapCenter = {% if candidato_config %}[{{ candidato_config.latitud }}, {{ candidato_config.longitud }}]{% else %}[19.4091914, -98.1503753]{% endif %};
-    var map = L.map('map').setView(mapCenter, 13);
+<div class="container mt-10">
+  <div class="row justify-content-center">
 
 
+    <div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3 mb-4">
+      <div class="card  card1 mx-auto">
+        <div class="icon">
+          <img src=" {% static 'img/icons/iconPuestaAC.jpg' %} " alt="Icono de imagen" class="imagen-icono">
+        </i></div>
+        <p class="titulo" >Gestión de Usuarios</p>
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
+        <a href="#" class="card-button">Ir</a>
+      </div>
+    </div>
 
-    // Intentar obtener la ubicación de la primera sección del usuario
-    fetch('/ubicacion-primera-seccion')
-        .then(response => {
-            if (response.ok) {
-                return response.json();
-            } else {
-                throw new Error('Sección no disponible');
-            }
-        })
-        .then(data => {
-            // Actualizar la vista del mapa con la ubicación de la primera sección
-            map.setView([data.latitud, data.longitud], data.zoom);
-        })
-        .catch(error => {
-            console.log(error.message);
-            // Manejar situaciones donde no hay una sección disponible
-        });
+      
+      <div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3 mb-4">
+        <div class="card card1 mx-auto">
+          <div class="icon">
+            <img src=" {% static 'img/icons/iconPuestaINM.jpg' %} " alt="Icono de imagen" class="imagen-icono">
+          </div>
+          <p class="titulo" >Consulta de Usuarios</p>
+          <a href="#" class="card-button">Ir</a>
+        </div>
+      </div>
 
-    // Cargar los marcadores de los promovidos en el mapa
-    fetch('/obtener-promovidos')
-        .then(response => response.json())
-        .then(data => {
-            data.forEach(prospecto => {
-                var marker = L.marker([prospecto.latitud, prospecto.longitud]);
-                var popupContent = '<div style="max-width: 200px;">';
+      <div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3 mb-4">
+        <div class="card card1 mx-auto">
+          <div class="icon">
+            <img src=" {% static 'img/icons/iconVP.png' %} " alt="Icono de imagen" class="imagen-icono">
+          </div>
+          <p class="titulo" >Secciones</p>
+          <a href="#" class="card-button">Ir</a>
+        </div>
+      </div>
 
-                // Verifica si la URL de la foto está presente
-                if (prospecto.foto_promovido) {
-                    popupContent += `<img src="${prospecto.foto_promovido}" style="width: 100%; height: auto;">`;
-                } else {
-                    popupContent += '<p>Foto no disponible</p>';
-                }
+      <div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3 mb-4">
+        <div class="card card1 mx-auto">
+          <div class="icon">
+            <img src=" {% static 'img/icons/iconTRAS.png' %} " alt="Icono de imagen" class="imagen-icono">
+          </div>
+          <p class="titulo" >Estadísticas</p>
+          <a href="#" class="card-button">Ir</a>
+        </div>
+      </div>
 
-                // Verifica si los nombres y apellidos están presentes
-                var nombreCompleto = prospecto.nombre || '';
-                if (prospecto.apellido_paterno) nombreCompleto += ' ' + prospecto.apellido_paterno;
-                if (prospecto.apellido_materno) nombreCompleto += ' ' + prospecto.apellido_materno;
 
-                popupContent += `<p>${nombreCompleto}</p></div>`;
-                marker.bindPopup(popupContent).addTo(map);
-            });
-        })
-        .catch(error => console.error('Error:', error));
-}
+      
+      <div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3 mb-4">
+        <div class="card card1 mx-auto">
+          <div class="icon">
+            <img src=" {% static 'img/icons/iconAC.jpg' %} " alt="Icono de imagen" class="imagen-icono">
+        </div>
+          <p class="titulo" >Promovidos</p>
 
-document.addEventListener('DOMContentLoaded', initMap);
+          <a href="#" class="card-button">Ir</a>
+        </div>
+      </div>
 
-</script>
+      <div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3 mb-4">
+        <div class="card card1 mx-auto">
+          <div class="icon">            
+            <img src=" {% static 'img/icons/iconINM.jpg' %} " alt="Icono de imagen" class="imagen-icono">
+          </div>
+          <p class="titulo" >Publicidad</p>
+
+          <a href="#" class="card-button">Ir</a>
+        </div>
+      </div>
+      
+      
+
+      <div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3 mb-4">
+        <div class="card card1 mx-auto">
+          <div class="icon">
+            <img src=" {% static 'img/icons/iconPuestaVP.png' %} " alt="Icono de imagen" class="imagen-icono">
+          
+          </div>
+          <p class="titulo" >Agenda</p>
+          <a href="#" class="card-button">Ir</a>
+        </div>
+      </div>
+
+
+      <div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3 mb-4">
+        <div class="card card1 mx-auto">
+          <div class="icon">
+            <img src=" {% static 'img/icons/iconPuestaTRAS.png' %} " alt="Icono de imagen" class="imagen-icono">
+
+          </div>
+          <p class="titulo" >Ver Calles</p>
+          <a href="#" class="card-button">Ir</a>
+        </div>
+      </div>
+  </div>
+</div>
+
+
 
 
 
@@ -293,8 +237,6 @@ document.addEventListener('DOMContentLoaded', initMap);
 {% block script2 %}
 <script src="{% static "js/jquery-ui.min.js" %}"></script>
 <script src="{% static "js/pages/dashboard.js" %}"></script>
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 {% endblock script2 %}
 
