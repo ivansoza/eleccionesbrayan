@@ -221,6 +221,7 @@
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -228,6 +229,7 @@
         var seccionesCoords = {{ secciones_coords|safe }};
         var botonAbrirModal = document.getElementById('botonAbrirModal');
         var mapModalElement = document.getElementById('mapModalContent');
+        {% comment %} var rutaLayer; ={{secciones_coords|safe}} {% endcomment %}
 
         calleSelect.addEventListener('change', function() {
             var calleId = this.value;
