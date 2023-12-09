@@ -222,7 +222,29 @@
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var calleSelect = document.getElementById('id_calle');
+        var seccionesCoords = {{ secciones_coords|safe }};
 
+        calleSelect.addEventListener('change', function() {
+            var calleId = this.value;
+            var coords = seccionesCoords[calleId];
+            if (coords) {
+                actualizarMapa(coords.lat, coords.lng);
+            }
+        });
+
+        function actualizarMapa(lat, lng) {
+            // Asegúrate de que 'mapModal' es la instancia de tu mapa y 'marker' es el marcador que deseas mover
+            if (mapModal && marker) {
+                var nuevaUbicacion = new L.LatLng(lat, lng);
+                marker.setLatLng(nuevaUbicacion); // Actualiza la ubicación del marcador
+                mapModal.panTo(nuevaUbicacion); // Centra el mapa en la nueva ubicación
+            }
+        }
+    });
+</script>
 <script>
 
     var mapModal;

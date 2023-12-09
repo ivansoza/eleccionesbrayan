@@ -1,5 +1,7 @@
 from django.shortcuts import render
 from django.views.generic import CreateView, TemplateView, ListView, UpdateView
+
+from catalogos.models import Calle
 from .models import Promovido, Ubicacion, prospecto
 from .forms import PromovidoForm, ProspectoForm, ProspectoFormNuevo, ProspectoFormNuevoUpdate,PromovidoFormNuevo
 from django.http import JsonResponse
@@ -414,10 +416,14 @@ class CreatePromovidoNuevo(CreateView):
         return reverse('lista_promovidos')
 
     def get_context_data(self, **kwargs):
-
-        secciones = Seccion.objects.all()
-        context['secciones_coords'] = {seccion.calle_set.first().id: {'lat': seccion.latitud, 'lng': seccion.longitud} for seccion in secciones}
         context = super().get_context_data(**kwargs)
+
+        calles = Calle.objects.select_related('seccion').all()
+
+        context['secciones_coords'] = {
+            calle.id: {'lat': calle.seccion.latitud, 'lng': calle.seccion.longitud}
+            for calle in calles if calle.seccion
+        }        
         context['navbar'] = 'promovidos'  # Cambia esto según la página activa
         context['seccion'] = 'ver_promovidos' 
         return context
