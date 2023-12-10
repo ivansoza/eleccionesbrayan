@@ -194,6 +194,38 @@
 }
 
 
+.dashboard-header1 {
+  text-align: center;
+  padding: 1rem;
+  background: #fff; /* Ajusta esto según tu esquema de colores */
+  margin: 1rem auto; /* Centrado y con margen */
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-title1 {
+  color: #4E4E4E; /* Ajusta el color de fuente según tu diseño */
+  font-size: 1.3rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  position: relative; /* Necesario para la pseudoclase :after */
+}
+
+.dashboard-title1:after {
+  content: ''; /* Esto es necesario para que se muestre el pseudoelemento */
+  display: block; /* Hace que el pseudoelemento sea como una 'caja' que puedas ver */
+  margin: 6px auto 0; /* Espacio por encima de la línea y centrado horizontalmente */
+  height: 2px; /* El grosor de tu línea */
+  width: 40%; /* El ancho de tu línea; ajusta al gusto */
+  background-color: #6E282D; /* El color de tu línea */
+}
+
+.dashboard-subtitle1 {
+  color: #6c757d; /* Un color más suave para el subtítulo */
+  font-size: 1.1em;
+  margin-bottom: 0;
+}
+
 .btn-icon1 {
   background-color: #922E41; 
   color: white; 
