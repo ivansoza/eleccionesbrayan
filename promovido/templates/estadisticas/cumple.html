@@ -1,0 +1,215 @@
+{% extends 'base.html' %}
+{% block titulo %}Lista de Prospectos{% endblock titulo %}
+{% block dashboard %}
+<a class="btn btn-sm btn-icon1 " href="{% url "menu" %}">
+  <i class="fas fa-arrow-left"></i>
+</a>
+{% endblock dashboard %}
+{% block contenido %}
+
+<style>
+  .cumple-hoy {
+    background-color: #f0f8ff;
+    /* Cambia el color de fondo para resaltar el cumpleaños de hoy */
+  }
+
+  #porf{
+    background-color: #53A551;
+    color: white;
+  }
+
+  #porf8{
+    background-color: #4BA0B5;
+    color: white;
+  }
+</style>
+
+<div class="dashboard-header">
+  <h1 class="dashboard-title">Listado de promovidos proximos a cumplir años</h1>
+</div>
+
+<div class="row">
+  <div class="col-lg-6 col-6">
+    <!-- small box -->
+    <div class="small-box bg-info">
+      <div class="inner">
+        <p>Promovidos por felicitar hoy </p>
+        <h3>{{ contador_cumple_hoy }}</h3>
+      </div>
+      <div class="icon">
+        <i class="fas fa-users"></i>
+      </div>
+    </div>
+  </div>
+  <!-- ./col -->
+  <div class="col-lg-6 col-6">
+    <!-- small box -->
+    <div class="small-box bg-success">
+      <div class="inner">
+        <p>Promovidos que cumplen años en este mes</p>
+        <h3>{{ contador_cumple_mes }}<sup style="font-size: 20px"></sup></h3>
+      </div>
+      <div class="icon">
+        <i class="fa-solid fa-cake-candles"></i>
+      </div>
+    </div>
+  </div>
+</div>
+<br>
+<div class="d-flex justify-content-center mb-3 mt-3">
+  <div class="btn-group" role="group">
+      <a href="{% url 'lista-cumple' %}?estado_defensoria=por_notificar" class="btn {% if estado_defensoria == 'por_notificar' or  estado_defensoria  %}btn-custom5{% else %}btn-outline-secondary{% endif %}" id='porf'>
+          Por Felicitar
+      </a>
+      <a href="{% url 'lista-cumple' %}?estado_defensoria=ya_notificado" class="btn {% if estado_defensoria == 'ya_notificado' %}btn-custom6{% else %}btn-outline-secondary{% endif %}" id='porf8'>
+          Ya Felicitados
+      </a>
+  </div>
+</div>
+{% if request.GET.estado_defensoria == 'por_notificar' %}
+
+<div class="table-responsive">
+  <h4>Promovidos por felicitar hoy</h4>
+  <table id="tabla1" class="table table-striped table-bordered display responsive nowrap" style="width:100%">
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Apellido(s)</th>
+        <th>Fecha Nacimiento</th>
+        <th>Genero</th>
+        <th>Calle</th>
+        <th>Celular</th>
+        <th>Edad</th>
+        <th>Dias</th>
+        <th>Opciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for promovido in promovidos %}
+        {% if promovido.es_cumple_hoy %}
+          <tr class="cumple-hoy">
+            <td>{{ promovido.nombre }}</td>
+            <td>{{ promovido.apellido_paterno }} {{ promovido.apellido_materno }}</td>
+            <td>{{ promovido.fechaNacimiento }}</td>
+            <td>{{ promovido.genero }}</td>
+            <td>{{ promovido.calle}}</td>
+            <td>{{ promovido.celular }}</td>
+            <td>{{ promovido.edad}} </td>
+
+            <td><strong>¡Es su cumpleaños hoy!</strong></td>
+            <td>
+              <a class="btn btn-sm btn-primary tooltip-link" href="{% url 'felicitar' promovido.id %}" onclick="abrir_modal_eliminar(this.href); return false;">Felicitar</a>
+            </td>
+          </tr>
+        {% endif %}
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+</div>
+
+<div class="table-responsive">
+  <h4>Promovidos que cumplen años próximamente</h4>
+  <table id="tabla" class="table table-striped table-bordered display responsive nowrap" style="width:100%">
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Apellido(s)</th>
+        <th>Fecha Nacimiento</th>
+        <th>Genero</th>
+        <th>Calle</th>
+        <th>Celular</th>
+        <th>Edad</th>
+        <th>Dias</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for promovido in promovidos %}
+        {% if not promovido.es_cumple_hoy %}
+          <tr>
+            <td>{{ promovido.nombre }}</td>
+            <td>{{ promovido.apellido_paterno }} {{ promovido.apellido_materno }}</td>
+            <td>{{ promovido.fechaNacimiento }}</td>
+            <td>{{ promovido.genero }}</td>
+            <td>{{ promovido.calle}}</td>
+            <td>{{ promovido.celular }}</td>
+            <td>{{ promovido.edad}} </td>
+
+            <td><strong> Faltan {{ promovido.dias_restantes_cumple }} días para su cumpleaños.</strong></td>
+          </tr>
+        {% endif %}
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+{% if request.GET.estado_defensoria == 'ya_notificado' %}
+
+<div class="table-responsive">
+  <h4>Promovidos por felicitar hoy</h4>
+  <table id="tabla" class="table table-striped table-bordered display responsive nowrap" style="width:100%">
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Apellido(s)</th>
+        <th>Fecha Nacimiento</th>
+        <th>Genero</th>
+        <th>Calle</th>
+        <th>Celular</th>
+        <th>Edad</th>
+        <th>Dias</th>
+        <th>Opciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for promovido in promovidos %}
+        {% if promovido.es_cumple_hoy %}
+          <tr class="cumple-hoy">
+            <td>{{ promovido.nombre }}</td>
+            <td>{{ promovido.apellido_paterno }} {{ promovido.apellido_materno }}</td>
+            <td>{{ promovido.fechaNacimiento }}</td>
+            <td>{{ promovido.genero }}</td>
+            <td>{{ promovido.calle}}</td>
+            <td>{{ promovido.celular }}</td>
+            <td>{{ promovido.edad}} </td>
+
+            <td><strong>¡Es su cumpleaños hoy!</strong></td>
+            <td>
+              <a class="btn btn-sm btn-primary tooltip-link" href="{% url 'felicitar' promovido.id %}" onclick="abrir_modal_eliminar(this.href); return false;">Felicitar</a>
+            </td>
+          </tr>
+        {% endif %}
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+
+</div>
+</div>
+<div class="modal fade" id="eliminarextranjero" role="dialog"></div>
+{% endblock contenido%}
+{% block datatable %}
+
+{% endblock datatable %}
+
+{% block script %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script type="text/javascript">
+    var $ = jQuery.noConflict();
+    function abrir_modal_eliminar(url){
+        $('#eliminarextranjero').load(url, function(){
+            $(this).modal('show');
+        })
+    }
+
+    function showBioAlert() {
+        Swal.fire({
+            icon: 'warning',
+            title: '¡Falta Fotografía y/o Firma!',
+            text: 'Necesitas capturar datos biométricos del extranjero antes de realizar la acción.',
+            confirmButtonColor: '#2A4B41'
+        });
+    }
+</script>
+{% endblock script %}

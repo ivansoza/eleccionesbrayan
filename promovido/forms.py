@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Calle, Promovido, GENERO_CHOICES,prospecto
+from .models import Calle, Promovido, GENERO_CHOICES,prospecto, Felicitacion
 from django.core.exceptions import ValidationError
 import datetime
 
@@ -229,3 +229,13 @@ class CalleForm(forms.ModelForm):
             'seccion': forms.Select(attrs={'placeholder': 'Sección'}),
             'meta_promovidos': forms.NumberInput(attrs={'placeholder': 'Meta de promovidos'}),
         }
+
+class felicitacionForms(forms.ModelForm):
+     fecha_felicitacion = forms.DateField(
+        label="Fecha de Felicitación",
+        widget=forms.DateInput(attrs={'type': 'text', 'id': 'date', 'placeholder': "DD/MM/YYYY"}),
+        input_formats=['%d/%m/%Y'],
+      )
+     class Meta:
+        model = Felicitacion
+        fields = '__all__'
