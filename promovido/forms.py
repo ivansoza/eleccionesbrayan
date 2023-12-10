@@ -168,6 +168,21 @@ class PromovidoFormNuevo(forms.ModelForm):
         if age > 110:
             raise ValidationError('La edad ingresada no es válida. Por favor, verifica la fecha de nacimiento.')
         return data
+    
+
+
+    def clean(self):
+        cleaned_data = super().clean()
+        nombre = cleaned_data.get("nombre")
+        apellido_paterno = cleaned_data.get("apellido_paterno")
+        apellido_materno = cleaned_data.get("apellido_materno")
+
+        # Verifica si existe un prospecto con el mismo nombre, apellido paterno y apellido materno
+        if prospecto.objects.filter(nombre=nombre, apellido_paterno=apellido_paterno, apellido_materno=apellido_materno).exists():
+            raise forms.ValidationError("Este usuario ya está registrado.")
+
+        return cleaned_data
+
 
     latitud = forms.FloatField(
         required=True, 

@@ -156,3 +156,5 @@ class prospecto(models.Model):
 
     def __str__(self):
         return f"{self.nombre} {self.apellido_paterno}"
+    class Meta:
+        unique_together = ('nombre', 'apellido_paterno', 'apellido_materno')

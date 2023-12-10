@@ -16,6 +16,8 @@ from django.db.models import F
 from django.db.models import Q 
 from usuarios.models import Seccion
 from django.urls import reverse_lazy
+from django.db import IntegrityError
+from django.http import HttpResponseRedirect
 
 from django.views.decorators.csrf import csrf_exempt
 
@@ -403,13 +405,14 @@ class CreatePromovidoNuevo(CreateView):
     model = prospecto
     
     def form_valid(self, form):
-        # Asigna el usuario actual a usuario_promovido
+        # Intenta guardar el formulario
         form.instance.usuario_promovido = self.request.user
-        # Cambia el status a 'Promovido'
         form.instance.status = 'Promovido'
-        messages.success(self.request, 'Promovido con éxito.')
-
         return super().form_valid(form)
+
+    def form_invalid(self, form):
+        # Aquí puedes manejar el caso de formulario no válido
+        return super().form_invalid(form)
 
     def get_success_url(self):
         messages.success(self.request, 'Promovido creado con éxito.')
