@@ -48,14 +48,14 @@ Secciones
 
   </div>
 <div class="table-responsive">
-    <table id="tabla" class="table table-striped table-bordered display responsive nowrap" style="width:100%">
+<table id="tabla" class="table table-striped table-bordered table-hover display responsive nowrap" style="width:100%">
         <thead>
             <tr>
                 <th>Nombre de la Sección</th>
                 <th>Descripción</th>
-                <th>Latitud</th>
-                <th>Longitud</th>
-                <th>Meta de Promovidos</th>
+       
+       
+                <th style="width: 1%;">Meta de Promovidos</th>
                 <th style="width: 1%;">Calles Asociadas</th>
 
                 <th style="width: 5%;">Opciones</th>
@@ -66,8 +66,7 @@ Secciones
             <tr>
                 <td>{{ seccion.nombre }}</td>
                 <td>{{ seccion.descripcion }}</td>
-                <td>{{ seccion.latitud }} </td>
-                <td>{{ seccion.longitud }}</td>
+     
                 <td>{{ seccion.total_meta_promovidos }}</td>
                 <td>{{ seccion.numero_de_calles }}</td> <!-- Añade esto para mostrar el número de calles -->
 
@@ -88,9 +87,8 @@ Secciones
             <tr>
                 <th>Nombre de la Sección</th>
                 <th>Descripción</th>
-                <th>Latitud</th>
-                <th>Longitud</th>
-                <th>Meta de Promovidos</th>
+       
+                <th style="width: 1%;">Meta de Promovidos</th>
                 <th style="width: 1%;">Calles Asociadas</th>
 
                 <th style="width: 5%;">Opciones</th>

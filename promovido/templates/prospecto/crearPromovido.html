@@ -4,6 +4,8 @@
 {% block titulo %}Crear Promovido{% endblock titulo %}
 {% block link %}
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+
 {% endblock link %}
 
 {% block dashboard %}
@@ -229,23 +231,34 @@
         var seccionesCoords = {{ secciones_coords|safe }};
         var botonAbrirModal = document.getElementById('botonAbrirModal');
         var mapModalElement = document.getElementById('mapModalContent');
-        {% comment %} var rutaLayer; ={{secciones_coords|safe}} {% endcomment %}
+        var rutaLayer;
 
         calleSelect.addEventListener('change', function() {
             var calleId = this.value;
-            var coords = seccionesCoords[calleId];
-            if (coords) {
-                actualizarMapa(coords.lat, coords.lng);
+            var calleData = seccionesCoords[calleId];
+
+            if (calleData) {
+                actualizarMapa(calleData.lat, calleData.lng, calleData.ruta);
             }
         });
 
-        function actualizarMapa(lat, lng) {
+        function actualizarMapa(lat, lng, ruta) {
             if (mapModal && marker) {
                 var nuevaUbicacion = new L.LatLng(lat, lng);
-                marker.setLatLng(nuevaUbicacion);
                 mapModal.setView(nuevaUbicacion, 16);
             }
+
+            if (rutaLayer) {
+                mapModal.removeLayer(rutaLayer);
+            }
+
+            if (ruta && ruta !== "") {
+                var rutaFormateada = JSON.parse(ruta).map(punto => [punto.lat, punto.lng]);
+                rutaLayer = L.polyline(rutaFormateada, {color: 'red'}).addTo(mapModal);
+                mapModal.fitBounds(rutaLayer.getBounds());
+            }
         }
+
 
         botonAbrirModal.addEventListener('click', function() {
             var calleId = calleSelect.value;
@@ -266,27 +279,37 @@
 
         $('#mapModal').on('shown.bs.modal', function () {
             var calleId = calleSelect.value;
-            var coords = seccionesCoords[calleId];
-            if (coords) {
-                initMapModal(coords.lat, coords.lng);
+            var calleData = seccionesCoords[calleId];
+            if (calleData) {
+                initMapModal(calleData.lat, calleData.lng, calleData.ruta);
             }
         });
 
         var mapModal;
         var marker;
 
-        function initMapModal(lat, lng) {
-            if (!mapModal) {
-                mapModal = L.map(mapModalElement).setView([lat, lng], 16);
-                configurarMapa();
-                cargarGeoJson();  // Llama a cargarGeoJson aquí
+    function initMapModal(lat, lng, ruta) {
+        console.log('Ruta recibida:', ruta); // Esto mostrará los datos de la ruta en la consola del navegador
 
-            } else {
-                mapModal.setView([lat, lng], 16);
-            }
-
-
+        if (!mapModal) {
+            mapModal = L.map(mapModalElement).setView([lat, lng], 16);
+            configurarMapa();
+            cargarGeoJson();  // Cargar GeoJSON al inicializar el mapa
+        } else {
+            mapModal.setView([lat, lng], 16);
         }
+
+        if (rutaLayer) {
+            mapModal.removeLayer(rutaLayer); // Elimina la ruta anterior si existe
+        }
+
+        if (ruta && ruta !== "") {
+            var rutaFormateada = JSON.parse(ruta).map(punto => [punto.lat, punto.lng]);
+            rutaLayer = L.polyline(rutaFormateada, {color: 'red'}).addTo(mapModal);
+            mapModal.fitBounds(rutaLayer.getBounds());
+        }
+    }
+
 
         function configurarMapa() {
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
