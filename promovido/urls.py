@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import path, include
 from .views import CreatePromovidoNuevo, createUbicacion, ListaPromovidosNuevo, createProspecto, updateProspecto, estadisticasGenerales,CreateProspectoNuevo,ListaProspectosNuevo,MapaProspectosPromovidosView
 from .views import guardar_ubicacion, mapas, EstadisticasGeneralesView, EstadisticasSoliView
-from .views import ProspectoUpdateView
+from .views import ProspectoUpdateView, ListCumple, Felicitar
 from .views import verificar_numero_ine
 
 urlpatterns = [
@@ -22,5 +22,7 @@ urlpatterns = [
     path("crear-prospecto/", CreateProspectoNuevo.as_view(), name='crearProspectoNuevo'),
     path('prospecto/actualizar/<int:pk>/', ProspectoUpdateView.as_view(), name='prospecto_actualizar'),
     path('verificar_numero_ine/', verificar_numero_ine, name='verificar_numero_ine'),
+    path("lista-cumple/", ListCumple.as_view(), name='lista-cumple'),
+    path('felicitar/<int:pk>/', Felicitar.as_view(), name='felicitar'),
 
 ]  

@@ -1,9 +1,10 @@
+from typing import Any
 from django.shortcuts import render
 from django.views.generic import CreateView, TemplateView, ListView, UpdateView
 
 from catalogos.models import Calle
-from .models import Promovido, Ubicacion, prospecto
-from .forms import PromovidoForm, ProspectoForm, ProspectoFormNuevo, ProspectoFormNuevoUpdate,PromovidoFormNuevo
+from .models import Promovido, Ubicacion, prospecto, Felicitacion
+from .forms import PromovidoForm, ProspectoForm, ProspectoFormNuevo, ProspectoFormNuevoUpdate,PromovidoFormNuevo, felicitacionForms
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -20,6 +21,9 @@ from django.db import IntegrityError
 from django.http import HttpResponseRedirect
 
 from django.views.decorators.csrf import csrf_exempt
+from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
+from django.contrib.auth import get_user_model
 
 class createPromovido(CreateView):
     template_name='crearPromovido.html'
@@ -442,3 +446,88 @@ def verificar_numero_ine(request):
         return JsonResponse({'existe': existe})
 
     return JsonResponse({'existe': False})
+
+
+class ListCumple(ListView):
+    template_name = 'estadisticas/cumple.html'
+    model = prospecto
+    context_object_name = 'promovidos'
+
+    def get_queryset(self):
+        today = datetime.now().date()
+        estado_defensoria = self.request.GET.get('estado_defensoria', None)
+
+        # Obtener todos los prospectos sin filtrar por la sección
+        todos_los_prospectos = prospecto.objects.all()
+
+        # Calcular los contadores independientes de la sección
+        promovidos_cumplen_hoy = sum(1 for promovido in todos_los_prospectos if self.cumple_hoy(promovido, today))
+        promovidos_cumplen_mes = sum(1 for promovido in todos_los_prospectos if not self.cumple_hoy(promovido, today))
+
+        # Almacenar los contadores en el contexto
+        self.extra_context = {
+            'contador_cumple_hoy': promovidos_cumplen_hoy,
+            'contador_cumple_mes': promovidos_cumplen_mes,
+        }
+
+        # Aplicar el filtro según la sección seleccionada
+        if estado_defensoria == 'por_notificar':
+            queryset = todos_los_prospectos.filter(felicitaciones__isnull=True)
+        elif estado_defensoria == 'ya_notificado':
+            queryset = todos_los_prospectos.filter(felicitaciones__isnull=False).distinct()
+        else:
+            queryset = todos_los_prospectos
+
+        # Aplicar la lógica de cálculo específica de la sección
+        for promovido in queryset:
+            cumpleanos = promovido.fechaNacimiento.replace(year=today.year)
+            diferencia_anios = relativedelta(today, promovido.fechaNacimiento).years
+            if today > cumpleanos:
+                cumpleanos = promovido.fechaNacimiento.replace(year=today.year + 1)
+            edad = today.year - promovido.fechaNacimiento.year - ((today.month, today.day) < (promovido.fechaNacimiento.month, promovido.fechaNacimiento.day))
+            setattr(promovido, 'edad', edad)
+            dias_restantes = (cumpleanos - today).days
+            es_cumple_hoy = dias_restantes == 0
+            setattr(promovido, 'dias_restantes_cumple', dias_restantes)
+            setattr(promovido, 'es_cumple_hoy', es_cumple_hoy)
+
+        # Ordenar por días restantes para el cumpleaños
+        queryset = sorted(queryset, key=lambda x: x.dias_restantes_cumple)
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['navbar'] = 'estadisticas'
+        context['seccion'] = 'cumple'
+        return context
+
+    def cumple_hoy(self, promovido, today):
+        cumpleanos = promovido.fechaNacimiento.replace(year=today.year)
+        return (cumpleanos == today)
+
+    
+class Felicitar(CreateView):
+    template_name='estadisticas/modalFelicitacion.html'
+    model = Felicitacion
+    form_class = felicitacionForms
+    def get_success_url(self):
+        messages.success(self.request, 'Felicitación exitosamente')
+
+        return reverse_lazy('lista-cumple')
+    def get_initial(self):
+        initial = super().get_initial()
+        usuario = self.request.user
+        initial['usuario']=usuario
+        prospecto_id = self.kwargs.get('pk')
+        prospetos= prospecto.objects.get(pk=prospecto_id)
+        initial['prospecto']=prospetos
+        return initial
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        prospecto_id = self.kwargs.get('pk')
+        prospetos= prospecto.objects.get(pk=prospecto_id)
+        context['prospecto']=prospetos
+      
+        return context
