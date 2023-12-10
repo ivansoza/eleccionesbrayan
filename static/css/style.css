@@ -440,3 +440,15 @@ form.was-validated select:valid ~ .select2-container--bootstrap4 .select2-select
   .select2-container--bootstrap4.select2-container--disabled .select2-selection--multiple .seccion .seccion__remove {
     display: none; }
 
+
+
+
+    .btn-seleccionado {
+      background-color: #4CAF50; /* Verde */
+      color: white;
+  }
+  
+  .btn-no-seleccionado {
+      background-color: #f8f9fa; /* Gris claro */
+      color: black;
+  }

@@ -246,11 +246,6 @@ class CalleForm(forms.ModelForm):
         }
 
 class felicitacionForms(forms.ModelForm):
-     fecha_felicitacion = forms.DateField(
-        label="Fecha de Felicitación",
-        widget=forms.DateInput(attrs={'type': 'text', 'id': 'date', 'placeholder': "DD/MM/YYYY"}),
-        input_formats=['%d/%m/%Y'],
-      )
      class Meta:
         model = Felicitacion
         fields = '__all__'
