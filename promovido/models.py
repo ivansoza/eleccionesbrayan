@@ -156,6 +156,8 @@ class prospecto(models.Model):
 
     def __str__(self):
         return f"{self.nombre} {self.apellido_paterno}"
+    class Meta:
+        unique_together = ('nombre', 'apellido_paterno', 'apellido_materno')
     
 class Felicitacion(models.Model):     
     usuario = models.ForeignKey(
@@ -169,7 +171,7 @@ class Felicitacion(models.Model):
         on_delete=models.CASCADE,
         related_name='felicitaciones'
     )
-    fecha_felicitacion = models.DateField()
+    fecha_felicitacion = models.DateField(auto_now_add=True)
     felicitado = models.BooleanField(default=False)
 
     def _str_(self):

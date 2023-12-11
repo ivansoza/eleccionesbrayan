@@ -4,6 +4,8 @@
 {% block titulo %}Crear Promovido{% endblock titulo %}
 {% block link %}
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+
 {% endblock link %}
 
 {% block dashboard %}
@@ -72,7 +74,13 @@
 
 <form method="post" enctype="multipart/form-data" class="card p-3 mt-5">
     {% csrf_token %}
-
+    {% if form.non_field_errors %}
+    <div class="alert alert-danger">
+        {% for error in form.non_field_errors %}
+            {{ error }}
+        {% endfor %}
+    </div>
+    {% endif %}
     <div class="row">
         
        
@@ -148,11 +156,10 @@
             {{form.longitud|as_crispy_field}}
         </div>
     </div>     
+        <div class="form-group">
+            <button type="button" class="btn btn-primary" id="botonAbrirModal">Seleccionar en Mapa</button>
+        </div>
 
-    <div class="form-group">
-        <button type="button" onclick="obtenerUbicacionActual()" class="btn btn-primary">Capturar Ubicación Actual</button>
-        <button type="button" class="btn btn-primary" onclick="recargarMapa();" data-toggle="modal" data-target="#mapModal">Seleccionar en Mapa</button>
-    </div>
 
         <button class="btn btn-custom float-end btn-success" type="submit">Guardar</button>
         <br>
@@ -181,32 +188,14 @@
             
             <div class="modal-footer">
                 <button type="button" onclick="recargarMapa()" class="btn btn-secondary">Recargar Mapa</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Aceptar</button>
+
             </div>
         </div>
     </div>
 </div>
 
-<div class="modal fade" id="ayudaModal" tabindex="-1" role="dialog" aria-labelledby="ayudaModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header" style='background: #6E282D;'>
-                <h5 class="modal-title" id="ayudaModalLabel" style='color:white'>Ayuda para llenar el campo 'Número de INE'</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style='color:white'>
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body text-center">
-                <!-- Contenido del modal: imagen, texto, etc. -->
-                <img src="{% static 'img/creden.jpeg' %}" alt="Ayuda" class="img-fluid" style='width=320px; height:300px'>
-                <div id="circuloResaltador"></div>
-                <h4 class="mt-3" >  <strong>Captura los 13 dígitos que se resaltan en la imagen superior del 'INE'. </strong></h4>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-            </div>
-        </div>
-    </div>
-</div>
+
 <!-- Contenido del formulario aquí, similar a tu ejemplo anterior -->
 {% endblock contenido %}
 {% block script1 %}
@@ -222,146 +211,205 @@
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+
 <script>
+var currentCalleData;
+var mapModal;
+var marker;
+
+    function recargarMapa() {
+        if (mapModal) {
+            mapModal.remove();
+        }
+        if (currentCalleData) {
+            initMapModal(currentCalleData.lat, currentCalleData.lng, currentCalleData.ruta);
+        } else {
+            // Aquí puedes manejar el caso de no tener datos de calle seleccionada
+            console.log('No hay datos de calle seleccionada para recargar el mapa');
+        }
+    }
     document.addEventListener('DOMContentLoaded', function() {
         var calleSelect = document.getElementById('id_calle');
         var seccionesCoords = {{ secciones_coords|safe }};
+        var botonAbrirModal = document.getElementById('botonAbrirModal');
+        var mapModalElement = document.getElementById('mapModalContent');
+        var rutaLayer;
+        var currentCalleData;
 
         calleSelect.addEventListener('change', function() {
             var calleId = this.value;
-            var coords = seccionesCoords[calleId];
-            if (coords) {
-                actualizarMapa(coords.lat, coords.lng);
+            var calleData = seccionesCoords[calleId];
+
+            if (calleData) {
+                currentCalleData = calleData; // Almacenar el último calleData seleccionado
+
+                actualizarMapa(calleData.lat, calleData.lng, calleData.ruta);
             }
         });
 
-        function actualizarMapa(lat, lng) {
-            // Asegúrate de que 'mapModal' es la instancia de tu mapa y 'marker' es el marcador que deseas mover
+        function actualizarMapa(lat, lng, ruta) {
             if (mapModal && marker) {
                 var nuevaUbicacion = new L.LatLng(lat, lng);
-                marker.setLatLng(nuevaUbicacion); // Actualiza la ubicación del marcador
-                mapModal.panTo(nuevaUbicacion); // Centra el mapa en la nueva ubicación
+                mapModal.setView(nuevaUbicacion, 16);
+            }
+
+            if (rutaLayer) {
+                mapModal.removeLayer(rutaLayer);
+            }
+
+            if (ruta && ruta !== "") {
+                var rutaFormateada = JSON.parse(ruta).map(punto => [punto.lat, punto.lng]);
+                rutaLayer = L.polyline(rutaFormateada, {color: 'red'}).addTo(mapModal);
+                mapModal.fitBounds(rutaLayer.getBounds());
             }
         }
-    });
-</script>
-<script>
 
-    var mapModal;
-    var marker;
-    function recargarMapa() {
-        if (mapModal) {
-            mapModal.remove();  // Elimina el mapa actual
-        }
-        initMapModal();  // Inicializa el mapa nuevamente
-    }
 
-    
-    function initMapModal() {
-        // Muestra el indicador de carga
-        $('#loadingIndicator').show();
-
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(function (position) {
-                var latitudActual = position.coords.latitude;
-                var longitudActual = position.coords.longitude;
-
-                mapModal = L.map('mapModalContent').setView([latitudActual, longitudActual], 13);
-                configurarMapa();
-
-                // Oculta el indicador de carga después de que el mapa se haya cargado
-                $('#loadingIndicator').hide();
-            }, function () {
-                // Si falla la geolocalización, usa una ubicación predeterminada
-                mapModal = L.map('mapModalContent').setView([19.4091914, -98.1503753], 13);
-                configurarMapa();
-
-                // Oculta el indicador de carga después de que el mapa se haya cargado
-                $('#loadingIndicator').hide();
-            });
-        } else {
-            // Si la geolocalización no está disponible, usa una ubicación predeterminada
-            mapModal = L.map('mapModalContent').setView([19.4091914, -98.1503753], 13);
-            configurarMapa();
-
-            // Oculta el indicador de carga después de que el mapa se haya cargado
-            $('#loadingIndicator').hide();
-        }
-    }
-
-    
-    function configurarMapa() {
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(mapModal);
-    
-        mapModal.on('click', function(e) {
-            document.getElementById('id_latitud').value = e.latlng.lat;
-            document.getElementById('id_longitud').value = e.latlng.lng;
-    
-            if (marker) {
-                mapModal.removeLayer(marker);
-            }
-    
-            marker = L.marker([e.latlng.lat, e.latlng.lng]).addTo(mapModal);
-        });
-    }
-
-    function obtenerUbicacionActual() {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(function(position) {
-                var latitud = position.coords.latitude;
-                var longitud = position.coords.longitude;
-
-                // Actualiza los campos del formulario
-                document.getElementById('id_latitud').value = latitud;
-                document.getElementById('id_longitud').value = longitud;
-
-                // Centra el mapa y coloca un marcador en la ubicación actual
-                if (!mapModal) {
-                    initMapModal();
+        botonAbrirModal.addEventListener('click', function() {
+            var calleId = calleSelect.value;
+            if (!calleId) {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Por favor selecciona una calle',
+                    icon: 'error',
+                    confirmButtonText: 'Ok'
+                });
+            } else {
+                var coords = seccionesCoords[calleId];
+                if (coords) {
+                    $('#mapModal').modal('show');
                 }
-                mapModal.setView([latitud, longitud], 13);
+            }
+        });
+
+        $('#mapModal').on('shown.bs.modal', function () {
+            var calleId = calleSelect.value;
+            var calleData = seccionesCoords[calleId];
+            if (calleData) {
+                initMapModal(calleData.lat, calleData.lng, calleData.ruta);
+            }
+        });
+
+        var mapModal;
+        var marker;
+
+        function recargarMapa() {
+            if (mapModal) {
+                mapModal.remove();
+            }
+            if (currentCalleData) {
+                initMapModal(currentCalleData.lat, currentCalleData.lng, currentCalleData.ruta);
+            } else {
+                // Manejar el caso donde no se ha seleccionado ninguna calle
+                // Podrías establecer una ubicación predeterminada o simplemente no hacer nada
+            }
+        }
+
+    function initMapModal(lat, lng, ruta) {
+        console.log('Ruta recibida:', ruta); // Esto mostrará los datos de la ruta en la consola del navegador
+
+        if (!mapModal) {
+            mapModal = L.map(mapModalElement).setView([lat, lng], 16);
+            configurarMapa();
+            cargarGeoJson();  // Cargar GeoJSON al inicializar el mapa
+        } else {
+            mapModal.setView([lat, lng], 16);
+        }
+
+        if (rutaLayer) {
+            mapModal.removeLayer(rutaLayer); // Elimina la ruta anterior si existe
+        }
+
+        if (ruta && ruta !== "") {
+            var rutaFormateada = JSON.parse(ruta).map(punto => [punto.lat, punto.lng]);
+            rutaLayer = L.polyline(rutaFormateada, {color: 'red'}).addTo(mapModal);
+            mapModal.fitBounds(rutaLayer.getBounds());
+        }
+    }
+
+
+        function configurarMapa() {
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(mapModal);
+
+            mapModal.on('click', function(e) {
                 if (marker) {
                     mapModal.removeLayer(marker);
                 }
-                marker = L.marker([latitud, longitud]).addTo(mapModal);
-            });
-        } else {
-            alert('La geolocalización no es compatible en este navegador.');
-        }
-    }
-
-    // Inicializa el mapa cuando se muestra el modal
-    $('#mapModal').on('shown.bs.modal', function () {
-        initMapModal();
-    });
-</script>
-
-
-<script>
-    $(document).ready(function () {
-        var circuloResaltador = $('#circuloResaltador');
-
-        function mostrarCirculo() {
-            circuloResaltador.fadeIn(500, function () {
-                circuloResaltador.fadeOut(500);
+                marker = L.marker([e.latlng.lat, e.latlng.lng]).addTo(mapModal);
+                document.getElementById('id_latitud').value = e.latlng.lat;
+                document.getElementById('id_longitud').value = e.latlng.lng;
             });
         }
 
-        // Muestra y oculta el círculo cada 1 segundo (ajusta según sea necesario)
-        var intervalo = setInterval(mostrarCirculo, 1000);
+        function cargarGeoJson() {
+    var geojsonData = {
+        "type": "FeatureCollection",
+        "features": [
+            {
+                "type": "Feature",
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [
+      [-98.20123198, 19.31151377],
+                        [-98.2035597, 19.31293264],
+                        [-98.20451643, 19.31383147],
+                        [-98.20461624, 19.31514427],
+                        [-98.20655179, 19.3172306],
+                        [-98.20679604, 19.31805587],
+                        [-98.20789661, 19.31855634],
+                        [-98.20969443, 19.31909523],
+                        [-98.21057149, 19.31846793],
+                        [-98.20997856, 19.31776864],
+                        [-98.21026228, 19.31710195],
+                        [-98.21057698, 19.31530231],
+                        [-98.21072532, 19.31522844],
+                        [-98.21109956, 19.31324817],
+                        [-98.21001144, 19.31255142],
+                        [-98.21057966, 19.31095988],
+                        [-98.21096914, 19.31102883],
+                        [-98.21207767, 19.30862337],
+                        [-98.21366755, 19.30651952],
+                        [-98.21255402, 19.30582002],
+                        [-98.21236492, 19.30597781],
+                        [-98.21139235, 19.30541608],
+                        [-98.21159109, 19.30516874],
+                        [-98.21077406, 19.30493049],
+                        [-98.2099546, 19.30450574],
+                        [-98.21036405, 19.30393294],
+                        [-98.20749579, 19.30228938],
+                        [-98.20501961, 19.30569487],
+                        [-98.20280425, 19.3043862],
+                        [-98.20019732, 19.30818772],
+                        [-98.19986488, 19.30822224],
+                        [-98.20034034, 19.31010606],
+                        [-98.20081742, 19.31107898],
+                        [-98.2012279, 19.31150487]                    ]
+                },
+                "properties": {
+                    "name": "Colonia El Alto"
+                }
+            }
+            // ... puedes añadir más características aquí ...
+        ]
+    };
 
-        // Detén el intervalo después de n repeticiones (ajusta según sea necesario)
-        var repeticiones = 30;
-        setTimeout(function () {
-            clearInterval(intervalo);
-            circuloResaltador.hide(); // Asegúrate de que esté oculto al final
-        }, repeticiones * 2000); // Multiplica el número de repeticiones por 2000 ms (1 segundo de fadeIn + 1 segundo de fadeOut)
+    var geoJsonLayer = L.geoJSON(geojsonData, {
+        style: function(feature) {
+            return { color: 'blue' }; // Puedes personalizar el estilo aquí
+        },
+        onEachFeature: function(feature, layer) {
+            // Puedes añadir un popup o interactividad si lo necesitas
+            if (feature.properties && feature.properties.name) {
+                layer.bindPopup(feature.properties.name);
+            }
+        }
+    }).addTo(mapModal);
+}
     });
 </script>
-
-
 <script>
     $(document).ready(function() {
       $('#date').on('input', function() {
@@ -411,7 +459,39 @@
         }
       });
     });
+
+
+
   </script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var nombreInput = document.querySelector('[name="nombre"]');
+        var apellido_paterno = document.querySelector('[name="apellido_paterno"]');
+        var apellido_materno = document.querySelector('[name="apellido_materno"]');
+        var detalle_solicitud = document.querySelector('[name="detalle_solicitud"]');
+        var detalle_problema = document.querySelector('[name="detalle_problema"]');
+
+        var descripcionInput = document.querySelector('[name="descripcion"]'); // Selector para el campo descripción
+
+        function convertirAMayusculas(elemento) {
+            if (elemento) {
+                elemento.addEventListener('input', function() {
+                    this.value = this.value.toUpperCase();
+                });
+            }
+        }
+
+        convertirAMayusculas(nombreInput);
+        convertirAMayusculas(apellido_paterno);
+        convertirAMayusculas(apellido_materno);
+        convertirAMayusculas(detalle_solicitud);
+        convertirAMayusculas(detalle_problema);
+
+    });
+</script>
+
+
 
 {% endblock script1 %}
 

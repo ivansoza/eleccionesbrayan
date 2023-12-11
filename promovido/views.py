@@ -1,6 +1,7 @@
 from typing import Any
 from django.shortcuts import render
 from django.views.generic import CreateView, TemplateView, ListView, UpdateView
+from datetime import datetime, date
 
 from catalogos.models import Calle
 from .models import Promovido, Ubicacion, prospecto, Felicitacion
@@ -17,6 +18,8 @@ from django.db.models import F
 from django.db.models import Q 
 from usuarios.models import Seccion
 from django.urls import reverse_lazy
+from django.db import IntegrityError
+from django.http import HttpResponseRedirect
 
 from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime, timedelta
@@ -387,9 +390,16 @@ class MapaProspectosPromovidosView(ListView):
     context_object_name = 'prospectos'
 
     def get_queryset(self):
-        # Filtrar los prospectos con estado "Promovido"
-        return prospecto.objects.filter(status='Promovido')
+        queryset = prospecto.objects.filter(status='Promovido')
+        calle_filtro = self.request.GET.get('calle')
+        genero_filtro = self.request.GET.get('genero')
 
+        if calle_filtro:
+            queryset = queryset.filter(calle_id=calle_filtro)
+        if genero_filtro:
+            queryset = queryset.filter(genero=genero_filtro)
+
+        return queryset
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['navbar'] = 'promovidos'  # Cambia esto según la página activa
@@ -397,7 +407,7 @@ class MapaProspectosPromovidosView(ListView):
         queryset = self.get_queryset()
         context['num_hombres'] = queryset.filter(genero='Hombre').count()
         context['num_mujeres'] = queryset.filter(genero='Mujer').count()
-        # Puedes agregar más contexto según sea necesario
+        context['calles'] = Calle.objects.all()  # Agrega todas las calles al contexto
         context['contador_global'] = queryset.count()
         return context
     
@@ -407,13 +417,14 @@ class CreatePromovidoNuevo(CreateView):
     model = prospecto
     
     def form_valid(self, form):
-        # Asigna el usuario actual a usuario_promovido
+        # Intenta guardar el formulario
         form.instance.usuario_promovido = self.request.user
-        # Cambia el status a 'Promovido'
         form.instance.status = 'Promovido'
-        messages.success(self.request, 'Promovido con éxito.')
-
         return super().form_valid(form)
+
+    def form_invalid(self, form):
+        # Aquí puedes manejar el caso de formulario no válido
+        return super().form_invalid(form)
 
     def get_success_url(self):
         messages.success(self.request, 'Promovido creado con éxito.')
@@ -425,7 +436,7 @@ class CreatePromovidoNuevo(CreateView):
         calles = Calle.objects.select_related('seccion').all()
 
         context['secciones_coords'] = {
-            calle.id: {'lat': calle.seccion.latitud, 'lng': calle.seccion.longitud}
+            calle.id: {'lat': calle.seccion.latitud, 'lng': calle.seccion.longitud, 'ruta': calle.ruta}
             for calle in calles if calle.seccion
         }        
         context['navbar'] = 'promovidos'  # Cambia esto según la página activa
@@ -450,58 +461,92 @@ class ListCumple(ListView):
     model = prospecto
     context_object_name = 'promovidos'
 
+
     def get_queryset(self):
         today = datetime.now().date()
         estado_defensoria = self.request.GET.get('estado_defensoria', None)
 
-        # Obtener todos los prospectos sin filtrar por la sección
-        todos_los_prospectos = prospecto.objects.all()
+        if estado_defensoria == 'ya_notificado':
+            # Filtra a los que ya han sido felicitados este mes
+            start_of_month = today.replace(day=1)
+            end_of_month = today.replace(day=28) + relativedelta(days=4)
+            end_of_month = end_of_month - relativedelta(days=end_of_month.day - 1)
+            felicitados_este_mes = Felicitacion.objects.filter(
+                felicitado=True,
+                fecha_felicitacion__range=(start_of_month, end_of_month)
+            ).select_related('prospecto')
 
-        # Calcular los contadores independientes de la sección
-        promovidos_cumplen_hoy = sum(1 for promovido in todos_los_prospectos if self.cumple_hoy(promovido, today))
-        promovidos_cumplen_mes = sum(1 for promovido in todos_los_prospectos if not self.cumple_hoy(promovido, today))
+            # Agregar la edad y el estado de felicitación a cada prospecto en felicitaciones
+            for felicitacion in felicitados_este_mes:
+                cumpleanos = felicitacion.prospecto.fechaNacimiento.replace(year=today.year)
+                edad = today.year - felicitacion.prospecto.fechaNacimiento.year - ((today.month, today.day) < (felicitacion.prospecto.fechaNacimiento.month, felicitacion.prospecto.fechaNacimiento.day))
+                setattr(felicitacion.prospecto, 'edad', edad)
+                setattr(felicitacion.prospecto, 'ya_felicitado', True)
 
-        # Almacenar los contadores en el contexto
-        self.extra_context = {
-            'contador_cumple_hoy': promovidos_cumplen_hoy,
-            'contador_cumple_mes': promovidos_cumplen_mes,
-        }
-
-        # Aplicar el filtro según la sección seleccionada
-        if estado_defensoria == 'por_notificar':
-            queryset = todos_los_prospectos.filter(felicitaciones__isnull=True)
-        elif estado_defensoria == 'ya_notificado':
-            queryset = todos_los_prospectos.filter(felicitaciones__isnull=False).distinct()
+            return felicitados_este_mes
         else:
-            queryset = todos_los_prospectos
+                queryset = prospecto.objects.all()
 
-        # Aplicar la lógica de cálculo específica de la sección
-        for promovido in queryset:
-            cumpleanos = promovido.fechaNacimiento.replace(year=today.year)
-            diferencia_anios = relativedelta(today, promovido.fechaNacimiento).years
-            if today > cumpleanos:
-                cumpleanos = promovido.fechaNacimiento.replace(year=today.year + 1)
-            edad = today.year - promovido.fechaNacimiento.year - ((today.month, today.day) < (promovido.fechaNacimiento.month, promovido.fechaNacimiento.day))
-            setattr(promovido, 'edad', edad)
-            dias_restantes = (cumpleanos - today).days
-            es_cumple_hoy = dias_restantes == 0
-            setattr(promovido, 'dias_restantes_cumple', dias_restantes)
-            setattr(promovido, 'es_cumple_hoy', es_cumple_hoy)
+                promovidos_cumplen_hoy = []
+                promovidos_cumplen_proximamente = []
 
-        # Ordenar por días restantes para el cumpleaños
-        queryset = sorted(queryset, key=lambda x: x.dias_restantes_cumple)
+                for promovido in queryset:
+                    cumpleanos = promovido.fechaNacimiento.replace(year=today.year)
+                    edad = today.year - promovido.fechaNacimiento.year - ((today.month, today.day) < (promovido.fechaNacimiento.month, promovido.fechaNacimiento.day))
+                    dias_restantes = (cumpleanos - today).days
 
-        return queryset
+                    setattr(promovido, 'edad', edad)
+                    setattr(promovido, 'dias_restantes_cumple', dias_restantes)
 
+                    if dias_restantes == 0:
+                        promovidos_cumplen_hoy.append(promovido)
+                    elif cumpleanos > today:
+                        promovidos_cumplen_proximamente.append(promovido)
+
+                return {
+                    'cumplen_hoy': sorted(promovidos_cumplen_hoy, key=lambda x: x.apellido_paterno),
+                    'cumplen_proximamente': sorted(promovidos_cumplen_proximamente, key=lambda x: x.dias_restantes_cumple)
+                }
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        queryset = self.get_queryset()
+        estado_defensoria = self.request.GET.get('estado_defensoria', None)
+
+        today = datetime.now().date()
+        mes_actual = today.month
+        anio_actual = today.year
+
+        # Calcular y agregar el total de promovidos que cumplen años hoy y en este mes
+        total_cumplen_hoy = sum(
+            promovido.fechaNacimiento.replace(year=anio_actual) == today
+            for promovido in prospecto.objects.all()
+        )
+        total_cumplen_este_mes = sum(
+            promovido.fechaNacimiento.month == mes_actual
+            for promovido in prospecto.objects.all()
+        )
+
+        context['total_cumplen_hoy'] = total_cumplen_hoy
+        context['total_cumplen_este_mes'] = total_cumplen_este_mes
+
+        if estado_defensoria == 'ya_notificado':
+            context['felicitaciones_este_mes'] = self.get_queryset()
+        else:
+            context['promovidos_cumplen_hoy'] = queryset.get('cumplen_hoy', [])
+            context['promovidos_cumplen_proximamente'] = queryset.get('cumplen_proximamente', [])
+
+        # Agregar ya_felicitados_ids y el resto del contexto necesario
+        ya_felicitados_ids = Felicitacion.objects.filter(
+            felicitado=True,
+            fecha_felicitacion__year=anio_actual
+        ).values_list('prospecto', flat=True)
+        context['ya_felicitados_ids'] = ya_felicitados_ids
+
         context['navbar'] = 'estadisticas'
         context['seccion'] = 'cumple'
+
         return context
 
-    def cumple_hoy(self, promovido, today):
-        cumpleanos = promovido.fechaNacimiento.replace(year=today.year)
-        return (cumpleanos == today)
 
     
 class Felicitar(CreateView):
@@ -528,3 +573,13 @@ class Felicitar(CreateView):
         context['prospecto']=prospetos
       
         return context
+
+def obtener_calles(request):
+    seccion_id = request.GET.get('seccion')
+    print(f"Sección ID recibida: {seccion_id}")
+
+    calles = Calle.objects.filter(seccion_id=seccion_id).values('pk', 'nombre')
+    calles_list = list(calles)
+    print(f"Calles encontradas: {calles_list}")
+
+    return JsonResponse({'calles': calles_list})
