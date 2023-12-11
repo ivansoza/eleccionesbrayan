@@ -32,7 +32,7 @@ class PromovidoForm(forms.ModelForm):
 class ProspectoForm(forms.ModelForm):
        class Meta:
         model = Promovido
-        fields = ['usuario','nombre', 'apellido_paterno', 'apellido_materno', 'genero', 'fechaNacimiento', 'seccion', 'ocupacion', 'celular', 'telefono', 'email','status']
+        fields = ['usuario','nombre', 'apellido_paterno', 'apellido_materno', 'genero', 'fechaNacimiento','ocupacion', 'celular', 'telefono', 'email','status']
 
         widgets = {
            'nombre': forms.TextInput(attrs={'placeholder': 'Ingrese el nombre'}),
@@ -42,7 +42,6 @@ class ProspectoForm(forms.ModelForm):
             'direccion': forms.TextInput(attrs={'placeholder': 'Dirección'}),
             'colonia': forms.TextInput(attrs={'placeholder': 'Colonia'}),
             'localidad': forms.TextInput(attrs={'placeholder': 'Calle'}),
-            'seccion': forms.TextInput(attrs={'placeholder': 'Sección'}),
             'ocupacion': forms.TextInput(attrs={'placeholder': 'Ocupación'}),
             'celular': forms.TextInput(attrs={'placeholder': 'Celular'}),
             'telefono': forms.TextInput(attrs={'placeholder': 'Teléfono'}),
@@ -70,14 +69,13 @@ class ProspectoFormNuevo(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(ProspectoFormNuevo, self).__init__(*args, **kwargs)
-        self.fields['seccion'].required = True
         self.fields['celular'].required = True
         self.fields['email'].required = True
 
     class Meta:
         model = prospecto
         fields = [
-            'nombre', 'apellido_paterno', 'apellido_materno', 'genero', 'fechaNacimiento', 'calle', 'seccion', 'ocupacion', 'celular', 'telefono', 'email'
+            'nombre', 'apellido_paterno', 'apellido_materno', 'genero', 'fechaNacimiento', 'calle', 'ocupacion', 'celular', 'telefono', 'email'
         ]
         widgets = {
             'nombre': forms.TextInput(attrs={'placeholder': 'Nombre'}),
@@ -86,7 +84,6 @@ class ProspectoFormNuevo(forms.ModelForm):
             'genero': forms.Select(attrs={'placeholder': 'Selecciona un Género'}),
             'calle': forms.Select(attrs={'placeholder': 'Calle'}),
 
-            'seccion': forms.Select(attrs={'placeholder': 'Sección'}),
             'ocupacion': forms.Select(attrs={'placeholder': 'Ocupación'}),
             'celular': forms.TextInput(attrs={'placeholder': 'Número de Celular'}),
             'telefono': forms.TextInput(attrs={'placeholder': 'Número de Teléfono'}),
