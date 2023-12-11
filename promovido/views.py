@@ -354,6 +354,13 @@ class ProspectoUpdateView(UpdateView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        calles = Calle.objects.select_related('seccion').all()
+
+        context['secciones_coords'] = {
+            calle.id: {'lat': calle.seccion.latitud, 'lng': calle.seccion.longitud, 'ruta': calle.ruta}
+            for calle in calles if calle.seccion
+        }        
         context['navbar'] = 'promovidos'  # Cambia esto según la página activa
         context['seccion'] = 'ver_prospectos'  # Cambia esto según la página activa
         return context

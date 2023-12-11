@@ -124,8 +124,7 @@ class ProspectoFormNuevoUpdate(forms.ModelForm):
         model = prospecto
         fields = [
             'nombre', 'apellido_paterno', 'apellido_materno', 'genero', 'fechaNacimiento', 'calle', 'ocupacion', 'celular', 'telefono', 'email', 'tipo_solicitud', 
-            'detalle_solicitud', 'problema_tipo', 'detalle_problema', 'foto_promovido', 'foto_ine_frontal', 
-            'foto_ine_reverso', 'numeroINE', 'latitud', 'longitud'
+            'detalle_solicitud', 'problema_tipo', 'detalle_problema', 'foto_promovido', 'latitud', 'longitud'
         ]
         widgets = {
             'nombre': forms.TextInput(attrs={'placeholder': 'Nombre'}),
@@ -142,8 +141,6 @@ class ProspectoFormNuevoUpdate(forms.ModelForm):
             'detalle_solicitud': forms.Textarea(attrs={'placeholder': 'Detalles de la Solicitud'}),
             'problema_tipo': forms.Select(attrs={'placeholder': 'Tipo de Problema'}),
             'detalle_problema': forms.Textarea(attrs={'placeholder': 'Detalles del Problema'}),
-            'numeroINE': forms.TextInput(attrs={'placeholder': 'Número de INE'}),
-            # Los campos de imagen y coordenadas no necesitan placeholders
         }
 
     # Puedes agregar más configuraciones si es necesario

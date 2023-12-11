@@ -13,7 +13,14 @@
 </div>
 <form method="post" enctype="multipart/form-data" class="card p-3 mt-5">
     {% csrf_token %}
-    <h1>Datos del prospecto</h1>
+
+    {% if form.non_field_errors %}
+    <div class="alert alert-danger">
+        {% for error in form.non_field_errors %}
+            {{ error }}
+        {% endfor %}
+    </div>
+    {% endif %}
     <div class="row">
        
         <div class="col-sm-12 col-md-4 col-lg-4">
@@ -119,5 +126,33 @@
       });
     });
   </script>
+
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var nombreInput = document.querySelector('[name="nombre"]');
+        var apellido_paterno = document.querySelector('[name="apellido_paterno"]');
+        var apellido_materno = document.querySelector('[name="apellido_materno"]');
+        var detalle_solicitud = document.querySelector('[name="detalle_solicitud"]');
+        var detalle_problema = document.querySelector('[name="detalle_problema"]');
+
+        var descripcionInput = document.querySelector('[name="descripcion"]'); // Selector para el campo descripción
+
+        function convertirAMayusculas(elemento) {
+            if (elemento) {
+                elemento.addEventListener('input', function() {
+                    this.value = this.value.toUpperCase();
+                });
+            }
+        }
+
+        convertirAMayusculas(nombreInput);
+        convertirAMayusculas(apellido_paterno);
+        convertirAMayusculas(apellido_materno);
+        convertirAMayusculas(detalle_solicitud);
+        convertirAMayusculas(detalle_problema);
+
+    });
+</script>
 
 {% endblock script2 %}
