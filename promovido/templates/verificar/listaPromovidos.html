@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+{% block titulo %}Lista de Promovidos{% endblock titulo %}
+{% block dashboard %}
+<a class="btn btn-sm btn-icon1 " href="{% url "menu" %}">
+  <i class="fas fa-arrow-left"></i>
+</a>
+{% endblock dashboard %}
+{% block contenido %}
+<div class="dashboard-header">
+    <h1 class="dashboard-title">Lista de promovidos a verificar</h1>
+</div>
+<style>
+    .btn-custom{
+        background-color: rgb(17, 87, 157);
+    }
+        .btn-no-seleccionado {
+            background-color: #6c757d; /* Puedes ajustar el color a tu preferencia */
+            color: #fff; /* Color del texto en botones no seleccionados */
+            border: 1px solid #343a40; /* Color del borde en botones no seleccionados */
+        }
+    
+        .btn-no-seleccionado:hover {
+            background-color: #495057; /* Color al pasar el ratón por encima del botón no seleccionado */
+            color: #fff; /* Color del texto en botones no seleccionados al pasar el ratón por encima */
+        }
+</style>
+
+<div class="row">
+    <div class="col-lg-4 col-4">
+        <!-- small box -->
+        <div class="small-box bg-info">
+            <div class="inner">
+                <h3>{{ num_promovidos }}</h3>
+                <p>Promovidos</p>
+            </div>
+            <div class="icon">
+                <i class="fas fa-users"></i>
+            </div>
+        </div>
+    </div>
+    <!-- ./col -->
+    <div class="col-lg-4 col-4">
+        <!-- small box -->
+        <div class="small-box bg-success">
+            <div class="inner">
+                <h3>{{ num_verificados }}</h3>
+                <p>Verificados</p>
+            </div>
+            <div class="icon">
+                <i class="fa-solid fa-thumbs-up"></i>            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-4">
+        <!-- small box -->
+        <div class="small-box bg-danger">
+            <div class="inner">
+                <h3>{{ num_rechazados }}</h3>
+                <p>Rechazados</p>
+            </div>
+            <div class="icon">
+                <i class="fa-solid fa-thumbs-down"></i>           </div>
+        </div>
+    </div>
+</div>
+<div class="d-flex justify-content-center mb-3 mt-3">
+    <div class="btn-group" role="group">
+        <a href="{% url 'lista-promovidos-verificar' %}" class="btn {% if not request.GET.estado_promovidos %}btn-seleccionado{% else %}btn-no-seleccionado{% endif %}">Promovidos</a>
+        <a href="{% url 'lista-promovidos-verificar' %}?estado_promovidos=verificados" class="btn {% if request.GET.estado_promovidos == 'verificados' %}btn-seleccionado{% else %}btn-no-seleccionado{% endif %}">Verificados</a>
+        <a href="{% url 'lista-promovidos-verificar' %}?estado_promovidos=rechazados" class="btn {% if request.GET.estado_promovidos == 'rechazados' %}btn-seleccionado{% else %}btn-no-seleccionado{% endif %}">Rechazados</a>
+    </div>
+</div>
+    <div class="table-responsive">
+    
+
+        <table id="tabla" class="table table-striped table-bordered display responsive nowrap" style="width:100%">
+            
+            <thead>
+        
+                <tr>
+                    <th>Nombre Completo</th>
+                    <th>Fecha Nacimiento</th>
+                    <th>Sexo</th>
+                    <th>Calle</th>
+                    <th>Edad</th>
+                    <th>Numero Telefonico</th>
+                    <th>Correo</th>
+                    <th style="width: 5%;">Opciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for promovido in prospectos %}
+                <tr>
+                    <td>
+                        {{ promovido.nombre}}
+                        {{ promovido.apellido_paterno }} 
+                        {{ promovido.apellido_materno }}
+                    </td>
+                    <td>
+                         {{promovido.fechaNacimiento}}  
+                    </td>
+                    <td>{{ promovido.genero }} </td>
+                    <td>{{ promovido.calle }} </td>
+                    <td>{{promovido.edad}}</td>
+                    <td>
+                        {% if promovido.celular %}
+                        {{promovido.celular}}
+                        {% endif %}
+                        {% if promovido.telefono %}
+                         |{{promovido.telefono}}
+                        {% endif %}
+                    </td>
+                    <td>{{ promovido.email }} </td>
+                    <td>
+                        {% if promovido.status == 'Promovido' %}
+                        <!-- Contenido específico para promovidos -->
+                        <a class="btn btn-sm btn-icon1 tooltip-link" href="{% url "verificar" promovido.id %}" >
+                            Verificar
+                        </a>
+                    {% elif promovido.status == 'Verificado' %}
+                        <!-- Contenido específico para verificados -->
+                        <span><strong style='color:#53A551;'>Verificado</strong></span>
+                    {% elif promovido.status == 'Rechazado' %}
+                        <!-- Contenido específico para rechazados -->
+                        <span><strong style='color:#CB444A;'>Rechazado</strong></span>
+                    {% else %}
+                        <!-- Contenido por defecto -->
+                        <span>Otra opción</span>
+                    {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+        
+                <tfoot>
+                    <tr>
+                        <th>Nombre Completo</th>
+                    <th>Fecha Nacimiento</th>
+                    <th>Sexo</th>
+                    <th>Calle</th>
+                    <th>Edad</th>
+                    <th>Numero Telefonico</th>
+                    <th>Correo</th>
+                    <th style="width: 5%;">Opciones</th>
+                    </tr>
+                </tfoot>
+
+            </tbody>
+        </table>
+        </div>
+        
+{% endblock contenido%}
+{% block datatable %}
+
+  
+{% endblock datatable %}
