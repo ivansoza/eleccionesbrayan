@@ -1,0 +1,200 @@
+{% extends 'base.html' %}
+{% block titulo %}Lista de Promovidos{% endblock titulo %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block dashboard %}
+<a class="btn btn-sm btn-icon1 " href="{% url "lista-promovidos-verificar" %}">
+  <i class="fas fa-arrow-left"></i>
+</a>
+{% endblock dashboard %}
+{% block contenido %}
+<div class="row" id='datos_extranjero'>
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <!-- Card con datos del extranjero -->
+                    <div class="col-md-8">
+                        <div class="card2" style="background-color: #F2F2F2; padding: 15px; border-radius: 10px;">
+                            <div class="header">
+                                <h2 style="color: #333;">Datos del Promovido</h2>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col">
+                                        <span class="etiqueta"><strong>Nombre Completo:</strong></span>
+                                        <span class="valor">{{ prospecto.nombre }} {{ prospecto.apellido_paterno }} {{ prospecto.apellido_materno }}</span>
+                                        <br>
+                                        <span class="etiqueta"><strong>Calle:</strong></span>
+                                        <span class="valor">{{ prospecto.calle }}</span>
+                                        <br>
+                                        <span class="etiqueta"><strong>Celular:</strong></span>
+                                        <span class="valor">{{ prospecto.celular }}</span>
+                                        <br>
+                                        <!-- Otros campos de datos -->
+                                    </div>
+                                    <div class="col">
+                                        <span class="etiqueta"><strong>Fecha Nacimiento:</strong></span>
+                                        <span class="valor">{{ prospecto.fechaNacimiento }}</span>
+                                        <br>
+                                        <span class="etiqueta"><strong>Numero de Casa:</strong></span>
+                                        <span class="valor">{{ prospecto.numeroCasa }}</span>
+                                        <br>
+                                        <span class="etiqueta"><strong>Telefono Fijo:</strong></span>
+                                        <span class="valor">{{ prospecto.telefono }}</span>
+                                        <br>
+                                        <!-- Otros campos de datos -->
+                                    </div>
+                                    <div class="col">
+                                        <span class="etiqueta"><strong>Genero:</strong></span>
+                                        <span class="valor">{{ prospecto.genero }}</span>
+                                        <br>
+                                        <span class="etiqueta"><strong>Sección:</strong></span>
+                                        <span class="valor">{{ prospecto.seccion }}</span>
+                                        <br>
+                                        <span class="etiqueta"><strong>Correo:</strong></span>
+                                        <span class="valor">{{ prospecto.email }}</span>
+                                        <br>
+                                        <!-- Otros campos de datos -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-12">
+                                <div class="card p-3">
+                                    <div id="map" style="height: 250px;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Card con la foto del extranjero -->
+                    <div class="col-md-4 d-none d-md-block">
+                        <div class="card2" style="border-radius: 10px;">
+                            {% if prospecto.foto_promovido %}
+                                <img src="{{ prospecto.foto_promovido.url }}" class="card-img-top img-fluid" alt="...">
+                            {% else %}
+                                <img src="{% static 'img/usuariono.png' %}" class="card-img-top img-fluid" alt="" style="max-width: 100%; height: auto;">
+                            {% endif %}
+                            <div class="card-body text-center" style='background:#3D5B2E; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px;'>
+                                <p class="card-text" style='color:white; margin: 0;'>Foto del Promovido</p>
+                            </div>
+                        </div>
+                    </div>
+                    <form method="post" enctype="multipart/form-data" class="card p-3 ">
+                        {% csrf_token %}
+                            <div class="row">
+                                <div class="col-sm-12 col-md-4 col-lg-4"style='display:none'>
+                                    {{form.usuario_verificador|as_crispy_field}}
+                                </div>
+                                <div class="col-sm-12 col-md-4 col-lg-4">
+                                    {{form.status|as_crispy_field}}
+                                </div>
+                            </div>            
+                        <button class="btn btn-custom float-end btn-success" type="submit">Guardar</button>
+                        <br>
+                        <a href="{% url 'lista_promovidos' %}" class="btn btn-custom1" style='background-color: rgb(132, 40, 40); color: white;'>Cancelar</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+    function initMap() {
+        // Crea un mapa en el div con id 'map'
+        var map = L.map('map').setView([19.31201411958727, -98.20680856704713], 15);
+    
+        // Añade un mapa base de OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+    
+        // Recorre las ubicaciones y añade un marcador para cada una
+       
+            var marker = L.marker([{{ prospecto.latitud }}, {{ prospecto.longitud }}]);
+            var popupContent = '<div style="max-width: 200px;">';
+            
+            {% if prospecto.foto_promovido %}
+                popupContent += '<img src="{{ prospecto.foto_promovido.url }}" style="width: 100%; height: auto;">';
+            {% else %}
+                popupContent += '<p>Foto no disponible</p>';
+            {% endif %}
+    
+            popupContent += '<p>{{ ubicacion.nombre }} {{ ubicacion.apellido_paterno }} {{ ubicacion.apellido_materno }}</p></div>';            
+            marker.bindPopup(popupContent).addTo(map);
+       
+
+        // Datos GeoJSON para la línea
+        var geojsonData = {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "geometry": {
+                        "type": "LineString",
+                        "coordinates": [
+                         [-98.20123198, 19.31151377],
+                        [-98.2035597, 19.31293264],
+                        [-98.20451643, 19.31383147],
+                        [-98.20461624, 19.31514427],
+                        [-98.20655179, 19.3172306],
+                        [-98.20679604, 19.31805587],
+                        [-98.20789661, 19.31855634],
+                        [-98.20969443, 19.31909523],
+                        [-98.21057149, 19.31846793],
+                        [-98.20997856, 19.31776864],
+                        [-98.21026228, 19.31710195],
+                        [-98.21057698, 19.31530231],
+                        [-98.21072532, 19.31522844],
+                        [-98.21109956, 19.31324817],
+                        [-98.21001144, 19.31255142],
+                        [-98.21057966, 19.31095988],
+                        [-98.21096914, 19.31102883],
+                        [-98.21207767, 19.30862337],
+                        [-98.21366755, 19.30651952],
+                        [-98.21255402, 19.30582002],
+                        [-98.21236492, 19.30597781],
+                        [-98.21139235, 19.30541608],
+                        [-98.21159109, 19.30516874],
+                        [-98.21077406, 19.30493049],
+                        [-98.2099546, 19.30450574],
+                        [-98.21036405, 19.30393294],
+                        [-98.20749579, 19.30228938],
+                        [-98.20501961, 19.30569487],
+                        [-98.20280425, 19.3043862],
+                        [-98.20019732, 19.30818772],
+                        [-98.19986488, 19.30822224],
+                        [-98.20034034, 19.31010606],
+                        [-98.20081742, 19.31107898],
+                        [-98.2012279, 19.31150487]
+                        ]
+                    },
+                    "properties": {
+                        "name": "alto"
+                    }
+                }
+            ]
+        };
+
+        // Añade la capa GeoJSON al mapa
+        L.geoJSON(geojsonData, {
+            style: function(feature) {
+                return { color: 'blue' };
+            }
+        }).addTo(map);
+    }
+    
+    // Inicializa el mapa
+    initMap();
+</script>
+{% endblock contenido%}
+{% block datatable %}
+
+
+{% endblock datatable %}

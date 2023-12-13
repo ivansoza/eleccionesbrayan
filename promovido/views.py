@@ -5,7 +5,7 @@ from datetime import datetime, date
 
 from catalogos.models import Calle
 from .models import Promovido, Ubicacion, prospecto, Felicitacion
-from .forms import PromovidoForm, ProspectoForm, ProspectoFormNuevo, ProspectoFormNuevoUpdate,PromovidoFormNuevo, felicitacionForms
+from .forms import PromovidoForm, ProspectoForm, ProspectoFormNuevo, ProspectoFormNuevoUpdate,PromovidoFormNuevo, felicitacionForms, verificarForms
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -590,3 +590,73 @@ def obtener_calles(request):
     print(f"Calles encontradas: {calles_list}")
 
     return JsonResponse({'calles': calles_list})
+
+
+class PromovidosLista(ListView):
+    template_name = 'verificar/listaPromovidos.html'
+    context_object_name = 'prospectos'
+    model = prospecto
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Contar el número de prospectos con status 'Promovido' y 'Verificado'
+        num_promovidos = prospecto.objects.filter(status='Promovido').count()
+        num_verificados = prospecto.objects.filter(status='Verificado').count()
+        num_rechazados = prospecto.objects.filter(status='Rechazado').count()
+
+        context['num_promovidos'] = num_promovidos
+        context['num_verificados'] = num_verificados
+        context['num_rechazados'] = num_rechazados
+        context['navbar'] = 'promovidos'  
+        context['seccion'] = 'veri_promovidos' 
+
+        return context
+
+    def get_queryset(self):
+        today = datetime.now().date()
+        user = self.request.user
+
+        estado_promovidos = self.request.GET.get('estado_promovidos', 'promovidos')
+
+        if user.groups.filter(name__in=['Administrador', 'Coordinador General']).exists():
+            if estado_promovidos == 'verificados':
+                queryset = prospecto.objects.filter(status='Verificado')
+            elif estado_promovidos == 'rechazados':
+                queryset = prospecto.objects.filter(status='Rechazado')
+            else:
+                queryset = prospecto.objects.filter(status='Promovido')
+
+            for promovido in queryset:
+                edad = today.year - promovido.fechaNacimiento.year - (
+                    (today.month, today.day) < (promovido.fechaNacimiento.month, promovido.fechaNacimiento.day)
+                )
+                setattr(promovido, 'edad', edad)
+
+        return queryset
+    
+
+class verificarPromovidos(UpdateView):
+    template_name ='verificar/verificarPromovido.html'
+    model = prospecto
+    form_class = verificarForms
+    def get_success_url(self):
+        messages.success(self.request, 'Verificación exitosa.')
+        return reverse('lista-promovidos-verificar')
+
+    def get_initial(self):
+        initial = super().get_initial()
+        usuario = self.request.user
+        initial['usuario_verificador']=usuario
+        initial['status']='Verificado'
+        return initial
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        prospecto_id = self.kwargs.get('pk')
+        prospetos= prospecto.objects.get(pk=prospecto_id)
+        context['prospecto']=prospetos
+        context['navbar'] = 'promovidos'  
+        context['seccion'] = 'veri_promovidos'
+        return context
+

@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Calle, Promovido, GENERO_CHOICES,prospecto, Felicitacion
+from .models import Calle, Promovido, GENERO_CHOICES,prospecto, Felicitacion, STATUS_CHOICES
 from django.core.exceptions import ValidationError
 import datetime
 
@@ -246,3 +246,18 @@ class felicitacionForms(forms.ModelForm):
      class Meta:
         model = Felicitacion
         fields = '__all__'
+
+
+
+class StatusSelectWidget(forms.Select):
+    def create_option(self, name, value, label, selected, index, subindex=None, attrs=None):
+        option = super().create_option(name, value, label, selected, index, subindex=subindex, attrs=attrs)
+        # Filtra las opciones para mostrar solo 'Verificado' y 'Rechazado'
+        if value not in ['Verificado', 'Rechazado']:
+            option['attrs']['style'] = 'display:none;'
+        return option
+class verificarForms(forms.ModelForm):
+    status = forms.ChoiceField(choices=STATUS_CHOICES, widget=StatusSelectWidget)
+    class Meta:
+        model = prospecto
+        fields = ['usuario_verificador','status']
