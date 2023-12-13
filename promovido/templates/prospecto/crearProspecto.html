@@ -46,8 +46,12 @@
     </div>     
     <div class="row">
 
-        <div class="col-sm-12 col-md-4 col-lg-3">
+        <div class="col-sm-12 col-md-6 col-lg-6">
             {{form.calle|as_crispy_field}}
+        </div>
+
+        <div class="col-sm-12 col-md-6 col-lg-6">
+            {{form.numeroCasa|as_crispy_field}}
         </div>
     </div>     
     <div class="row">
@@ -135,6 +139,7 @@
         var apellido_materno = document.querySelector('[name="apellido_materno"]');
         var detalle_solicitud = document.querySelector('[name="detalle_solicitud"]');
         var detalle_problema = document.querySelector('[name="detalle_problema"]');
+        var numeroCasa = document.querySelector('[name="numeroCasa"]');
 
         var descripcionInput = document.querySelector('[name="descripcion"]'); // Selector para el campo descripción
 
@@ -151,6 +156,7 @@
         convertirAMayusculas(apellido_materno);
         convertirAMayusculas(detalle_solicitud);
         convertirAMayusculas(detalle_problema);
+        convertirAMayusculas(numeroCasa);
 
     });
 </script>

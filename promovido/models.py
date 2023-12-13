@@ -126,7 +126,7 @@ class prospecto(models.Model):
     apellido_materno = models.CharField(max_length=100)
     genero = models.CharField(max_length=50, choices=GENERO_CHOICES)
     fechaNacimiento = models.DateField(verbose_name='Fecha de Nacimiento')
-    numeroCasa = models.CharField(max_length=5)
+    numeroCasa = models.CharField(max_length=5, verbose_name="Número de Casa:")
     calle = models.ForeignKey(
             Calle, 
             on_delete=models.SET_NULL, 

@@ -75,7 +75,7 @@ class ProspectoFormNuevo(forms.ModelForm):
     class Meta:
         model = prospecto
         fields = [
-            'nombre', 'apellido_paterno', 'apellido_materno', 'genero', 'fechaNacimiento', 'calle', 'ocupacion', 'celular', 'telefono', 'email'
+            'nombre', 'apellido_paterno', 'apellido_materno', 'genero', 'fechaNacimiento', 'calle','numeroCasa', 'ocupacion', 'celular', 'telefono', 'email'
         ]
         widgets = {
             'nombre': forms.TextInput(attrs={'placeholder': 'Nombre'}),
@@ -83,6 +83,7 @@ class ProspectoFormNuevo(forms.ModelForm):
             'apellido_materno': forms.TextInput(attrs={'placeholder': 'Apellido Materno'}),
             'genero': forms.Select(attrs={'placeholder': 'Selecciona un Género'}),
             'calle': forms.Select(attrs={'placeholder': 'Calle'}),
+            'numeroCasa': forms.TextInput(attrs={'placeholder': 'Ej: 35 A'}),
 
             'ocupacion': forms.Select(attrs={'placeholder': 'Ocupación'}),
             'celular': forms.TextInput(attrs={'placeholder': 'Número de Celular'}),
@@ -124,7 +125,7 @@ class ProspectoFormNuevoUpdate(forms.ModelForm):
         model = prospecto
         fields = [
             'nombre', 'apellido_paterno', 'apellido_materno', 'genero', 'fechaNacimiento', 'calle', 'ocupacion', 'celular', 'telefono', 'email', 'tipo_solicitud', 
-            'detalle_solicitud', 'problema_tipo', 'detalle_problema', 'foto_promovido', 'latitud', 'longitud'
+            'detalle_solicitud', 'problema_tipo', 'detalle_problema', 'foto_promovido', 'latitud', 'longitud','numeroCasa'
         ]
         widgets = {
             'nombre': forms.TextInput(attrs={'placeholder': 'Nombre'}),
@@ -132,6 +133,7 @@ class ProspectoFormNuevoUpdate(forms.ModelForm):
             'apellido_materno': forms.TextInput(attrs={'placeholder': 'Apellido Materno'}),
             'genero': forms.Select(attrs={'placeholder': 'Selecciona un Género'}),
             'fechaNacimiento': forms.DateInput(attrs={'placeholder': 'Fecha de Nacimiento', 'type': 'date'}),
+            'numeroCasa': forms.TextInput(attrs={'placeholder': 'Ej: 35 A'}),
 
             'ocupacion': forms.Select(attrs={'placeholder': 'Ocupación'}),
             'celular': forms.TextInput(attrs={'placeholder': 'Número de Celular'}),
@@ -201,14 +203,15 @@ class PromovidoFormNuevo(forms.ModelForm):
         fields = [
             'nombre', 'apellido_paterno', 'apellido_materno', 'genero', 'fechaNacimiento', 'calle', 'ocupacion', 'celular', 'telefono', 'email', 'tipo_solicitud', 
             'detalle_solicitud', 'problema_tipo', 'detalle_problema', 'foto_promovido', 
-            'latitud', 'longitud'
+            'latitud', 'longitud','numeroCasa'
         ]
         widgets = {
             'nombre': forms.TextInput(attrs={'placeholder': 'Nombre'}),
             'apellido_paterno': forms.TextInput(attrs={'placeholder': 'Apellido Paterno'}),
             'apellido_materno': forms.TextInput(attrs={'placeholder': 'Apellido Materno'}),
             'genero': forms.Select(attrs={'placeholder': 'Selecciona un Género'}),
-          
+            'numeroCasa': forms.TextInput(attrs={'placeholder': 'Ej: 35 A'}),
+
             'ocupacion': forms.Select(attrs={'placeholder': 'Ocupación'}),
             'celular': forms.TextInput(attrs={'placeholder': 'Número de Celular'}),
             'telefono': forms.TextInput(attrs={'placeholder': 'Número de Teléfono'}),
