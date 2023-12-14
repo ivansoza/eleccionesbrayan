@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'configuracion',
 
     'django_postalcodes_mexico.apps.DjangoPostalcodesMexicoConfig',
+    'votacion'
     # ...
 
 

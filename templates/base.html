@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>  
     {% block titulo %}
-    Armenta
+    Brayan 
     {% endblock titulo %}
 </title>
   {% block linkprincipal %}
@@ -458,6 +458,36 @@
               </li>
            
             </ul>
+          </li>
+
+          <li class="nav-item {% if navbar == 'votos' %}menu-is-opening menu-open{% endif %}">
+            <a href="#" class="nav-link {% if navbar == 'votos' %}active first-li{% endif %}">
+              <i class="nav-icon fa-solid fa-check-to-slot"></i>
+              <p>
+                Votación
+                <i class="fas fa-angle-left right"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="" class="nav-link {% if seccion == 'estadisticasvoto' %}active {% endif %}">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Estadisticas</p>
+                </a>
+              </li>
+           
+            </ul>
+
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href=" {% url "lista-votos" %}" class="nav-link {% if seccion == 'listvotantes' %}active {% endif %}">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Lista de Votantes</p>
+                </a>
+              </li>
+           
+            </ul>
+            
           </li>
 
        

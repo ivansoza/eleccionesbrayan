@@ -31,6 +31,8 @@ urlpatterns = [
     path("agenda/", include('agenda.urls')),
     path("configuracion/", include('configuracion.urls')),
     path('postal-code/', include(django_postalcodes_mexico_urls)),
+    path("votacion/", include('votacion.urls')),
+
 
 
 ]
