@@ -97,7 +97,7 @@ Lista de Usuarios
                     {% endfor %}
                     </td>
                 <td>
-                {% if es_coordinador_seccion %}
+                {% if es_coordinador_seccion or es_administrador or es_candidato%}
                   <form action="{% url 'update_user_status_promotor' user.pk %}" method="post">
                     {% csrf_token %}
                     <input type="hidden" name="is_active" value="{{ user.is_active|yesno:'False,True' }}">

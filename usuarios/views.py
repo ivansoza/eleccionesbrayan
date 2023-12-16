@@ -105,44 +105,8 @@ class UserCreateCordiGeneView(LoginRequiredMixin,UserPassesTestMixin,CreateView)
         # Redirigir a alguna página de error o inicio si el usuario no cumple el test
         return redirect('templeteDenegado')
     
-    # ----------------------- FIN CREAR USUARIO DESDE GRUPO Coordinador General--------------
-   
-# CREAR USUARIO DESDE GRUPO COORDINADOR SECCION --------------
-class UserCreateViewCordiSeccion(LoginRequiredMixin,UserPassesTestMixin,CreateView):
-    model = CustomUser
-    form_class = CustomUserCreationFormTemplateCordiSeccion
-    template_name = 'coordinadores/register_user_cor_seccion.html'
-    success_url = reverse_lazy('UserListViewCordiSeccion')  # Asegúrate de definir esta URL en tu urls.py
 
-    def test_func(self):
-        return self.request.user.groups.filter(name='Coordinador de Area').exists()
-    
-    def form_valid(self, form):
-        user = form.save(commit=False)
-        user.created_by = self.request.user
-        user.save()
-        admin_group, created = Group.objects.get_or_create(name='Coordinador Sección')
-        user.groups.add(admin_group)
-        messages.success(self.request, "Usuario creado con éxito.")
-        return super().form_valid(form)
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        if self.request.user.groups.filter(name='Coordinador General').exists():
-            context['navbar'] = 'gestion_user' 
-            context['seccion'] = 'ver_coordinadores_area1'  
-
-        elif self.request.user.groups.filter(name='Administrador').exists():
-            context['navbar'] = 'gestion_user'  # Cambia esto según la página activa
-            context['seccion'] = 'ver_usuarios'  
-        return context
-    def get_form_kwargs(self):
-            kwargs = super(UserCreateViewCordiSeccion, self).get_form_kwargs()
-            kwargs['user'] = self.request.user
-            return kwargs
-    def handle_no_permission(self):
-        # Redirigir a alguna página de error o inicio si el usuario no cumple el test
-        return redirect('templeteDenegado')
-    
+# -------------------CREACION DE UN USUARIO PROMOTOR READY------------------
 class UserCreateViewPromotor(LoginRequiredMixin,UserPassesTestMixin,CreateView):
     model = CustomUser
     form_class = CustomUserCreationFormTemplatePromotor
@@ -183,37 +147,65 @@ class UserCreateViewPromotor(LoginRequiredMixin,UserPassesTestMixin,CreateView):
             kwargs = super(UserCreateViewPromotor, self).get_form_kwargs()
             kwargs['user'] = self.request.user
             return kwargs
+
+class UserListViewCordiPromo(LoginRequiredMixin, UserPassesTestMixin,ListView):
+    model = CustomUser
+    template_name = 'administradores/list_user_Promotor.html'
+    context_object_name = 'users'
+    def test_func(self):
+        return self.request.user.groups.filter(
+                    Q(name='Administrador') |
+                    Q(name='Candidato') |
+                    Q(name='Coordinador General') 
+                ).exists()   
     def handle_no_permission(self):
         # Redirigir a alguna página de error o inicio si el usuario no cumple el test
         return redirect('templeteDenegado')
+    def get_queryset(self):
+        user = self.request.user
+        special_groups = ['Administrador', 'Candidato', 'Coordinador General']
+        is_special_user = user.groups.filter(name__in=special_groups).exists()
 
-class UserCreateViewPromotores(LoginRequiredMixin,CreateView):
-    model = CustomUser
-    form_class = CustomPromotorCreationFormTemplate
-    template_name = 'promotores/register_user.html'
-    success_url = reverse_lazy('menu')  # Asegúrate de definir esta URL en tu urls.py
-
-    def form_valid(self, form):
-        user = form.save(commit=False)  # Guarda el usuario pero no lo comprometas todavía en la base de datos
-        user.created_by = self.request.user  # Asigna el usuario autenticado como el creador del usuario
-        user.save()  # Ahora sí guarda el usuario en la base de datos
-
-        group = form.cleaned_data.get('group')  # Obtiene el grupo seleccionado
-        if group:
-            user.groups.add(group)  # Agrega el usuario al grupo
-
-        return super().form_valid(form)
+        if is_special_user:
+            # Estos grupos pueden ver a todos los 'Promotores'
+            return CustomUser.objects.filter(groups__name='Promotor')
+        else:
+            # 'Coordinadores de Area' y 'Coordinadores de Sección' solo ven 'Promotores' en sus secciones
+            allowed_groups = ['Coordinador de Area', 'Coordinador Sección']
+            if user.groups.filter(name__in=allowed_groups).exists():
+                user_sections = user.seccion.all()
+                return CustomUser.objects.filter(
+                    groups__name='Promotor', 
+                    seccion__in=user_sections
+                )
+            return CustomUser.objects.none()
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['navbar'] = 'gestion_user'  # Cambia esto según la página activa
-        context['seccion'] = 'ver_promotores'  # Cambia esto según la página activa
-        context['seccion4'] = 'ver_cordi_3'  # Cambia esto según la página activa
+        context['num_cordi_promo'] = self.get_queryset().count()
+        context['es_coordinador_seccion'] = self.request.user.groups.filter(name='Coordinador Sección').exists()
+        queryset = self.get_queryset()
+        context['num_hombres'] = queryset.filter(sexo='M').count()
+        context['num_mujeres'] = queryset.filter(sexo='F').count()
+        
+        if self.request.user.groups.filter(name='Coordinador General').exists():
+            context['navbar'] = 'consulta_users' 
+            context['seccion'] = 'ver_promotores'  
 
+        elif self.request.user.groups.filter(name='Administrador').exists():
+            context['navbar'] = 'consulta_users'  
+            context['seccion'] = 'ver_promotores'
+        elif self.request.user.groups.filter(name='Coordinador de Area').exists():
+            context['navbar'] = 'consulta_users'  
+            context['seccion'] = 'ver_promotores' 
+
+        elif self.request.user.groups.filter(name='Coordinador Sección').exists():
+            context['navbar'] = 'gestion_user'  
+            context['seccion'] = 'ver_promotores' 
         return context
 
+        
+#------------------ FIN DE PROMOTOR READY -.-----------------------
 
-
-    
 class UserListView(LoginRequiredMixin,UserPassesTestMixin, ListView):
     model = CustomUser
     template_name = 'administradores/list_user_Administrador.html'
@@ -264,54 +256,8 @@ class UserListViewCordiGen(LoginRequiredMixin, ListView):
         context['es_administrador'] = self.request.user.groups.filter(name='Administrador').exists()
 
         return context
-class UserListViewCordiPromo(LoginRequiredMixin, ListView):
-    model = CustomUser
-    template_name = 'administradores/list_user_Promotor.html'
-    context_object_name = 'users'
 
-    def get_queryset(self):
-        user = self.request.user
-        special_groups = ['Administrador', 'Candidato', 'Coordinador General']
-        is_special_user = user.groups.filter(name__in=special_groups).exists()
 
-        if is_special_user:
-            # Estos grupos pueden ver a todos los 'Promotores'
-            return CustomUser.objects.filter(groups__name='Promotor')
-        else:
-            # 'Coordinadores de Area' y 'Coordinadores de Sección' solo ven 'Promotores' en sus secciones
-            allowed_groups = ['Coordinador de Area', 'Coordinador Sección']
-            if user.groups.filter(name__in=allowed_groups).exists():
-                user_sections = user.seccion.all()
-                return CustomUser.objects.filter(
-                    groups__name='Promotor', 
-                    seccion__in=user_sections
-                )
-
-            # Si no es un usuario especial ni pertenece a los grupos permitidos, no verá ningún usuario
-            return CustomUser.objects.none()
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['num_cordi_promo'] = self.get_queryset().count()
-        context['es_coordinador_seccion'] = self.request.user.groups.filter(name='Coordinador Sección').exists()
-        queryset = self.get_queryset()
-        context['num_hombres'] = queryset.filter(sexo='M').count()
-        context['num_mujeres'] = queryset.filter(sexo='F').count()
-        
-        if self.request.user.groups.filter(name='Coordinador General').exists():
-            context['navbar'] = 'consulta_users' 
-            context['seccion'] = 'ver_promotores'  
-
-        elif self.request.user.groups.filter(name='Administrador').exists():
-            context['navbar'] = 'consulta_users'  
-            context['seccion'] = 'ver_promotores'
-        elif self.request.user.groups.filter(name='Coordinador de Area').exists():
-            context['navbar'] = 'consulta_users'  
-            context['seccion'] = 'ver_promotores' 
-
-        elif self.request.user.groups.filter(name='Coordinador Sección').exists():
-            context['navbar'] = 'gestion_user'  
-            context['seccion'] = 'ver_promotores' 
-        return context
 
 
 
