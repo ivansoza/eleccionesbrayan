@@ -11,58 +11,65 @@ from promovido.models import prospecto
 from usuarios.models import Seccion
 from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required
-
+from django.views.generic import ListView
+from django.contrib.auth.mixins import LoginRequiredMixin
 from configuracion.models import CandidatoConfig
 # Create your views here.
-
+from django.http import HttpResponse
+import boto3
+from botocore.exceptions import NoCredentialsError, ClientError
 
 def home(request):
     return render(request,'home.html')
 
 
 
-def menu(request):
-    user = request.user
-    special_groups = ['Administrador', 'Coordinador General', 'Candidato']
-    is_special_user = user.groups.filter(name__in=special_groups).exists()
+class MenuView(LoginRequiredMixin, ListView):
+    template_name = "menu.html"
+    context_object_name = 'prospectos'
+    model = prospecto  # Asegúrate de que 'prospecto' es el nombre correcto del modelo
 
-    # Si el usuario es especial, verá todos los prospectos; de lo contrario, solo los de sus secciones
-    if is_special_user:
-        # Usuarios con acceso a todos los prospectos
-        prospectos_filtrados = prospecto.objects.all()
-    else:
-        # Usuarios con acceso limitado a sus secciones asignadas
-        user_sections = user.seccion.all()
-        prospectos_filtrados = prospecto.objects.filter(seccion__in=user_sections)
+    def get_queryset(self):
+        user = self.request.user
+        if user.groups.filter(name__in=['Administrador', 'Coordinador General', 'Candidato']).exists():
+            return prospecto.objects.all()
+        elif user.groups.filter(name__in=['Coordinador de Area', 'Coordinador Sección']).exists():
+            secciones_usuario = user.seccion.all()
+            return prospecto.objects.filter(calle__seccion__in=secciones_usuario)
+        elif user.groups.filter(name='Promotor').exists():
+            return prospecto.objects.filter(usuario=user)
+        else:
+            return prospecto.objects.none()
 
-    # Contadores ajustados según el usuario y su grupo
-    ProspectosPromovidos = prospectos_filtrados.filter(status="Promovido").count()
-    TotalProspectos = prospectos_filtrados.filter(status="Prospecto").count()
-    TotalSecciones = Seccion.objects.all().count()
-    try:
-        config = CandidatoConfig.objects.first()
-        meta_promovidos = config.meta_promovidos if config else 0
-    except CandidatoConfig.DoesNotExist:
-        meta_promovidos = 0  # Define un valor por defecto si no hay configuración
-
-    # Calcula el porcentaje de la meta alcanzada
-    porcentaje_alcanzado = (ProspectosPromovidos / meta_promovidos * 100) if meta_promovidos else 0
-    porcentaje_alcanzado = min(porcentaje_alcanzado, 100)  # Asegura que no exceda el 100%
-    TotalCalles = Calle.objects.all().count()
-
-    context = {
-        'prospectos_promovidos': ProspectosPromovidos,
-        'total_prospectos': TotalProspectos,
-        'total_secciones': TotalSecciones,
-        'meta_promovidos': meta_promovidos,
-        'porcentaje_alcanzado': porcentaje_alcanzado, 
-        'navbar': "home",
-        'total_calles': TotalCalles,  # Agrega esta línea para incluir el total de calles
-
-    }
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        prospectos_filtrados = self.get_queryset()
 
 
-    return render(request, "menu.html", context)
+        # Añadir contadores y otros datos al contexto
+        context['prospectos_promovidos'] = prospectos_filtrados.filter(status="Promovido").count()
+        context['total_prospectos'] = prospectos_filtrados.count()
+        if user.groups.filter(name__in=['Administrador', 'Coordinador General', 'Candidato']).exists():
+            # Contar todas las secciones y calles para usuarios con acceso especial
+            context['total_secciones'] = Seccion.objects.all().count()
+            context['total_calles'] = Calle.objects.all().count()
+        else:
+            # Contar solo las secciones y calles relacionadas con el usuario para otros grupos
+            secciones_usuario = user.seccion.all()
+            context['total_secciones'] = secciones_usuario.count()
+            context['total_calles'] = Calle.objects.filter(seccion__in=secciones_usuario).count()
+
+        try:
+            config = CandidatoConfig.objects.first()
+            context['meta_promovidos'] = config.meta_promovidos if config else 0
+        except CandidatoConfig.DoesNotExist:
+            context['meta_promovidos'] = 0
+
+        context['porcentaje_alcanzado'] = min((context['prospectos_promovidos'] / context['meta_promovidos'] * 100) if context['meta_promovidos'] else 0, 100)
+        context['navbar'] = "home"
+
+        return context
 
 class CustomLoginView(LoginView):
     template_name = 'registration/login.html'
@@ -148,3 +155,38 @@ def ubicacion_primera_seccion(request):
             return JsonResponse(data)
     
     return JsonResponse({'error': 'No sección disponible'}, status=404)
+
+
+
+def send_sms_view(request):
+    # La región debería coincidir con la configuración de tu cuenta SNS
+    sns_client = boto3.client('sns', region_name='us-east-1')
+    
+    # Lista de números en formato E.164
+    phone_numbers = ['+522461229984', '+522462087165']  # Agrega los números aquí
+    message = 'Hola, feliz cumplaeaños mi estimado Antonio sois, espero que te la pases fantastico!'
+    
+    # Guardar los resultados de cada intento de envío en un diccionario
+    results = {}
+
+    for number in phone_numbers:
+        try:
+            response = sns_client.publish(
+                PhoneNumber=number,
+                Message=message,
+                MessageAttributes={
+                    'AWS.SNS.SMS.SMSType': {
+                        'DataType': 'String',
+                        'StringValue': 'Transactional'  # O 'Promotional' dependiendo del uso
+                    }
+                }
+            )
+            # Guardar el MessageId en el diccionario de resultados
+            results[number] = f"Mensaje enviado exitosamente! ID: {response['MessageId']}"
+        except NoCredentialsError:
+            results[number] = "Error: No se encontraron credenciales de AWS."
+        except ClientError as e:
+            results[number] = f"Error al enviar mensaje: {e}"
+
+    # Devolver una respuesta JSON con los resultados de cada número
+    return JsonResponse(results)

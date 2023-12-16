@@ -1,11 +1,11 @@
 from django.db import models
 
 from elecciones import settings
-
+from promovido.models import prospecto
 # Create your models here.
 class Voto(models.Model):
     prospecto = models.ForeignKey(
-        'Prospecto',  # Asegúrate de usar el nombre correcto de tu modelo Prospecto
+        prospecto,  # Asegúrate de usar el nombre correcto de tu modelo Prospecto
         on_delete=models.CASCADE,
         related_name='votos'
     )

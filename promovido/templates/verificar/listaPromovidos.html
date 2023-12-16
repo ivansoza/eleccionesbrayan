@@ -113,9 +113,17 @@
                     <td>
                         {% if promovido.status == 'Promovido' %}
                         <!-- Contenido específico para promovidos -->
-                        <a class="btn btn-sm btn-icon1 tooltip-link" href="{% url "verificar" promovido.id %}" >
-                            Verificar
-                        </a>
+                        
+
+                            {% if es_administrador or  es_coordinador_general or es_candidato%}
+                                <a class="btn btn-sm btn-icon1 tooltip-link" href="{% url "verificar" promovido.id %}" >
+                                    Verificar
+                                </a>
+                            {% else %}
+                                <a class="btn btn-sm btn-icon1 tooltip-link esperando-verificacion" href="#">
+                                        Esperando Verificación
+                                    </a>
+                            {% endif %}
                     {% elif promovido.status == 'Verificado' %}
                         <!-- Contenido específico para verificados -->
                         <span><strong style='color:#53A551;'>Verificado</strong></span>
@@ -146,6 +154,20 @@
             </tbody>
         </table>
         </div>
+
+        <script>
+    document.querySelectorAll('.esperando-verificacion').forEach(function(button) {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            Swal.fire({
+                title: 'En espera de verificación',
+                text: 'Este proceso puede tardar hasta 24 horas. Por favor, ten paciencia mientras revisamos tu solicitud.',
+                icon: 'info',
+                confirmButtonText: 'Entendido'
+            });
+        });
+    });
+</script>
         
 {% endblock contenido%}
 {% block datatable %}

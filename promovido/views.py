@@ -317,13 +317,19 @@ class ListaProspectosNuevo(ListView):
 
     def get_queryset(self):
         user = self.request.user
-        if user.groups.filter(name__in=['Administrador', 'Coordinador General']).exists():
-            # El usuario es Administrador o Coordinador General, puede ver todos los prospectos con status 'Prospecto'
+        if user.groups.filter(name__in=['Administrador', 'Coordinador General', 'Candidato']).exists():
+            # Usuarios con roles especiales, muestran todos los prospectos con status 'Promovido'
             return prospecto.objects.filter(status='Prospecto')
+        elif user.groups.filter(name__in=['Coordinador de Area', 'Coordinador Sección']).exists():
+            # Usuarios Coordinadores de Área y Sección, filtran por sección a través de la calle
+            secciones_usuario = user.seccion.all()
+            return prospecto.objects.filter(calle__seccion__in=secciones_usuario, status='Prospecto')
+        elif user.groups.filter(name='Promotor').exists():
+            # Usuarios Promotores, filtran por los usuarios que han agregado
+            return prospecto.objects.filter(usuario=user, status='Prospecto')
         else:
-            # El usuario no es Administrador o Coordinador General, filtra por secciones
-            secciones_usuario = Seccion.objects.filter(customuser=user)
-            return prospecto.objects.filter(seccion__in=secciones_usuario, status='Prospecto')
+            # Para otros usuarios, puedes definir un comportamiento por defecto
+            return prospecto.objects.none()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -372,22 +378,26 @@ class ListaPromovidosNuevo(ListView):
     def get_queryset(self):
         user = self.request.user
         if user.groups.filter(name__in=['Administrador', 'Coordinador General', 'Candidato']).exists():
-            # El usuario pertenece a uno de los grupos especiales, muestra todos los prospectos con status 'Promovido'
+            # Usuarios con roles especiales, muestran todos los prospectos con status 'Promovido'
             return prospecto.objects.filter(status='Promovido')
-        else:
-            # El usuario no pertenece a los grupos especiales, filtra por las secciones del usuario
+        elif user.groups.filter(name__in=['Coordinador de Area', 'Coordinador Sección']).exists():
+            # Usuarios Coordinadores de Área y Sección, filtran por sección a través de la calle
             secciones_usuario = user.seccion.all()
-            return prospecto.objects.filter(seccion__in=secciones_usuario, status='Promovido')
+            return prospecto.objects.filter(calle__seccion__in=secciones_usuario, status='Promovido')
+        elif user.groups.filter(name='Promotor').exists():
+            # Usuarios Promotores, filtran por los usuarios que han agregado
+            return prospecto.objects.filter(usuario=user, status='Promovido')
+        else:
+            # Para otros usuarios, puedes definir un comportamiento por defecto
+            return prospecto.objects.none()
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         queryset = self.get_queryset()
         context['num_hombres'] = queryset.filter(genero='Hombre').count()
         context['num_mujeres'] = queryset.filter(genero='Mujer').count()
-
-        # Contador global de todos los promovidos
         context['contador_global'] = queryset.count()
-        context['navbar'] = 'promovidos'  # Cambia esto según la página activa
-        context['seccion'] = 'ver_promovidos'  # Cambia esto según la página activa
+        context['navbar'] = 'promovidos'  
+        context['seccion'] = 'ver_promovidos' 
         return context
 
 
@@ -397,7 +407,18 @@ class MapaProspectosPromovidosView(ListView):
     context_object_name = 'prospectos'
 
     def get_queryset(self):
-        queryset = prospecto.objects.filter(status='Promovido')
+        user = self.request.user
+        if user.groups.filter(name__in=['Administrador', 'Coordinador General', 'Candidato']).exists():
+            queryset = prospecto.objects.filter(status='Promovido')
+        elif user.groups.filter(name__in=['Coordinador de Area', 'Coordinador Sección']).exists():
+            secciones_usuario = user.seccion.all()
+            queryset = prospecto.objects.filter(calle__seccion__in=secciones_usuario, status='Promovido')
+        elif user.groups.filter(name='Promotor').exists():
+            queryset = prospecto.objects.filter(usuario=user, status='Promovido')
+        else:
+            return prospecto.objects.none()
+
+        # Aplica filtros adicionales si están presentes
         calle_filtro = self.request.GET.get('calle')
         genero_filtro = self.request.GET.get('genero')
 
@@ -407,17 +428,31 @@ class MapaProspectosPromovidosView(ListView):
             queryset = queryset.filter(genero=genero_filtro)
 
         return queryset
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['navbar'] = 'promovidos'  # Cambia esto según la página activa
+        user = self.request.user
+
+        if user.groups.filter(name__in=['Administrador', 'Coordinador General', 'Candidato']).exists():
+            calles = Calle.objects.all()
+        elif user.groups.filter(name__in=['Coordinador de Area', 'Coordinador Sección']).exists():
+            secciones_usuario = user.seccion.all()
+            calles = Calle.objects.filter(seccion__in=secciones_usuario)
+        elif user.groups.filter(name='Promotor').exists():
+            # Si un Promotor solo debería ver las calles relacionadas con los prospectos que ha agregado, ajusta esta consulta
+            calles = Calle.objects.filter(prospectos__usuario=user).distinct()
+        else:
+            calles = Calle.objects.none()
+
+        context['navbar'] = 'promovidos'
         context['seccion'] = 'mapa_promovidos'
         queryset = self.get_queryset()
         context['num_hombres'] = queryset.filter(genero='Hombre').count()
         context['num_mujeres'] = queryset.filter(genero='Mujer').count()
-        context['calles'] = Calle.objects.all()  # Agrega todas las calles al contexto
+        context['calles'] = calles
         context['contador_global'] = queryset.count()
         return context
-    
+
 class CreatePromovidoNuevo(CreateView):
     template_name = 'prospecto/crearPromovido.html'
     form_class = PromovidoFormNuevo
@@ -597,44 +632,62 @@ class PromovidosLista(ListView):
     context_object_name = 'prospectos'
     model = prospecto
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        # Contar el número de prospectos con status 'Promovido' y 'Verificado'
-        num_promovidos = prospecto.objects.filter(status='Promovido').count()
-        num_verificados = prospecto.objects.filter(status='Verificado').count()
-        num_rechazados = prospecto.objects.filter(status='Rechazado').count()
-
-        context['num_promovidos'] = num_promovidos
-        context['num_verificados'] = num_verificados
-        context['num_rechazados'] = num_rechazados
-        context['navbar'] = 'promovidos'  
-        context['seccion'] = 'veri_promovidos' 
-
-        return context
-
     def get_queryset(self):
         today = datetime.now().date()
         user = self.request.user
-
         estado_promovidos = self.request.GET.get('estado_promovidos', 'promovidos')
 
-        if user.groups.filter(name__in=['Administrador', 'Coordinador General']).exists():
-            if estado_promovidos == 'verificados':
-                queryset = prospecto.objects.filter(status='Verificado')
-            elif estado_promovidos == 'rechazados':
-                queryset = prospecto.objects.filter(status='Rechazado')
-            else:
-                queryset = prospecto.objects.filter(status='Promovido')
+        # Determinar el estado de los prospectos a filtrar
+        if estado_promovidos == 'verificados':
+            estado_filtro = 'Verificado'
+        elif estado_promovidos == 'rechazados':
+            estado_filtro = 'Rechazado'
+        else:
+            estado_filtro = 'Promovido'
 
-            for promovido in queryset:
-                edad = today.year - promovido.fechaNacimiento.year - (
-                    (today.month, today.day) < (promovido.fechaNacimiento.month, promovido.fechaNacimiento.day)
-                )
-                setattr(promovido, 'edad', edad)
+        # Filtrar los prospectos según el grupo y el estado
+        if user.groups.filter(name__in=['Administrador', 'Coordinador General', 'Candidato']).exists():
+            queryset = prospecto.objects.filter(status=estado_filtro)
+        elif user.groups.filter(name__in=['Coordinador de Area', 'Coordinador Sección']).exists():
+            secciones_usuario = user.seccion.all()
+            queryset = prospecto.objects.filter(calle__seccion__in=secciones_usuario, status=estado_filtro)
+        elif user.groups.filter(name='Promotor').exists():
+            queryset = prospecto.objects.filter(usuario=user, status=estado_filtro)
+        else:
+            queryset = prospecto.objects.none()
+
+        # Calcular la edad para cada promovido
+        for promovido in queryset:
+            edad = today.year - promovido.fechaNacimiento.year - (
+                (today.month, today.day) < (promovido.fechaNacimiento.month, promovido.fechaNacimiento.day)
+            )
+            setattr(promovido, 'edad', edad)
 
         return queryset
-    
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+
+        # Determinar qué prospectos contar según el grupo del usuario
+        if user.groups.filter(name__in=['Administrador', 'Coordinador General', 'Candidato']).exists():
+            queryset = prospecto.objects.all()
+        elif user.groups.filter(name__in=['Coordinador de Area', 'Coordinador Sección']).exists():
+            secciones_usuario = user.seccion.all()
+            queryset = prospecto.objects.filter(calle__seccion__in=secciones_usuario)
+        elif user.groups.filter(name='Promotor').exists():
+            queryset = prospecto.objects.filter(usuario=user)
+        else:
+            queryset = prospecto.objects.none()
+
+        # Contar el número de prospectos por estado
+        context['num_promovidos'] = queryset.filter(status='Promovido').count()
+        context['num_verificados'] = queryset.filter(status='Verificado').count()
+        context['num_rechazados'] = queryset.filter(status='Rechazado').count()
+        context['navbar'] = 'promovidos'
+        context['seccion'] = 'veri_promovidos'
+
+        return context
 
 class verificarPromovidos(UpdateView):
     template_name ='verificar/verificarPromovido.html'

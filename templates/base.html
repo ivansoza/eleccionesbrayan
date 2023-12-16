@@ -453,7 +453,13 @@
               <li class="nav-item">
                 <a href="{% url "lista-promovidos-verificar" %}" class="nav-link {% if seccion == 'veri_promovidos' %}active {% endif %}">
                   <i class="far fa-circle nav-icon"></i>
+                  {% if  es_administrador or  es_coordinador_area or es_coordinador_general%}
                   <p>Verificar Promovidos</p>
+
+                  {% else %}
+                  <p>Ver Verificación</p>
+
+                  {% endif %}
                 </a>
               </li>
            
