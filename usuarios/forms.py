@@ -320,10 +320,6 @@ class CustomUserCreationFormTemplatePromotor(UserCreationForm):
          self.fields['seccion'].widget.attrs['class'] = 'select2'
          self.fields['seccion'].widget.attrs['style'] = 'width: 100%;'
 
-         if user is not None:
-            # Filtra las secciones basándote en el usuario logueado
-                self.fields['seccion'].queryset = Seccion.objects.filter(customuser=user)
-        
          for field_name in self.fields:
              field = self.fields.get(field_name)  
              if field and isinstance(field.widget, forms.TextInput):

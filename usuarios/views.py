@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.urls import reverse_lazy
+from django.db.models import Q
 
 # Create your views here.from django.urls import reverse_lazy
 from django.views.generic.edit import UpdateView, CreateView
@@ -105,45 +106,6 @@ class UserCreateCordiGeneView(LoginRequiredMixin,UserPassesTestMixin,CreateView)
         return redirect('templeteDenegado')
     
     # ----------------------- FIN CREAR USUARIO DESDE GRUPO Coordinador General--------------
-
-    # CREAR USUARIO DESDE GRUPO COORDINADOR AREA --------------
-
-class UserCreateViewCordiArea(LoginRequiredMixin,UserPassesTestMixin,CreateView):
-    model = CustomUser
-    form_class = CustomUserCreationFormTemplateCordiArea
-    template_name = 'coordinadores/register_user_cor_area.html'
-    success_url = reverse_lazy('UserListViewCordiArea')  # Asegúrate de definir esta URL en tu urls.py
-
-
-    def test_func(self):
-        return self.request.user.groups.filter(name='Coordinador General').exists()
-    def form_valid(self, form):
-        user = form.save(commit=False)
-        user.created_by = self.request.user
-        user.save()
-        admin_group, created = Group.objects.get_or_create(name='Coordinador de Area')
-        user.groups.add(admin_group)
-        messages.success(self.request, "Usuario creado con éxito.")
-        return super().form_valid(form)
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        if self.request.user.groups.filter(name='Coordinador General').exists():
-            context['navbar'] = 'gestion_user' 
-            context['seccion'] = 'ver_coordinadores_area1'  
-
-        elif self.request.user.groups.filter(name='Administrador').exists():
-            context['navbar'] = 'gestion_user'  # Cambia esto según la página activa
-            context['seccion'] = 'ver_usuarios'  
-        return context
-    
-    def handle_no_permission(self):
-        # Redirigir a alguna página de error o inicio si el usuario no cumple el test
-        return redirect('templeteDenegado')
-    
-   
-    
-    # FIN CREAR USUARIO DESDE GRUPO COORDINADOR AREA--------------
-   
    
 # CREAR USUARIO DESDE GRUPO COORDINADOR SECCION --------------
 class UserCreateViewCordiSeccion(LoginRequiredMixin,UserPassesTestMixin,CreateView):
@@ -187,8 +149,11 @@ class UserCreateViewPromotor(LoginRequiredMixin,UserPassesTestMixin,CreateView):
     template_name = 'promotores/register_user.html'
     success_url = reverse_lazy('UserListViewCordiPromo')  # Asegúrate de definir esta URL en tu urls.py
     def test_func(self):
-        return self.request.user.groups.filter(name='Coordinador Sección').exists()
-    
+        return self.request.user.groups.filter(
+                    Q(name='Administrador') |
+                    Q(name='Candidato') |
+                    Q(name='Coordinador General') 
+                ).exists()    
     def form_valid(self, form):
         user = form.save(commit=False)
         user.created_by = self.request.user
@@ -204,8 +169,11 @@ class UserCreateViewPromotor(LoginRequiredMixin,UserPassesTestMixin,CreateView):
             context['seccion'] = 'ver_coordinadores_area1'  
 
         elif self.request.user.groups.filter(name='Administrador').exists():
-            context['navbar'] = 'gestion_user'  # Cambia esto según la página activa
-            context['seccion'] = 'ver_usuarios'  
+            context['navbar'] = 'consulta_users'  # Cambia esto según la página activa
+            context['seccion'] = 'ver_promotores'  
+        elif self.request.user.groups.filter(name='Candidato').exists():
+            context['navbar'] = 'consulta_users'  # Cambia esto según la página activa
+            context['seccion'] = 'ver_promotores' 
         elif self.request.user.groups.filter(name='Coordinador Sección').exists():
             context['navbar'] = 'gestion_user'  
             context['seccion'] = 'ver_promotores' 
@@ -296,87 +264,6 @@ class UserListViewCordiGen(LoginRequiredMixin, ListView):
         context['es_administrador'] = self.request.user.groups.filter(name='Administrador').exists()
 
         return context
-
-class UserListViewCordiArea(LoginRequiredMixin, ListView):
-    model = CustomUser
-    template_name = 'administradores/list_user_Coordinador_Area.html'
-    context_object_name = 'users'
-
-    def get_queryset(self):
-        # Obtiene los grupos 'Coordinador Area'
-        groups = Group.objects.filter(name__in=['Coordinador de Area'])
-        return CustomUser.objects.filter(groups__in=groups)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['num_cordi_area'] = self.get_queryset().count()
-        context['es_coordinador_general'] = self.request.user.groups.filter(name='Coordinador General').exists()
-        queryset = self.get_queryset()
-        context['num_hombres'] = queryset.filter(sexo='M').count()
-        context['num_mujeres'] = queryset.filter(sexo='F').count()
-
-
-        if self.request.user.groups.filter(name='Coordinador General').exists():
-            context['navbar'] = 'gestion_user' 
-            context['seccion'] = 'ver_coordinadores_area1'  
-
-        elif self.request.user.groups.filter(name='Administrador').exists():
-            context['navbar'] = 'consulta_users' 
-            context['seccion'] = 'ver_coordinadores_area'  
-        return context
-
-
-
-
-
-class UserListViewCordiSeccion(LoginRequiredMixin, ListView):
-    model = CustomUser
-    template_name = 'administradores/list_user_Coordinador_Seccion.html'
-    context_object_name = 'users'
-
-    def get_queryset(self):
-            user = self.request.user
-            # Grupos que pueden ver a todos los usuarios de ciertos grupos
-            special_groups = ['Administrador', 'Candidato', 'Coordinador General']
-            is_special_user = user.groups.filter(name__in=special_groups).exists()
-
-            if is_special_user:
-                # Estos grupos pueden ver a todos los usuarios de 'Coordinador Sección'
-                target_group = Group.objects.get(name='Coordinador Sección')
-                return CustomUser.objects.filter(groups=target_group)
-            else:
-                # Los 'Coordinadores de Area' solo pueden ver a los 'Coordinadores de Sección' en sus secciones
-                if user.groups.filter(name='Coordinador de Area').exists():
-                    user_sections = user.seccion.all()
-                    return CustomUser.objects.filter(
-                        groups__name='Coordinador Sección', 
-                        seccion__in=user_sections
-                    )
-
-                # Si no es un usuario especial ni un 'Coordinador de Area', no verá ningún usuario
-                return CustomUser.objects.none()
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['num_cordi_seccion'] = self.get_queryset().count()
-        context['es_coordinador_area'] = self.request.user.groups.filter(name='Coordinador de Area').exists()
-        queryset = self.get_queryset()
-        context['num_hombres'] = queryset.filter(sexo='M').count()
-        context['num_mujeres'] = queryset.filter(sexo='F').count()
-
-        if self.request.user.groups.filter(name='Coordinador General').exists():
-            context['navbar'] = 'consulta_users' 
-            context['seccion'] = 'ver_coordinadores_seccion'  
-
-        elif self.request.user.groups.filter(name='Administrador').exists():
-            context['navbar'] = 'consulta_users'  
-            context['seccion'] = 'ver_coordinadores_seccion'  
-        elif self.request.user.groups.filter(name='Coordinador de Area').exists():
-            context['navbar'] = 'gestion_user'  
-            context['seccion'] = 'ver_coordinadores_seccion' 
-        return context
-
-    
-
 class UserListViewCordiPromo(LoginRequiredMixin, ListView):
     model = CustomUser
     template_name = 'administradores/list_user_Promotor.html'
@@ -547,25 +434,11 @@ class callesList(LoginRequiredMixin, ListView):
         # Redirigir a alguna página de error o inicio si el usuario no cumple el test
         return redirect('templeteDenegado')
 
-@login_required
-def update_user_status(request, user_id):
-    user = get_object_or_404(User, pk=user_id)
-    if request.method == 'POST':
-        form = UserStatusForm(request.POST)
-        if form.is_valid():
-            user.is_active = not user.is_active  # Toggle the user's active status
-            user.save()
-            if user.is_active:
-                messages.success(request, "Usuario activado con éxito.")
-            else:
-                messages.success(request, "Usuario desactivado con éxito.")
-            return redirect('UserListViewCordiArea')  # Asegúrate de que esta es la URL correcta
-    else:
-        form = UserStatusForm(initial={'is_active': user.is_active})
 
-    # Puedes redirigir o mostrar un mensaje si el método no es POST
-    messages.error(request, "Método no permitido.")
-    return redirect('UserListViewCordiArea')  # O re
+
+
+
+# ACTUALIZAR ESTADO DEL USUARIO PARA EL LOGIN 
 
 @login_required
 def update_user_statusCordiGene(request, user_id):
@@ -586,28 +459,6 @@ def update_user_statusCordiGene(request, user_id):
     # Puedes redirigir o mostrar un mensaje si el método no es POST
     messages.error(request, "Método no permitido.")
     return redirect('users_list_cordi_gene')  # O re
-
-@login_required
-def update_user_statusCordiSeccion(request, user_id):
-    user = get_object_or_404(User, pk=user_id)
-    if request.method == 'POST':
-        form = UserStatusForm(request.POST)
-        if form.is_valid():
-            user.is_active = not user.is_active  # Toggle the user's active status
-            user.save()
-            if user.is_active:
-                messages.success(request, "Usuario activado con éxito.")
-            else:
-                messages.success(request, "Usuario desactivado con éxito.")
-            return redirect('UserListViewCordiSeccion')  # Asegúrate de que esta es la URL correcta
-    else:
-        form = UserStatusForm(initial={'is_active': user.is_active})
-
-    # Puedes redirigir o mostrar un mensaje si el método no es POST
-    messages.error(request, "Método no permitido.")
-    return redirect('UserListViewCordiSeccion')  # O re
-
-
 
 
 @login_required

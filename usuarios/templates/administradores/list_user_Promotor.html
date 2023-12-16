@@ -141,9 +141,9 @@ Lista de Usuarios
 
 {% endblock contenido %}
 {% block datatable %}
-{% if es_coordinador_seccion %}
+{% if es_administrador or  es_coordinador_general or es_candidato%}
         {
-          text: 'Crear Prometor',
+          text: 'Crear Promotor',
           className: 'btn btn-custom1 mr-2',
           action: function (e, dt, node, config) {
             // Redirigir a la URL relativa a la ubicación actual
