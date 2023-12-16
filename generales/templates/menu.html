@@ -134,16 +134,7 @@
   <!-- /.col -->
 </div>
 {% if es_administrador  or es_coordinador_general or es_candidato%}
-
-
-
-{% else %}
-
-{% endif %}
-
-
-
-    <div class="subtitle-container">
+<div class="subtitle-container">
       <h2 class="subtitle">Accesos Directos</h2>
       <hr class="subtitle-underline">
     </div>
@@ -241,6 +232,116 @@
       </div>
   </div>
 </div>
+
+
+{% else %}
+
+<div class="subtitle-container">
+      <h2 class="subtitle">Accesos Directos</h2>
+      <hr class="subtitle-underline">
+    </div>
+</div>
+
+<div class="container mt-10">
+  <div class="row justify-content-center">
+
+    <div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3 mb-4">
+      <div class="card card1 mx-auto">
+        <div class="icon">
+          <i class="fas fa-users" style="color: #991F40;"></i>
+        </div>
+        <p class="titulo">Mis Prospectos</p>
+        <a href="{% url "lista_prospectos" %}" class="card-button">Ir</a>
+      </div>
+    </div>
+      
+      <div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3 mb-4">
+        <div class="card card1 mx-auto">
+          <div class="icon">
+            <i class="fas fas fa-search" style="color: #991F40;"></i>
+          </div>
+          <p class="titulo" >Mis Promovidos</p>
+          <a href="{% url "lista_promovidos" %}" class="card-button">Ir</a>
+        </div>
+      </div>
+
+      <div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3 mb-4">
+        <div class="card card1 mx-auto">
+          <div class="icon">
+            <i class="fas fa-map-marker-alt" style="color: #991F40;"></i>
+          </div>
+          <p class="titulo" >Mis Verificados</p>
+          <a href="{% url "lista-promovidos-verificar" %}" class="card-button">Ir</a>
+        </div>
+      </div>
+
+      <div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3 mb-4">
+        <div class="card card1 mx-auto">
+          <div class="icon">
+            <i class="fas fa-chart-pie" style="color: #991F40;"></i>
+          </div>
+          <p class="titulo" >Mis Votos Seguros</p>
+          <a href="#" class="card-button">Ir</a>
+        </div>
+      </div>
+
+
+      
+      <div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3 mb-4">
+        <div class="card card1 mx-auto">
+          <div class="icon">
+            <i class="fas fa-table" style="color: #991F40;"></i>
+          </div>
+          <p class="titulo" >Promovidos</p>
+
+          <a href="#" class="card-button">Ir</a>
+        </div>
+      </div>
+
+      <div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3 mb-4">
+        <div class="card card1 mx-auto">
+          <div class="icon">            
+            <i class="fas fa-paper-plane" style="color: #991F40;"></i>
+          </div>
+          <p class="titulo" >Publicidad</p>
+
+          <a href="#" class="card-button">Ir</a>
+        </div>
+      </div>
+      
+      
+
+      <div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3 mb-4">
+        <div class="card card1 mx-auto">
+          <div class="icon">
+            <i class="fas fa-calendar-alt" style="color: #991F40;"></i>
+          
+          </div>
+          <p class="titulo" >Agenda</p>
+          <a href="#" class="card-button">Ir</a>
+        </div>
+      </div>
+
+
+      <div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3 mb-4">
+        <div class="card card1 mx-auto">
+          <div class="icon">
+            <i class="fas fa-road" style="color: #991F40;"></i>
+
+          </div>
+          <p class="titulo" >Ver Calles</p>
+          <a href="#" class="card-button">Ir</a>
+        </div>
+      </div>
+  </div>
+</div>
+
+
+{% endif %}
+
+
+
+    
 
 
 

@@ -2,6 +2,9 @@ from typing import Any
 from django.shortcuts import render
 from django.views.generic import CreateView, TemplateView, ListView, UpdateView
 from datetime import datetime, date
+from django.contrib.auth.mixins import UserPassesTestMixin
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from catalogos.models import Calle
 from .models import Promovido, Ubicacion, prospecto, Felicitacion
@@ -498,12 +501,18 @@ def verificar_numero_ine(request):
     return JsonResponse({'existe': False})
 
 
-class ListCumple(ListView):
+class ListCumple(LoginRequiredMixin, UserPassesTestMixin, ListView):
     template_name = 'estadisticas/cumple.html'
     model = prospecto
     context_object_name = 'promovidos'
 
-
+    def test_func(self):
+        return self.request.user.groups.filter(
+                    Q(name='Administrador') |
+                    Q(name='Candidato') |
+                    Q(name='Coordinador General') 
+                ).exists()  
+   
     def get_queryset(self):
         today = datetime.now().date()
         estado_defensoria = self.request.GET.get('estado_defensoria', None)
@@ -549,6 +558,10 @@ class ListCumple(ListView):
                     'cumplen_hoy': sorted(promovidos_cumplen_hoy, key=lambda x: x.apellido_paterno),
                     'cumplen_proximamente': sorted(promovidos_cumplen_proximamente, key=lambda x: x.dias_restantes_cumple)
                 }
+        
+    def handle_no_permission(self):
+        # Redirigir a alguna página de error o inicio si el usuario no cumple el test
+        return redirect('templeteDenegado')
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         queryset = self.get_queryset()

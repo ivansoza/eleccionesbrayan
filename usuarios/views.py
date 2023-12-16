@@ -147,6 +147,9 @@ class UserCreateViewPromotor(LoginRequiredMixin,UserPassesTestMixin,CreateView):
             kwargs = super(UserCreateViewPromotor, self).get_form_kwargs()
             kwargs['user'] = self.request.user
             return kwargs
+    def handle_no_permission(self):
+        # Redirigir a alguna página de error o inicio si el usuario no cumple el test
+        return redirect('templeteDenegado')
 
 class UserListViewCordiPromo(LoginRequiredMixin, UserPassesTestMixin,ListView):
     model = CustomUser

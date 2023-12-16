@@ -245,34 +245,6 @@
            
           </li>
 
-
-          {% endif %}
-
-          {% if 'Coordinador General' in user_groups  %}
-
-
-          <li class="nav-item {% if navbar == 'gestion_user' %}menu-is-opening menu-open{% endif %}">
-            <a href="#" class="nav-link {% if navbar == 'gestion_user' %}active first-li{% endif %}">
-              <i class="nav-icon fas fa-users"></i>
-              <p>
-                Gestión de Usuarios
-                <i class="right fas fa-angle-left"></i>
-              </p>
-            </a>
-            
-
-            <ul class="nav nav-treeview">
-                <li class="nav-item">
-                  <a href="{% url "UserListViewCordiPromo"  %}" class="nav-link {% if seccion == 'ver_promotores' %}active {% endif %}">
-                    <i class="far fa-circle nav-icon"></i>
-                    <p>Ver Promotores</p>
-                  </a>
-                </li>
-            </ul>
-          </li>
-          {% endif %}
-
-
           <li class="nav-item {% if navbar == 'estadisticas' %}menu-is-opening menu-open{% endif %}">
           <a href="#" class="nav-link {% if navbar == 'estadisticas' %}active first-li{% endif %}">
             <i class="nav-icon fas fa-chart-pie"></i>  
@@ -309,6 +281,78 @@
          
           </ul>
           </li>
+          {% endif %}
+
+          {% if 'Coordinador General' in user_groups  %}
+
+
+          <li class="nav-item {% if navbar == 'gestion_user' %}menu-is-opening menu-open{% endif %}">
+            <a href="#" class="nav-link {% if navbar == 'gestion_user' %}active first-li{% endif %}">
+              <i class="nav-icon fas fa-users"></i>
+              <p>
+                Gestión de Usuarios
+                <i class="right fas fa-angle-left"></i>
+              </p>
+            </a>
+            
+
+            <ul class="nav nav-treeview">
+                <li class="nav-item">
+                  <a href="{% url "UserListViewCordiPromo"  %}" class="nav-link {% if seccion == 'ver_promotores' %}active {% endif %}">
+                    <i class="far fa-circle nav-icon"></i>
+                    <p>Ver Promotores</p>
+                  </a>
+                </li>
+            </ul>
+          </li>
+
+
+
+
+          <li class="nav-item {% if navbar == 'estadisticas' %}menu-is-opening menu-open{% endif %}">
+          <a href="#" class="nav-link {% if navbar == 'estadisticas' %}active first-li{% endif %}">
+            <i class="nav-icon fas fa-chart-pie"></i>  
+              <p>
+              Estadisticas
+              <i class="fas fa-angle-left right"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a href="{% url "estadisticas" %}" class="nav-link {% if seccion == 'esta_general' %}active {% endif %}">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Generales</p>
+              </a>
+            </li>
+         
+          </ul>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a href="{% url "estadisticasSolicitud" %}" class="nav-link {% if seccion == 'esta_soli' %}active {% endif %}">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Solicitudes y Problemas</p>
+              </a>
+            </li>
+         
+          </ul>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a href="{% url "lista-cumple" %}" class="nav-link {% if seccion == 'cumple' %}active {% endif %}">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Cumpleaños</p>
+              </a>
+            </li>
+         
+          </ul>
+          </li>
+          {% endif %}
+          {% if 'Promotor' in user_groups  %}
+
+
+          {% endif %}
+
+
+          
 
 
           <li class="nav-item {% if navbar == 'promovidos' %}menu-is-opening menu-open{% endif %}">
