@@ -226,6 +226,9 @@
         </div>
     </div>
 </div>
+{% if status_actual == "Prospecto" %}
+
+{% else %}
 <div class="card p-3 mt-5">
      <div class="card-header">
                 <h3 class="card-title">Mapa de Personas</h3>
@@ -236,6 +239,8 @@
 
       </div>
 </div>
+{% endif %}
+
 {% endblock contenido%}
 
 
