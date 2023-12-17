@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Sum
 from django.views.generic import DetailView
+from django.utils import timezone
 
 from catalogos.models import Calle
 from .models import  prospecto, Felicitacion
@@ -234,30 +235,32 @@ class EstadisticasSoliView(TemplateView):
         context['seccion'] = 'esta_soli'
         return context
     
-class CreateProspectoNuevo(CreateView):
+
+
+# CREACION DE PROSPECTO NUEVO 
+class CreateProspectoNuevo(LoginRequiredMixin,CreateView):
     template_name = 'prospecto/crearProspecto.html'
     form_class = ProspectoFormNuevo
     model = prospecto
 
     def form_valid(self, form):
-        # Establecer el usuario actual como usuario del prospecto
         form.instance.usuario = self.request.user
-        # Establecer el estado a 'Promovido'
         form.instance.status = 'Prospecto'
-        # Guardar el formulario
         return super(CreateProspectoNuevo, self).form_valid(form)
-
     def get_success_url(self):
         messages.success(self.request, 'Prospecto creado con éxito.')
         return reverse('lista_prospectos')
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['navbar'] = 'promovidos'
         context['seccion'] = 'ver_prospectos'
         return context
-    
-class ListaProspectosNuevo(ListView):
+# FIN CREACION DE PROSPECTO NUEVO 
+
+
+# LISTA DE PROSPECTO NUEVO 
+
+class ListaProspectosNuevo(LoginRequiredMixin,ListView):
     template_name = 'prospecto/listaProspectos.html'
     context_object_name = 'prospectos'
     model = prospecto
@@ -287,10 +290,12 @@ class ListaProspectosNuevo(ListView):
         context['navbar'] = 'promovidos'
         context['seccion'] = 'ver_prospectos'
         return context
+# FIN  DE PROSPECTO NUEVO 
 
    
+# LISTA DE ACTUALIZACION NUEVO 
 
-class ProspectoUpdateView(UpdateView):
+class ProspectoUpdateView(LoginRequiredMixin,UpdateView):
     model = prospecto
     form_class = ProspectoFormNuevoUpdate
     template_name = 'prospecto/updateProspecto.html'  # Asegúrate de tener este template
@@ -301,6 +306,8 @@ class ProspectoUpdateView(UpdateView):
         form.instance.usuario_promovido = self.request.user
         # Cambia el status a 'Promovido'
         form.instance.status = 'Promovido'
+        form.instance.fecha_promovido = timezone.now()
+
         messages.success(self.request, 'Promovido con éxito.')
 
         return super().form_valid(form)
@@ -317,8 +324,12 @@ class ProspectoUpdateView(UpdateView):
         context['navbar'] = 'promovidos'  # Cambia esto según la página activa
         context['seccion'] = 'ver_prospectos'  # Cambia esto según la página activa
         return context
-    
-class ListaPromovidosNuevo(ListView):
+    # FIN DE ACTUALIZACION NUEVO 
+
+
+# LISTA DE PROMOVIDOS NUEVO 
+
+class ListaPromovidosNuevo(LoginRequiredMixin, ListView):
     template_name='prospecto/listaPromovidos.html'
     context_object_name = 'promovidos'
     model = prospecto
@@ -347,9 +358,10 @@ class ListaPromovidosNuevo(ListView):
         context['seccion'] = 'ver_promovidos' 
         return context
 
+# FIN  DE PROMOVIDOS NUEVO 
 
 
-class MapaProspectosPromovidosView(ListView):
+class MapaProspectosPromovidosView(LoginRequiredMixin,ListView):
     template_name = 'mapa/mapaPromovidos.html'
     context_object_name = 'prospectos'
 
@@ -400,15 +412,17 @@ class MapaProspectosPromovidosView(ListView):
         context['contador_global'] = queryset.count()
         return context
 
-class CreatePromovidoNuevo(CreateView):
+class CreatePromovidoNuevo(LoginRequiredMixin,CreateView):
     template_name = 'prospecto/crearPromovido.html'
     form_class = PromovidoFormNuevo
     model = prospecto
     
     def form_valid(self, form):
         # Intenta guardar el formulario
+        form.instance.usuario = self.request.user
         form.instance.usuario_promovido = self.request.user
         form.instance.status = 'Promovido'
+        form.instance.fecha_promovido = timezone.now()
         return super().form_valid(form)
 
     def form_invalid(self, form):

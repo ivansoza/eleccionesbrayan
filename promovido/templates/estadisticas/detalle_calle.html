@@ -154,6 +154,8 @@
                     <th>Número de Casa</th>
                     <th>Celular</th>
                     <th>Email</th>
+                    <th>Opciones</th>
+
 
 
                   </tr>
@@ -169,7 +171,22 @@
                                 <td>{{ prospecto.numeroCasa|default_if_none:"-----" }}</td>
                                 <td>{{ prospecto.celular|default_if_none:"-----" }}</td>
                                 <td>{{ prospecto.email|default_if_none:"-----" }}</td>
-
+                                <td>
+                                    <button class="btn btn-info btn-sm" data-toggle="modal" data-target="#modalDetalles"
+                                        data-id="{{ prospecto.id }}"
+                                        data-usuario-creador="{% if prospecto.usuario %}{{ prospecto.usuario.username }}{% else %}No disponible{% endif %}"
+                                        data-fecha-agregado="{{ prospecto.fecha_agregado|date:'SHORT_DATE_FORMAT' }}"
+                                        {% if status_actual == 'Promovido' or status_actual == 'Todo' %}
+                                            data-usuario-promovido="{% if prospecto.usuario_promovido %}{{ prospecto.usuario_promovido.username }}{% else %}No disponible{% endif %}"
+                                            data-fecha-promovido="{% if prospecto.fecha_promovido %}{{ prospecto.fecha_promovido|date:'SHORT_DATE_FORMAT' }}{% else %}No disponible{% endif %}"
+                                        {% endif %}
+                                        {% if status_actual == 'Verificado' or status_actual == 'Todo' %}
+                                            data-usuario-verificador="{% if prospecto.usuario_verificador %}{{ prospecto.usuario_verificador.username }}{% else %}No disponible{% endif %}"
+                                            data-fecha-verificado="{% if prospecto.fecha_verificado %}{{ prospecto.fecha_verificado|date:'SHORT_DATE_FORMAT' }}{% else %}No disponible{% endif %}"
+                                        {% endif %}>
+                                        Ver Detalles
+                                    </button>
+                                </td>
                             </tr>
                         {% empty %}
                             <tr><td colspan="6">No hay prospectos disponibles.</td></tr>
@@ -185,6 +202,7 @@
                     <th>Número de Casa</th>
                     <th>Celular</th>
                     <th>Email</th>
+                    <th>Opciones</th>
 
                   </tr>
                   </tfoot>
@@ -193,7 +211,21 @@
               <!-- /.card-body -->
             </div>
 
-
+<div class="modal fade" id="modalDetalles" tabindex="-1" role="dialog" aria-labelledby="modalDetallesLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalDetallesLabel">Detalles del Prospecto</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Aquí irán los detalles del prospecto -->
+            </div>
+        </div>
+    </div>
+</div>
 <div class="card p-3 mt-5">
      <div class="card-header">
                 <h3 class="card-title">Mapa de Personas</h3>
@@ -236,6 +268,39 @@
 <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+ <script>
+$('#modalDetalles').on('show.bs.modal', function (event) {
+    var button = $(event.relatedTarget);
+    var modal = $(this);
+
+    var id = button.data('id');
+    var usuarioCreador = button.data('usuario-creador');
+    var fechaAgregado = button.data('fecha-agregado');
+    var usuarioPromovido = button.data('usuario-promovido');
+    var fechaPromovido = button.data('fecha-promovido');
+    var usuarioVerificador = button.data('usuario-verificador');
+    var fechaVerificado = button.data('fecha-verificado');
+
+    var modalContent = `
+        <p>ID del Prospecto: ${id}</p>
+        <p>Creado por: ${usuarioCreador}</p>
+        <p>Fecha de Creación: ${fechaAgregado}</p>
+    `;
+
+    if (usuarioPromovido) {
+        modalContent += `<p>Promovido por: ${usuarioPromovido}</p>
+                         <p>Fecha de Promoción: ${fechaPromovido}</p>`;
+    }
+
+    if (usuarioVerificador) {
+        modalContent += `<p>Verificado por: ${usuarioVerificador}</p>
+                         <p>Fecha de Verificación: ${fechaVerificado}</p>`;
+    }
+
+    modal.find('.modal-body').html(modalContent);
+});
+
+</script>
 <script>
     var mymap = L.map('mapid'); // Inicializa el mapa sin un punto de vista definido
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -275,17 +340,19 @@
 
 
     {% for prospecto in prospectos %}
-        var marker = L.marker([{{ prospecto.latitud }}, {{ prospecto.longitud }}]).addTo(mymap);
-        var popupContent = '<div style="max-width: 200px;">';
-        
-        {% if prospecto.foto_promovido %}
-            popupContent += '<img src="{{ prospecto.foto_promovido.url }}" style="width: 100%; height: auto;">';
-        {% else %}
-            popupContent += '<p>Foto no disponible</p>';
-        {% endif %}
+        {% if prospecto.latitud and prospecto.longitud %}
+            var marker = L.marker([{{ prospecto.latitud }}, {{ prospecto.longitud }}]).addTo(mymap);
+            var popupContent = '<div style="max-width: 200px;">';
+            
+            {% if prospecto.foto_promovido %}
+                popupContent += '<img src="{{ prospecto.foto_promovido.url }}" style="width: 100%; height: auto;">';
+            {% else %}
+                popupContent += '<p>Foto no disponible</p>';
+            {% endif %}
 
-        popupContent += '<p>{{ prospecto.nombre }} {{ prospecto.apellido_paterno }} {{ prospecto.apellido_materno }}</p></div>';
-        marker.bindPopup(popupContent);
+            popupContent += '<p>{{ prospecto.nombre }} {{ prospecto.apellido_paterno }} {{ prospecto.apellido_materno }}</p></div>';
+            marker.bindPopup(popupContent);
+        {% endif %}
     {% endfor %}
 
     geojsonLayer.on('add', function() {
