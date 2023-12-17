@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="{% static "plugins/datatables-bs4/css/dataTables.bootstrap4.min.css" %}">
     <link rel="stylesheet" href="{% static "plugins/datatables-responsive/css/responsive.bootstrap4.min.css" %}">
     <link rel="stylesheet" href="{% static "plugins/datatables-buttons/css/buttons.bootstrap4.min.css" %}">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
 
 
   
@@ -41,6 +43,10 @@
     margin-top: 1px;
     font-size: 1em;
 }
+  .knob {
+    pointer-events: none;
+  }
+
 </style>
 <style>
   .dataTables_wrapper .dataTables_paginate {
@@ -83,6 +89,7 @@
                 </div>
               </div>
               <!-- /.card-header -->
+              
               <div class="card-body">
                 <div class="row">
                   <div class="col-6 col-md-3 text-center">
@@ -186,6 +193,17 @@
               <!-- /.card-body -->
             </div>
 
+
+<div class="card p-3 mt-5">
+     <div class="card-header">
+                <h3 class="card-title">Mapa de Personas</h3>
+      </div>
+              
+      <div class="card-body">
+          <div id="mapid" style="height: 450px;"></div>
+
+      </div>
+</div>
 {% endblock contenido%}
 
 
@@ -215,12 +233,73 @@
 <script src="{% static 'plugins/datatables-buttons/js/buttons.print.min.js' %}"></script>
 <script src="{% static 'plugins/datatables-buttons/js/buttons.colVis.min.js' %}"></script>
 
+<script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+    var mymap = L.map('mapid'); // Inicializa el mapa sin un punto de vista definido
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(mymap);
 
+    // Añadir la ruta guardada
+    var ruta = {{ calle.ruta|safe }}; // Asegúrate de que esto devuelve un array de coordenadas
+    var rutaLayer = L.polyline(ruta, {color: 'red'}).addTo(mymap);
+
+    // Centrar y ajustar el mapa a la ruta
+    mymap.fitBounds(rutaLayer.getBounds());
+
+    // Añadir GeoJSON
+    var geojsonData = {
+        "type": "FeatureCollection",
+        "features": [
+            {
+                "type": "Feature",
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [[-98.20123198,19.31151377],[-98.2035597,19.31293264],[-98.20451643,19.31383147],[-98.20461624,19.31514427],[-98.20655179,19.3172306],[-98.20679604,19.31805587],[-98.20789661,19.31855634],[-98.20969443,19.31909523],[-98.21057149,19.31846793],[-98.20997856,19.31776864],[-98.21026228,19.31710195],[-98.21057698,19.31530231],[-98.21072532,19.31522844],[-98.21109956,19.31324817],[-98.21001144,19.31255142],[-98.21057966,19.31095988],[-98.21096914,19.31102883],[-98.21207767,19.30862337],[-98.21366755,19.30651952],[-98.21377882,19.30640756],[-98.21391638,19.30624526],[-98.21408729,19.30604401],[-98.21434559,19.30568535],[-98.21456164,19.30540674],[-98.2148118,19.30493825],[-98.21507032,19.30469182],[-98.21533592,19.3043938],[-98.21367583,19.30279333],[-98.21241448,19.30163104],[-98.21196837,19.3007156],[-98.21156512,19.30018495],[-98.21087887,19.29913643],[-98.20953448,19.29776394],[-98.2083393,19.29689906],[-98.20686436,19.2957681],[-98.2049207,19.29425504],[-98.20072528,19.29846627],[-98.19718763,19.30194168],[-98.19815156,19.30380692],[-98.19895029,19.30545556],[-98.19981318,19.30826047],[-98.20034034,19.31010606],[-98.20081742,19.31107898],[-98.2012279,19.31150487]]
+                },
+                "properties": {
+                    "name": "alto"
+                }
+            }
+        ]
+    };
+
+    var geojsonLayer = L.geoJSON(geojsonData, {
+        style: function(feature) {
+            return { color: 'blue' };
+        }
+    }).addTo(mymap);
+
+
+    {% for prospecto in prospectos %}
+        var marker = L.marker([{{ prospecto.latitud }}, {{ prospecto.longitud }}]).addTo(mymap);
+        var popupContent = '<div style="max-width: 200px;">';
+        
+        {% if prospecto.foto_promovido %}
+            popupContent += '<img src="{{ prospecto.foto_promovido.url }}" style="width: 100%; height: auto;">';
+        {% else %}
+            popupContent += '<p>Foto no disponible</p>';
+        {% endif %}
+
+        popupContent += '<p>{{ prospecto.nombre }} {{ prospecto.apellido_paterno }} {{ prospecto.apellido_materno }}</p></div>';
+        marker.bindPopup(popupContent);
+    {% endfor %}
+
+    geojsonLayer.on('add', function() {
+
+    });
+</script>
 <script>
   $(function () {
     /* jQueryKnob */
 
     $('.knob').knob({
+        readOnly: true,        // Desactiva la inter
+        disableMouse: true,    // Desactiva específicamente la interacción con el mouse
+
       /*change : function (value) {
        //console.log("change : " + value);
        },
