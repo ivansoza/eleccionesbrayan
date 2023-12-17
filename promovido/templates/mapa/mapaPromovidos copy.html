@@ -1,0 +1,219 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block titulo %}Mapa de Promovidos{% endblock titulo %}
+{% block dashboard %}
+<a class="btn btn-sm btn-icon1 " href="{% url "menu" %}">
+  <i class="fas fa-arrow-left"></i>
+</a>
+{% endblock dashboard %}
+{% block contenido %}
+
+<div class="dashboard-header">
+    <h1 class="dashboard-title">Mapa de Promovidos</h1>
+</div>    
+
+<div class="card">
+    <div class="card-header">
+        Filtro de Calles
+    </div>
+    <div class="card-body">
+        <!-- Formulario de filtro por sección -->
+      <form method="get" class="form-inline mb-4">
+
+      
+
+
+          <label for="calleFilter" class="mr-2">Filtrar por Calles:</label>
+          <select name="calle" id="calleFilter" class="custom-select mr-2">
+              <option value="">Todas las Calles</option>
+              {% for calle in calles %}
+              <option value="{{ calle.pk }}" {% if request.GET.calle == calle.pk|stringformat:"s" %}selected{% endif %}>{{ calle.nombre }}</option>
+              {% endfor %}
+          </select>
+
+        <label for="generoFilter" class="mr-2">Filtrar por Género:</label>
+      <select name="genero" id="generoFilter" class="custom-select mr-2">
+          <option value="">Todos los Géneros</option>
+          <option value="Hombre" {% if request.GET.genero == "Hombre" %}selected{% endif %}>Hombre</option>
+          <option value="Mujer" {% if request.GET.genero == "Mujer" %}selected{% endif %}>Mujer</option>
+      </select>
+          <button type="submit" class="btn btn-primary">Filtrar</button>
+      </form>
+
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col-lg-4 col-6">
+      <!-- small box -->
+      <div class="small-box bg-info">
+        <div class="inner">
+          <h3>{{ contador_global }}</h3>
+
+          <p>Promovidos</p>
+        </div>
+        <div class="icon">
+            <i class="fas fa-users"></i>
+        </div>
+      </div>
+    </div>
+    <!-- ./col -->
+    <div class="col-lg-4 col-6">
+      <!-- small box -->
+      <div class="small-box bg-success">
+        <div class="inner">
+          <h3>{{num_hombres}}<sup style="font-size: 20px"></sup></h3>
+
+          <p>Hombres</p>
+        </div>
+        <div class="icon">
+          <i class="fas fa-male"></i>
+        </div>
+      </div>
+    </div>
+    <!-- ./col -->
+    <div class="col-lg-4 col-12">
+      <!-- small box -->
+      <div class="small-box bg-warning">
+        <div class="inner">
+          <h3>{{num_mujeres}}</h3>
+
+          <p>Mujeres</p>
+        </div>
+        <div class="icon">
+          <i class="fas fa-female"></i>
+        </div>
+      </div>
+    </div>
+    <!-- ./col -->
+
+    <!-- ./col -->
+  </div>
+
+<div class="card p-3 mt-5">
+    <div id="map" style="height: 450px;"></div>
+</div>
+
+{% for ubicacion in prospectos %}
+
+{% endfor %}
+
+
+<!-- Incluye Leaflet desde CDN -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+    function initMap() {
+        // Crea un mapa en el div con id 'map'
+        var map = L.map('map').setView([19.31201411958727, -98.20680856704713], 15);
+    
+        // Añade un mapa base de OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+    
+        // Recorre las ubicaciones y añade un marcador para cada una
+        {% for ubicacion in prospectos %}
+            var marker = L.marker([{{ ubicacion.latitud }}, {{ ubicacion.longitud }}]);
+            var popupContent = '<div style="max-width: 200px;">';
+            
+            {% if ubicacion.foto_promovido %}
+                popupContent += '<img src="{{ ubicacion.foto_promovido.url }}" style="width: 100%; height: auto;">';
+            {% else %}
+                popupContent += '<p>Foto no disponible</p>';
+            {% endif %}
+    
+            popupContent += '<p>{{ ubicacion.nombre }} {{ ubicacion.apellido_paterno }} {{ ubicacion.apellido_materno }}</p></div>';            
+            marker.bindPopup(popupContent).addTo(map);
+        {% endfor %}
+
+        // Datos GeoJSON para la línea
+        var geojsonData = {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "geometry": {
+                        "type": "LineString",
+                        "coordinates": [[-98.20123198,19.31151377],[-98.2035597,19.31293264],[-98.20451643,19.31383147],[-98.20461624,19.31514427],[-98.20655179,19.3172306],[-98.20679604,19.31805587],[-98.20789661,19.31855634],[-98.20969443,19.31909523],[-98.21057149,19.31846793],[-98.20997856,19.31776864],[-98.21026228,19.31710195],[-98.21057698,19.31530231],[-98.21072532,19.31522844],[-98.21109956,19.31324817],[-98.21001144,19.31255142],[-98.21057966,19.31095988],[-98.21096914,19.31102883],[-98.21207767,19.30862337],[-98.21366755,19.30651952],[-98.21377882,19.30640756],[-98.21391638,19.30624526],[-98.21408729,19.30604401],[-98.21434559,19.30568535],[-98.21456164,19.30540674],[-98.2148118,19.30493825],[-98.21507032,19.30469182],[-98.21533592,19.3043938],[-98.21367583,19.30279333],[-98.21241448,19.30163104],[-98.21196837,19.3007156],[-98.21156512,19.30018495],[-98.21087887,19.29913643],[-98.20953448,19.29776394],[-98.2083393,19.29689906],[-98.20686436,19.2957681],[-98.2049207,19.29425504],[-98.20072528,19.29846627],[-98.19718763,19.30194168],[-98.19815156,19.30380692],[-98.19895029,19.30545556],[-98.19981318,19.30826047],[-98.20034034,19.31010606],[-98.20081742,19.31107898],
+                        [-98.2012279,19.31150487]]
+                    },
+                    "properties": {
+                        "name": "alto"
+                    }
+                }
+            ]
+        };
+        var polygonData = {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "geometry": {
+                        "type": "Polygon",
+               "coordinates": [
+                                [
+                                   [-98.20314923,19.30906819],[-98.20742893,19.31141039],[-98.20998005,19.31277954],[-98.21057966,19.31095988],[-98.21096914,19.31102883],[-98.21207767,19.30862337],[-98.21366755,19.30651952],[-98.21377882,19.30640756],[-98.21391638,19.30624526],[-98.21408729,19.30604401],[-98.21434559,19.30568535],[-98.21456164,19.30540674],[-98.2148118,19.30493825],[-98.21507032,19.30469182],[-98.21533592,19.3043938],[-98.21367583,19.30279333],[-98.21241448,19.30163104],[-98.21196837,19.3007156],[-98.21156512,19.30018495],[-98.21087887,19.29913643],[-98.20953448,19.29776394],[-98.2083393,19.29689906],[-98.20686436,19.2957681],[-98.2049207,19.29425504],[-98.20072528,19.29846627],[-98.19718763,19.30194168],[-98.19815156,19.30380692],[-98.19895029,19.30545556],[-98.19981318,19.30826047],[-98.20031503,19.30833378],[-98.20068604,19.30783775],[-98.20313694,19.30908725] // Misma coordenada que la inicial
+                                ]
+                            ]
+                    },
+                    "properties": {
+                        "name": "areaColorida"
+                    }
+                }
+            ]
+        };
+
+        var polygonData1 = {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "geometry": {
+                        "type": "Polygon",
+               "coordinates": [
+                                [
+                                  [-98.20123198,19.31151377],[-98.2035597,19.31293264],[-98.20451643,19.31383147],[-98.20461624,19.31514427],[-98.20655179,19.3172306],[-98.20679604,19.31805587],[-98.20789661,19.31855634],[-98.20969443,19.31909523],[-98.21057149,19.31846793],[-98.20997856,19.31776864],[-98.21026228,19.31710195],[-98.21057698,19.31530231],[-98.21072532,19.31522844],[-98.21109956,19.31324817],[-98.21001144,19.31255142],[-98.20068984,19.30751245],[-98.20021492,19.30819131],[-98.19981318,19.30826047],[-98.20034034,19.31010606],[-98.20081742,19.31107898],[-98.2012279,19.31150487]
+                                ]
+                            ]
+                    },
+                    "properties": {
+                        "name": "areaColorida"
+                    }
+                }
+            ]
+        };
+          L.geoJSON(polygonData, {
+              style: function(feature) {
+                  return { 
+                      fillColor: 'red', 
+                      fillOpacity: 0.01
+                  };
+              }
+          }).addTo(map);
+
+        L.geoJSON(polygonData1, {
+              style: function(feature) {
+                  return { 
+                      fillColor: 'blue', 
+                      fillOpacity: 0.1
+                  };
+              }
+          }).addTo(map);
+          // Luego añade la línea
+          L.geoJSON(geojsonData, {
+              style: function(feature) {
+                  return { color: 'blue' };
+              }
+          }).addTo(map);
+    }
+    
+    // Inicializa el mapa
+    initMap();
+</script>
+
+
+{% endblock contenido%}

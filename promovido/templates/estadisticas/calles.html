@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+{% block titulo %}Lista de Calles{% endblock titulo %}
+{% block dashboard %}
+<a class="btn btn-sm btn-icon1 " href="{% url "menu" %}">
+  <i class="fas fa-arrow-left"></i>
+</a>
+{% endblock dashboard %}
+
+
+
+{% block contenido %}
+
+<style>
+.progress-container {
+    margin-bottom: 10px;
+    padding: 5px;
+    position: relative; /* Posicionamiento para la etiqueta de porcentaje */
+}
+
+.progress-title {
+    font-family: 'Arial', sans-serif; /* Replace with any font you prefer */
+    font-size: 1em; /* Adjust the size as needed */
+    color: #2c3e50; /* A deep, muted blue color */
+    letter-spacing: 0.05em; /* Spacing out letters for better readability */
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1); /* A light shadow for depth */
+    text-transform: uppercase; /* Makes all the letters uppercase */
+    margin-bottom: 10px; /* Space between title and progress bar */
+}
+
+.progress-bar-background {
+    width: 100%;
+    background-color: #eee;
+    border-radius: 10px;
+    position: relative; /* Relativo para la barra de progreso y la etiqueta de porcentaje */
+}
+
+.progress-bar {
+    height: 25px;
+    border-radius: 10px;
+    background-color: #4CAF50;
+    transition: width 2s;
+    /* Eliminar la posición relativa si no es necesario */
+}
+
+.progress-meta {
+    text-align: left; /* Alinear el texto a la izquierda */
+    margin-top: 5px; /* Espacio arriba de los números */
+}
+
+.percentage-badge {
+    position: absolute;
+    top: 50%; /* Centrar verticalmente */
+    left: 50%; /* Centrar horizontalmente */
+    transform: translate(-50%, -50%); /* Ajustes para centrar exactamente el texto */
+    background-color: #e54d4d;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 10px;
+    font-size: 0.9em;
+    white-space: nowrap;
+}
+
+</style>
+<div class="dashboard-header">
+    <h1 class="dashboard-title">Lista de Calles</h1>
+</div>
+<form method="get" class="form-inline mb-4">
+    <!-- Other filters -->
+    
+    <label for="statusFilter" class="mr-2">Filtrar por Estatus:</label>
+    <select name="status" id="statusFilter" class="custom-select mr-2">
+        <option value="">Todos los Estatus</option>
+        {% for status_value, status_display in status_choices %}
+        <option value="{{ status_value }}" {% if request.GET.status == status_value %}selected{% endif %}>
+            {{ status_display }}
+        </option>
+        {% endfor %}
+    </select>
+    
+    <button type="submit" class="btn btn-primary">Filtrar</button>
+</form>
+<div class="row">
+    <div class="col-lg-4 col-6">
+      <!-- small box -->
+      <div class="small-box bg-info">
+        <div class="inner">
+          <h3>{{ total_calles }}</h3>
+
+          <p>Calles</p>
+        </div>
+        <div class="icon">
+            <i class="fas fa-road"></i>
+        </div>
+      </div>
+    </div>
+    <!-- ./col -->
+    <div class="col-lg-4 col-6">
+      <!-- small box -->
+      <div class="small-box bg-success">
+        <div class="inner">
+          <h3>{{total_prospectos}}<sup style="font-size: 20px"></sup></h3>
+
+          <p>
+            {% if status_actual %}
+              {{ status_actual }}
+            {% else %}
+                Todos
+            {% endif %}
+        </p>
+            </div>
+        <div class="icon">
+          <i class="fas fa-users"></i>
+        </div>
+      </div>
+    </div>
+    <!-- ./col -->
+    <div class="col-lg-4 col-12">
+      <!-- small box -->
+      <div class="small-box bg-warning">
+        <div class="inner">
+          <h3>{{total_meta_promovidos}}</h3>
+
+          <p>Meta Total</p>
+        </div>
+        <div class="icon">
+          <i class="fas fa-star"></i>
+        </div>
+      </div>
+    </div>
+    <!-- ./col -->
+
+    <!-- ./col -->
+  </div>
+    {% for calle in calles %}
+    <div class="card progress-container">
+        <div class="card-header">
+            {{ forloop.counter }}. {{ calle.nombre }}
+        
+        </div>
+        <div class="card-body">
+            <div class="progress-bar-background">
+                <div style="width: {{ calle.progreso }}%;" class="progress-bar"></div>
+                <!-- La etiqueta de porcentaje se mueve aquí para que esté en el centro del contenedor total de la barra de progreso -->
+            </div>
+            <!-- La etiqueta de porcentaje se coloca fuera de la barra de progreso para centrarla en todo el contenedor -->
+            <div class="percentage-badge">{{ calle.progreso|floatformat:2 }}%</div>
+            <div class="progress-meta">{{ calle.prospectos_count|default:"0" }} de {{ calle.meta_promovidos }}</div>
+            <a href="{% if status_actual %}{% url 'detalle_calle_con_status' calle.pk status_actual %}{% else %}{% url 'detalle_calle' calle.pk %}{% endif %}" class="btn btn-primary mt-3">Ver más</a>
+            
+        </div>
+    </div>
+    {% endfor %}
+    
+
+
+
+{% endblock contenido %}
+
+

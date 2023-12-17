@@ -9,11 +9,11 @@ GENERO_CHOICES = [
         ('Mujer', 'Mujer'),
     ]
 STATUS_CHOICES = [
-    ('Prospecto', 'Prospecto'),
-    ('Promovido', 'Promovido'),
-    ('Verificado', 'Verificado'),
-    ('Rechazado', 'Rechazado'),  # Nuevo estado para reflejar los rechazos
-]
+        ('Prospecto', 'Prospecto'),
+        ('Promovido', 'Promovido'),
+        ('Verificado', 'Verificado'),
+        ('Rechazado', 'Rechazado'),  # Nuevo estado para reflejar los rechazos
+    ]
 SOLICITUD_CHOICES = [
         ('Apoyo Económico', 'Apoyo Económico'),
         ('Mejora de Infraestructuras', 'Mejora de Infraestructuras'),
@@ -31,40 +31,7 @@ PROBLEMATICAS_CHOICES = [
         ('Corrupción', 'Corrupción'),
         ('Otros', 'Otros'),
     ]
-class Promovido(models.Model):
-    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    nombre = models.CharField(max_length=100)
-    apellido_paterno = models.CharField(max_length=100)
-    apellido_materno = models.CharField(max_length=100)
-    genero = models.CharField(max_length=50,choices=GENERO_CHOICES, verbose_name='Genero')
-    fechaNacimiento = models.DateField(verbose_name='Fecha de Nacimiento')
-    direccion = models.CharField(max_length=255, verbose_name='Dirección')
-    colonia = models.CharField(max_length=100)
-    localidad = models.CharField(max_length=100)
-    seccion = models.CharField(max_length=100, blank=True, verbose_name='Sección')
-    ocupacion = models.CharField(max_length=100, blank=True, verbose_name='Ocupación')
-    celular = models.CharField(max_length=15, blank=True)
-    telefono = models.CharField(max_length=15, blank=True)
-    email = models.EmailField(blank=True)
-    tipo_solicitud = models.CharField(max_length=100, choices=SOLICITUD_CHOICES)
-    detalle_solicitud = models.TextField(blank=True)
-    problema_tipo = models.CharField(max_length=100, choices=PROBLEMATICAS_CHOICES)
-    detalle_problema = models.TextField(blank=True)
-    foto_promovido = models.ImageField(upload_to='fotos_promovidos/', blank=True)
-    foto_ine_frontal = models.ImageField(upload_to='fotos_ine/', blank=True)
-    foto_ine_reverso = models.ImageField(upload_to='fotos_ine/', blank=True)
-    numeroINE = models.CharField(max_length=13)
-    status = models.CharField(max_length=25, choices=STATUS_CHOICES)
 
-    def _str_(self):
-        return f"{self.nombre} {self.apellido_paterno}"
-    
-class Ubicacion(models.Model):
-    promovido = models.ForeignKey(Promovido, on_delete=models.CASCADE)
-    latitud = models.FloatField()
-    longitud = models.FloatField()
-    def _str_(self):
-        return self.promovido
 
 OCUPACIONES_CHOICES = [
     ('Agricultor', 'Agricultor'),
@@ -102,6 +69,13 @@ OCUPACIONES_CHOICES = [
 ]
 
 class prospecto(models.Model):
+
+    STATUS_CHOICES = [
+        ('Prospecto', 'Prospecto'),
+        ('Promovido', 'Promovido'),
+        ('Verificado', 'Verificado'),
+        ('Rechazado', 'Rechazado'),  # Nuevo estado para reflejar los rechazos
+    ]
     usuario = models.ForeignKey(
         settings.AUTH_USER_MODEL, 
         on_delete=models.CASCADE,

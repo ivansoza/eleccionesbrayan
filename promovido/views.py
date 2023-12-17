@@ -5,10 +5,12 @@ from datetime import datetime, date
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Sum
+from django.views.generic import DetailView
 
 from catalogos.models import Calle
-from .models import Promovido, Ubicacion, prospecto, Felicitacion
-from .forms import PromovidoForm, ProspectoForm, ProspectoFormNuevo, ProspectoFormNuevoUpdate,PromovidoFormNuevo, felicitacionForms, verificarForms
+from .models import  prospecto, Felicitacion
+from .forms import  ProspectoFormNuevo, ProspectoFormNuevoUpdate,PromovidoFormNuevo, felicitacionForms, verificarForms
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -29,183 +31,11 @@ from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth import get_user_model
 
-class createPromovido(CreateView):
-    template_name='crearPromovido.html'
-    form_class= PromovidoForm
-    model= Promovido
-    def get_success_url(self):
-        # Obtén el ID del promovido recién creado
-        promovido_id = self.object.id
-        messages.success(self.request, 'Promovido creado con éxito.')
-        success_url = reverse('crearUbicacionPro', kwargs={'promovido_id': promovido_id})
-        return success_url
-    def get_initial(self):
-        initial = super().get_initial()
-        if self.request.user.is_authenticated:
-            usuario_data = self.request.user  # El usuario logeado
-            initial['usuario'] = usuario_data.pk
-            initial['status']='Promovido'
 
-            # Agrega más campos según sea necesario
-        return initial
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['navbar'] = 'promovidos'  # Cambia esto según la página activa
-        context['seccion'] = 'ver_promovidos'  # Cambia esto según la página activa
-        return context
-class createProspecto(CreateView):
-    template_name='crearProspecto.html'
-    form_class=ProspectoForm
-    model=Promovido
-    def get_success_url(self):
-        messages.success(self.request, 'Prospecto creado con éxito.')
 
-        success_url = reverse('lista_prospectos')
-        return success_url
-    def get_initial(self):
-        initial = super().get_initial()
-        if self.request.user.is_authenticated:
-            usuario_data = self.request.user  # El usuario logeado
-            initial['usuario'] = usuario_data.pk
-            initial['status']='Prospecto'
-            # Agrega más campos según sea necesario
-        return initial
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['navbar'] = 'promovidos'  # Cambia esto según la página activa
-        context['seccion'] = 'ver_prospectos'  # Cambia esto según la página activa
-        return context
-class updateProspecto(UpdateView):
-    template_name='promoverProspecto.html'
-    form_class= PromovidoForm
-    model= Promovido
-    def get_success_url(self):
-        messages.success(self.request, 'Promovido creado con éxito.')
-        promovido_id = self.object.id
-        # Genera la URL de la vista 'crearUbicacionPro' con el ID como argumento
-        success_url = reverse('crearUbicacionPro', kwargs={'promovido_id': promovido_id})
-        return success_url
-    def get_form(self, form_class=None):
-        form = super().get_form(form_class)
-        # Convierte la fecha de nacimiento a un formato aceptado por el widget DateInput
-        form.fields['fechaNacimiento'].widget.format = '%Y-%m-%d'
-        return form
-    def get_initial(self):
-        initial = super().get_initial()
-       
-        initial['status']='Promovido'
 
-            # Agrega más campos según sea necesario
-        return initial
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['navbar'] = 'promovidos'  # Cambia esto según la página activa
-        context['seccion'] = 'ver_prospectos'  # Cambia esto según la página activa
-        return context
-
-class ListaPromovidos(ListView):
-    template_name='listaPromovidos.html'
-    context_object_name = 'promovidos'
-    model = Promovido
-    def get_queryset(self):
-        return Promovido.objects.filter(usuario=self.request.user, status='Promovido')
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        queryset = self.get_queryset()
-        context['num_hombres'] = queryset.filter(genero='Hombre').count()
-        context['num_mujeres'] = queryset.filter(genero='Mujer').count()
-
-        # Contador global de todos los promovidos
-        context['contador_global'] = queryset.count()
-        context['navbar'] = 'promovidos'  # Cambia esto según la página activa
-        context['seccion'] = 'ver_promovidos'  # Cambia esto según la página activa
-        return context
-
-class ListaProspectos(ListView):
-    template_name='listaProspectos.html'
-    context_object_name = 'promovidos'
-    model = Promovido
-    def get_queryset(self):
-
-        return Promovido.objects.filter(usuario=self.request.user, status='Prospecto')
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        queryset = self.get_queryset()
-        context['num_hombres'] = queryset.filter(genero='Hombre').count()
-        context['num_mujeres'] = queryset.filter(genero='Mujer').count()
-
-        # Contador global de todos los promovidos
-        context['contador_global'] = queryset.count()       
-        context['navbar'] = 'promovidos'  # Cambia esto según la página activa
-        context['seccion'] = 'ver_prospectos'  # Cambia esto según la página activa
-        return context
-
-   
-class createUbicacion(TemplateView):
-    template_name='crearUbicacion.html'
-    def get_initial(self):
-        initial = super().get_initial()
-        promovido_id = self.kwargs['promovido_id']
-        pro = Promovido.objects.get(id=promovido_id)
-        initial['promovido']=pro
-        return initial
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        promovido_id = self.kwargs.get('promovido_id')
-        promovido = Promovido.objects.get(id=promovido_id)
-        context['promovido'] = promovido
-        context['navbar'] = 'promovidos'  # Cambia esto según la página activa
-        context['seccion'] = 'ver_promovidos'
-        return context
-    
-def guardar_ubicacion(request):
-    if request.method == 'POST':
-        try:
-            latitud = request.POST.get('latitud')
-            longitud = request.POST.get('longitud')
-            promovido_id = request.POST.get('promovido')
-
-            # Buscar el objeto Promovido por ID
-            promovido = get_object_or_404(Promovido, id=promovido_id)
-
-            # Crea una instancia de Ubicacion y guárdala en la base de datos
-            ubicacion = Ubicacion(
-                promovido=promovido,
-                latitud=latitud,
-                longitud=longitud
-            )
-            ubicacion.save()
-
-            return JsonResponse({'mensaje': 'Datos guardados exitosamente'})
-        except Exception as e:
-            return JsonResponse({'mensaje': f'Error al guardar los datos: {str(e)}'}, status=400)
-    else:
-        return JsonResponse({'mensaje': 'Error en la solicitud'}, status=400)
-    
-
-class mapas(ListView):
-    template_name='mapaPromovidos.html'
-    context_object_name='ubicaciones'
-    def get_queryset(self):
-     promovidos_usuario = Promovido.objects.filter(usuario=self.request.user)
-    # Obtener las ubicaciones asociadas a esos promovidos
-     ubicaciones = Ubicacion.objects.filter(promovido__in=promovidos_usuario)
-     return ubicaciones
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['navbar'] = 'promovidos'  # Cambia esto según la página activa
-        context['seccion'] = 'mapa_promovidos'
-        promovidos_usuario = Promovido.objects.filter(usuario=self.request.user)
-
-        # Conteo de géneros basado en Promovido
-        context['num_hombres'] = promovidos_usuario.filter(genero='Hombre').count()
-        context['num_mujeres'] = promovidos_usuario.filter(genero='Mujer').count()
-
-        # Contador global de todos los promovidos
-        context['contador_global'] = promovidos_usuario.count()
-        return context
-
-class estadisticasGenerales(ListView):
+#----------------------- ESTADISTICAS GENERALES--------------------
+class estadisticasGenerales(LoginRequiredMixin,UserPassesTestMixin, ListView):
     template_name= 'estadisticas/estadisticasPromovidos.html'
     context_object_name = 'promovidos'
     model = prospecto
@@ -219,6 +49,12 @@ class estadisticasGenerales(ListView):
         )
         return queryset
 
+    def test_func(self):
+        return self.request.user.groups.filter(
+                    Q(name='Administrador') |
+                    Q(name='Candidato') |
+                    Q(name='Coordinador General') 
+                ).exists()  
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # Ajustamos también aquí para la obtención de usuarios destacados
@@ -231,6 +67,114 @@ class estadisticasGenerales(ListView):
         context['navbar'] = 'estadisticas'  # Asegúrate de ajustar esto según corresponda
         context['seccion'] = 'esta_general'
         return context
+    
+    def handle_no_permission(self):
+        return redirect('templeteDenegado')
+    
+#----------------------- FIN ESTADISTICAS GENERALES--------------------
+
+
+# ------------------------ESTADISTICAS CALLE ----------------
+
+class CalleListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+    model = Calle
+    template_name = 'estadisticas/calles.html'
+    context_object_name = 'calles'
+
+    def test_func(self):
+        return self.request.user.groups.filter(
+                    Q(name='Administrador') |
+                    Q(name='Candidato') |
+                    Q(name='Coordinador General') 
+                ).exists() 
+    def handle_no_permission(self):
+        return redirect('templeteDenegado')
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        self.status = self.request.GET.get('status')
+        if self.status:
+            queryset = queryset.filter(prospectos__status=self.status).distinct()
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['navbar'] = 'estadisticas'
+        context['seccion'] = 'calles-list'
+        context['status_choices'] = [choice for choice in prospecto.STATUS_CHOICES if choice[0] != 'Rechazado']
+        context['total_calles'] = context['calles'].count()
+        total_meta_promovidos = Calle.objects.aggregate(Sum('meta_promovidos'))['meta_promovidos__sum'] or 0
+        total_prospectos = 0  # Inicializa el conteo total de prospectos
+
+        for calle in context['calles']:
+                    if self.status:
+                        calle_prospectos = prospecto.objects.filter(calle=calle, status=self.status).count()
+                    else:
+                        calle_prospectos = prospecto.objects.filter(calle=calle).exclude(status='Rechazado').count()
+
+                    porcentaje = (calle_prospectos / calle.meta_promovidos * 100) if calle.meta_promovidos > 0 else 0
+                    calle.progreso = porcentaje
+                    calle.prospectos_count = calle_prospectos
+                    total_prospectos += calle_prospectos  # Suma al total de prospectos
+
+        context['total_meta_promovidos'] = total_meta_promovidos
+        context['total_prospectos'] = total_prospectos  
+        context['calles'] = sorted(context['calles'], key=lambda x: x.progreso, reverse=True)
+        context['status_actual'] = self.status
+
+        return context
+# ------------------------FIN ESTADISTICAS CALLE ----------------
+
+# ---------------- VER DETALLES DE CALLE -----------------
+
+class CalleDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
+    model = Calle
+    template_name = 'estadisticas/detalle_calle.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['navbar'] = 'estadisticas'
+        context['seccion'] = 'calles-list'
+        status = self.kwargs.get('status')
+
+        if status:
+            context['prospectos'] = self.object.prospectos.filter(status=status)
+        else:
+            context['prospectos'] = self.object.prospectos.exclude(status='Rechazado')
+
+        total_promovidos = context['prospectos'].count()
+        context['total_prospectos'] = total_promovidos
+        context['status_actual'] = status or 'Todo'
+
+        total_hombres = context['prospectos'].filter(genero='Hombre').count()
+        total_mujeres = context['prospectos'].filter(genero='Mujer').count()
+        context['total_hombres'] = total_hombres
+        context['total_mujeres'] = total_mujeres
+        if total_promovidos > 0:
+            context['porcentaje_hombres'] = (total_hombres / total_promovidos) * 100
+            context['porcentaje_mujeres'] = (total_mujeres / total_promovidos) * 100
+        else:
+            context['porcentaje_hombres'] = 0
+            context['porcentaje_mujeres'] = 0
+        meta_promovidos_calle = self.object.meta_promovidos
+        context['porcentaje_promovidos_calle'] = (total_promovidos / meta_promovidos_calle * 100) if meta_promovidos_calle else 0
+        context['meta_calle'] = meta_promovidos_calle
+
+        total_meta_promovidos = Calle.objects.aggregate(Sum('meta_promovidos'))['meta_promovidos__sum'] or 0
+        context['total_meta_promovidos'] = total_meta_promovidos
+
+        context['porcentaje_promovidos_todas_calles'] = (total_promovidos / total_meta_promovidos * 100) if total_meta_promovidos else 0
+        return context
+
+    def test_func(self):
+        return self.request.user.groups.filter(
+                    Q(name='Administrador') |
+                    Q(name='Candidato') |
+                    Q(name='Coordinador General') 
+                ).exists() 
+    def handle_no_permission(self):
+        return redirect('templeteDenegado')
+    
 class EstadisticasGeneralesView(TemplateView):
     template_name = 'estadisticas/estadisticasUsuario.html'
 
@@ -560,7 +504,6 @@ class ListCumple(LoginRequiredMixin, UserPassesTestMixin, ListView):
                 }
         
     def handle_no_permission(self):
-        # Redirigir a alguna página de error o inicio si el usuario no cumple el test
         return redirect('templeteDenegado')
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

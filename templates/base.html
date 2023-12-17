@@ -9,6 +9,10 @@
     Brayan 
     {% endblock titulo %}
 </title>
+
+  {% block link1 %}
+
+  {% endblock link1 %}
   {% block linkprincipal %}
 
   <!-- Google Font: Source Sans Pro -->
@@ -273,12 +277,28 @@
           </ul>
           <ul class="nav nav-treeview">
             <li class="nav-item">
-              <a href="{% url "lista-cumple" %}?estado_defensoria=por_notificar" class="nav-link {% if seccion == 'cumple' %}active {% endif %}">
+              <a href="{% url "lista-cumple" %}" class="nav-link {% if seccion == 'cumple' %}active {% endif %}">
                 <i class="far fa-circle nav-icon"></i>
                 <p>Cumpleaños</p>
               </a>
             </li>
          
+          <li class="nav-item">
+              <a href="" class="nav-link {% if seccion == '' %}active {% endif %}">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Secciones</p>
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a href="{% url "lista_calles" %}" class="nav-link {% if seccion == 'calles-list' %}active {% endif %}">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Calles</p>
+              </a>
+            </li>
+         
+            
+
           </ul>
           </li>
           {% endif %}
@@ -340,6 +360,20 @@
               <a href="{% url "lista-cumple" %}" class="nav-link {% if seccion == 'cumple' %}active {% endif %}">
                 <i class="far fa-circle nav-icon"></i>
                 <p>Cumpleaños</p>
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a href="" class="nav-link {% if seccion == '' %}active {% endif %}">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Secciones</p>
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a href="{% url "lista_calles" %}" class="nav-link {% if seccion == 'calles-list' %}active {% endif %}">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Calles</p>
               </a>
             </li>
          
