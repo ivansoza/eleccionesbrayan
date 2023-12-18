@@ -77,23 +77,29 @@ Registrar Promotor
                         {{ form.apellido_materno|as_crispy_field }}
                     </div>
                 </div>
+
                 <div class="row">
                     <div class="col-md-4">
-                        {{ form.seccion|as_crispy_field }}
+                        {{ form.sexo|as_crispy_field }}
                     </div>
-               
                     <div class="col-md-4">
-                        {{ form.direccion|as_crispy_field }}
+                        {{ form.fecha_nacimiento|as_crispy_field }}
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-md-4">
+                    <div class="col-md-6">
+                        {{ form.direccion|as_crispy_field }}
+                    </div>
+                    <div class="col-md-6">
                         {{ form.colonia|as_crispy_field }}
                     </div>
-                    <div class="col-md-4">
+                </div>
+                <div class="row">
+                    
+                    <div class="col-md-6">
                         {{ form.localidad|as_crispy_field }}
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         {{ form.ocupacion|as_crispy_field }}
                     </div>
                 </div>

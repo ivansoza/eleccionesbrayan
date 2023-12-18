@@ -289,16 +289,25 @@ class CustomUserCreationFormTemplateCordiSeccion(UserCreationForm):
 
 
 class CustomUserCreationFormTemplatePromotor(UserCreationForm):
-   
-     seccion = forms.ModelMultipleChoiceField(
-         queryset=Seccion.objects.all(),
-         required=True,
-         label="Secciones",
+     fecha_nacimiento = forms.DateField(
+        label="Fecha de Nacimiento:",
+        widget=forms.DateInput(attrs={'type': 'text', 'id': 'date', 'placeholder': "DD/MM/YYYY"}),
+        input_formats=['%d/%m/%Y'],
      )
+     def clean_fechaNacimiento(self):
+        data = self.cleaned_data['fecha_nacimiento']
+        today = datetime.date.today()
+        age = today.year - data.year - ((today.month, today.day) < (data.month, data.day))
+        if age < 18:
+            raise ValidationError('Debe de ser mayor de 18 años.')        
+        if age > 110:
+            raise ValidationError('La edad ingresada no es válida. Por favor, verifica la fecha de nacimiento.')
+        return data
+    
 
      class Meta:
-         model = CustomUser
-         fields = ('username', 'first_name', 'last_name', 'email', 'seccion', 'foto', 'foto_ine_frontal', 'foto_ine_reverso','apellido_materno','direccion','colonia','localidad','ocupacion','celular','telefono_fijo')
+        model = CustomUser
+        fields = ('username', 'first_name', 'last_name', 'email',  'foto', 'foto_ine_frontal', 'foto_ine_reverso','apellido_materno','direccion','colonia','localidad','ocupacion','celular','telefono_fijo','sexo','fecha_nacimiento')
 
      def __init__(self, *args, **kwargs):
          user = kwargs.pop('user', None)
@@ -317,8 +326,8 @@ class CustomUserCreationFormTemplatePromotor(UserCreationForm):
          self.fields['ocupacion'].widget.attrs['placeholder'] = 'Ej. Docente '
          self.fields['celular'].widget.attrs['placeholder'] = 'Numero de Celular'
          self.fields['telefono_fijo'].widget.attrs['placeholder'] = 'Numero de Teléfono'
-         self.fields['seccion'].widget.attrs['class'] = 'select2'
-         self.fields['seccion'].widget.attrs['style'] = 'width: 100%;'
+         self.fields['sexo'].widget.attrs['placeholder'] = 'Sexo'
+         self.fields['sexo'].label = 'Sexo'
 
          for field_name in self.fields:
              field = self.fields.get(field_name)  

@@ -8,7 +8,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Sum
 from django.views.generic import DetailView
 from django.utils import timezone
-
+import json
+from django.core.serializers.json import DjangoJSONEncoder
 from catalogos.models import Calle
 from .models import  prospecto, Felicitacion
 from .forms import  ProspectoFormNuevo, ProspectoFormNuevoUpdate,PromovidoFormNuevo, felicitacionForms, verificarForms
@@ -142,6 +143,13 @@ class CalleDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
             context['prospectos'] = self.object.prospectos.filter(status=status)
         else:
             context['prospectos'] = self.object.prospectos.exclude(status='Rechazado')
+
+        solicitudes_por_tipo = context['prospectos'].values('tipo_solicitud').annotate(total=Count('tipo_solicitud')).order_by('tipo_solicitud')
+        # Convertir a JSON
+        problematicas_por_tipo = context['prospectos'].values('problema_tipo').annotate(total=Count('problema_tipo')).order_by('problema_tipo')
+
+        context['solicitudes_por_tipo_json'] = json.dumps(list(solicitudes_por_tipo), cls=DjangoJSONEncoder)
+        context['problematicas_por_tipo_json'] = json.dumps(list(problematicas_por_tipo), cls=DjangoJSONEncoder)
 
         total_promovidos = context['prospectos'].count()
         context['total_prospectos'] = total_promovidos

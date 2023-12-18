@@ -139,7 +139,11 @@
 
         <div class="card">
               <div class="card-header">
-                <h3 class="card-title">Personas</h3>
+
+                <h3 class="card-title"><i class="fa fa-users"></i>
+                Personas
+
+                </h3>
               </div>
               <!-- /.card-header -->
               <div class="card-body">
@@ -231,7 +235,9 @@
 {% else %}
 <div class="card p-3 mt-5">
      <div class="card-header">
-                <h3 class="card-title">Mapa de Personas</h3>
+                <h3 class="card-title">
+                <i class="fas fa-map-marker-alt"></i>
+                Mapa de Personas</h3>
       </div>
               
       <div class="card-body">
@@ -239,6 +245,69 @@
 
       </div>
 </div>
+
+
+
+
+            
+{% endif %}
+
+{% if status_actual == "Todo" or status_actual == "Prospecto"%}
+
+{% else %}
+
+  <section class="content">
+      <div class="container-fluid">
+        <div class="row">
+         
+          <!-- /.col (LEFT) -->
+          <div class="col-md-6">
+            <div class="card card-info">
+              <div class="card-header">
+                <h3 class="card-title">Solicitudes</h3>
+                <div class="card-tools">
+                  <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                    <i class="fas fa-minus"></i>
+                  </button>
+                  <button type="button" class="btn btn-tool" data-card-widget="remove">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="chart">
+                  <canvas id="barChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+            <div class="col-md-6">
+            <div class="card card-info">
+              <div class="card-header">
+                <h3 class="card-title">Problematicas</h3>
+                <div class="card-tools">
+                  <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                    <i class="fas fa-minus"></i>
+                  </button>
+                  <button type="button" class="btn btn-tool" data-card-widget="remove">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="chart">
+                  <canvas id="problemChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+        </div>
+      </div>
+    </section>
 {% endif %}
 
 {% endblock contenido%}
@@ -254,6 +323,7 @@
 <script src="{% static "plugins/sparklines/sparkline.js" %}"></script>
 <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
 
+<script src="{% static 'plugins/chart.js/Chart.min.js' %}"></script>
 
 
 <script src="{% static 'plugins/datatables/jquery.dataTables.min.js' %}"></script>
@@ -270,9 +340,108 @@
 <script src="{% static 'plugins/datatables-buttons/js/buttons.print.min.js' %}"></script>
 <script src="{% static 'plugins/datatables-buttons/js/buttons.colVis.min.js' %}"></script>
 
+
+
 <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+  $(function () {
+
+    var solicitudesData = JSON.parse('{{ solicitudes_por_tipo_json|safe }}');
+    var labels = solicitudesData.map(function(item) {
+        return item.tipo_solicitud;
+    });
+    var data = solicitudesData.map(function(item) {
+        return item.total;
+    });
+
+    var barChartData = {
+        labels: labels,
+        datasets: [{
+            label: 'Número de Solicitudes',
+            backgroundColor: 'rgba(60,141,188,0.9)',
+            borderColor: 'rgba(60,141,188,0.8)',
+            pointRadius: false,
+            pointColor: '#3b8bba',
+            pointStrokeColor: 'rgba(60,141,188,1)',
+            pointHighlightFill: '#fff',
+            pointHighlightStroke: 'rgba(60,141,188,1)',
+            data: data
+        }]
+    };
+
+    var barChartCanvas = $('#barChart').get(0).getContext('2d');
+    var barChartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        datasetFill: false,
+        scales: {
+            yAxes: [{
+                ticks: {
+                    beginAtZero: true,  // Comenzar en cero
+                    stepSize: 1  // Establecer el tamaño de paso a 1 para incrementos enteros
+                }
+            }]
+        }
+    };
+
+    new Chart(barChartCanvas, {
+        type: 'bar',
+        data: barChartData,
+        options: barChartOptions
+    });
+
+
+    var problematicasData = JSON.parse('{{ problematicas_por_tipo_json|safe }}');
+    var labelsProblematicas = problematicasData.map(function(item) {
+        return item.problema_tipo;
+    });
+    var dataProblematicas = problematicasData.map(function(item) {
+        return item.total;
+    });
+    var problemChartData = {
+        labels: labelsProblematicas,
+        datasets: [{
+            label: 'Número de Problemáticas',
+            backgroundColor: 'rgba(255, 117, 117)',
+            borderColor: 'rgba(255, 117, 117)',
+            pointRadius: false,
+            pointColor: 'rgba(255, 117, 117)',
+            pointStrokeColor: '#c1c7d1',
+            pointHighlightFill: '#fff',
+            pointHighlightStroke: 'rgba(220,220,220,1)',
+            data: dataProblematicas
+        }]
+    };
+
+
+    var problemChartCanvas = $('#problemChart').get(0).getContext('2d');
+    var problemChartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        datasetFill: false,
+        scales: {
+            yAxes: [{
+                ticks: {
+                    beginAtZero: true,
+                    stepSize: 1
+                }
+            }]
+        }
+    };
+
+    new Chart(problemChartCanvas, {
+        type: 'bar',
+        data: problemChartData,
+        options: problemChartOptions
+    });
+
+
+  })
+</script>
+
+
  <script>
 $('#modalDetalles').on('show.bs.modal', function (event) {
     var button = $(event.relatedTarget);
@@ -525,7 +694,10 @@ $('#modalDetalles').on('show.bs.modal', function (event) {
         $("#example1_wrapper .btn").css("margin-bottom", "40px"); // Ajusta el margen según tus necesidades
 
   });
+
 </script>
+
+
 
 
 {% endblock script1 %}
