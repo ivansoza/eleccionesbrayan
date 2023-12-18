@@ -183,7 +183,62 @@ class CalleDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
                 ).exists() 
     def handle_no_permission(self):
         return redirect('templeteDenegado')
+# ---------------- FIN DETALLES DE CALLE -----------------
+
+# ---------------- VER LISTA DE SECCION  -----------------
+
+class SeccionListView(ListView):
+    model = Seccion
+    template_name = 'estadisticas/secciones.html'  # Especifica la ubicación de tu template
+    context_object_name = 'secciones'  # Opcional: este es el nombre del contexto en el template
     
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        self.status = self.request.GET.get('status')
+        if self.status:
+            queryset = queryset.filter(calles_catalogos__prospectos__status=self.status).distinct()
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['navbar'] = 'estadisticas'
+        context['seccion'] = 'seccion-list'
+        context['status_choices'] = [choice for choice in prospecto.STATUS_CHOICES if choice[0] != 'Rechazado']
+
+        total_meta_promovidos = Calle.objects.aggregate(Sum('meta_promovidos'))['meta_promovidos__sum'] or 0
+        context['total_meta_promovidos'] = total_meta_promovidos
+        context['total_secciones'] = Seccion.objects.count()
+
+        if self.status:
+            total_prospectos_filtrados = prospecto.objects.filter(status=self.status).count()
+            context['total_prospectos_filtrados'] = total_prospectos_filtrados
+        else:
+            total_prospectos_no_rechazados = prospecto.objects.exclude(status='Rechazado').count()
+            context['total_prospectos_no_rechazados'] = total_prospectos_no_rechazados
+            
+        secciones_con_progreso = []
+
+        for seccion in self.get_queryset():
+            meta_total = seccion.calles_catalogos.aggregate(Sum('meta_promovidos'))['meta_promovidos__sum'] or 0
+            if self.status:
+                prospectos_total = prospecto.objects.filter(calle__seccion=seccion, status=self.status).count()
+            else:
+                prospectos_total = prospecto.objects.filter(calle__seccion=seccion).exclude(status='Rechazado').count()
+            porcentaje_progreso = (prospectos_total / meta_total * 100) if meta_total > 0 else 0
+
+            secciones_con_progreso.append({
+                'seccion': seccion,
+                'meta_total': meta_total,
+                'prospectos_total': prospectos_total,
+                'porcentaje_progreso': porcentaje_progreso
+            })
+
+        context['secciones_con_progreso'] = secciones_con_progreso
+        context['status_actual'] = self.status
+
+        return context
+# ---------------- FIN LISTA DE SECCION  -----------------
+
 class EstadisticasGeneralesView(TemplateView):
     template_name = 'estadisticas/estadisticasUsuario.html'
 

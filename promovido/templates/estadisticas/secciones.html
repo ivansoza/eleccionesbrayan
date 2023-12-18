@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+{% block titulo %}Lista de Secciones{% endblock titulo %}
+
+{% block dashboard %}
+<a class="btn btn-sm btn-icon1 " href="{% url "menu" %}">
+  <i class="fas fa-arrow-left"></i>
+</a>
+{% endblock dashboard %}
+
+{% block contenido %}
+
+
+<style>
+.progress-container {
+    margin-bottom: 10px;
+    padding: 5px;
+    position: relative; /* Posicionamiento para la etiqueta de porcentaje */
+}
+
+.progress-title {
+    font-family: 'Arial', sans-serif; /* Replace with any font you prefer */
+    font-size: 1em; /* Adjust the size as needed */
+    color: #2c3e50; /* A deep, muted blue color */
+    letter-spacing: 0.05em; /* Spacing out letters for better readability */
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1); /* A light shadow for depth */
+    text-transform: uppercase; /* Makes all the letters uppercase */
+    margin-bottom: 10px; /* Space between title and progress bar */
+}
+
+.progress-bar-background {
+    width: 100%;
+    background-color: #eee;
+    border-radius: 10px;
+    position: relative; /* Relativo para la barra de progreso y la etiqueta de porcentaje */
+}
+
+.progress-bar {
+    height: 25px;
+    border-radius: 10px;
+    background-color: #4CAF50;
+    transition: width 2s;
+    /* Eliminar la posición relativa si no es necesario */
+}
+
+.progress-meta {
+    text-align: left; /* Alinear el texto a la izquierda */
+    margin-top: 5px; /* Espacio arriba de los números */
+}
+
+.percentage-badge {
+    position: absolute;
+    top: 50%; /* Centrar verticalmente */
+    left: 50%; /* Centrar horizontalmente */
+    transform: translate(-50%, -50%); /* Ajustes para centrar exactamente el texto */
+    background-color: #e54d4d;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 10px;
+    font-size: 0.9em;
+    white-space: nowrap;
+}
+
+</style>
+
+
+<div class="dashboard-header">
+    <h1 class="dashboard-title">Lista de Secciones</h1>
+</div>
+
+<form method="get" class="mb-4">
+    <div class="row">
+        <div class="col-12 col-md-6 col-lg-4 mt-2">
+            <label for="statusFilter" class="mr-2">Filtrar por Estatus:</label>
+            <select name="status" id="statusFilter" class="custom-select mr-2">
+                <option value="">Todos los Estatus</option>
+                {% for status_value, status_display in status_choices %}
+                <option value="{{ status_value }}" {% if request.GET.status == status_value %}selected{% endif %}>
+                    {{ status_display }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-12 col-md-6 col-lg-4 d-flex align-items-end mt-2">
+            <button type="submit" class="btn btn-primary">Filtrar</button>
+        </div>
+    </div>
+</form>
+
+ <div class="row">
+    <div class="col-lg-4 col-6">
+      <!-- small box -->
+      <div class="small-box bg-info">
+        <div class="inner">
+          <h3>{{ total_secciones }}</h3>
+
+          <p>Secciones</p>
+        </div>
+        <div class="icon">
+            <i class="fas fa-map-marker-alt"></i>
+        </div>
+      </div>
+    </div>
+    <!-- ./col -->
+    <div class="col-lg-4 col-6">
+      <!-- small box -->
+      <div class="small-box bg-success">
+        <div class="inner">
+
+        {% if status_actual %}
+            <h3>{{ total_prospectos_filtrados }}</h3>
+             <p> {{ status_actual }}</p>
+
+        {% else %}
+            <h3>{{ total_prospectos_no_rechazados }}</h3>
+            <p>Todos</p> 
+
+        {% endif %}
+            </div>
+        <div class="icon">
+          <i class="fas fa-users"></i>
+        </div>
+      </div>
+    </div>
+    <!-- ./col -->
+    <div class="col-lg-4 col-12">
+      <!-- small box -->
+      <div class="small-box bg-warning">
+        <div class="inner">
+          <h3>{{total_meta_promovidos}}</h3>
+
+          <p>Meta Total</p>
+        </div>
+        <div class="icon">
+          <i class="fas fa-star"></i>
+        </div>
+      </div>
+    </div>
+    <!-- ./col -->
+
+    <!-- ./col -->
+  </div>
+
+
+{% for seccion_data in secciones_con_progreso %}
+<div class="card progress-container">
+    <div class="card-header">
+        {{ forloop.counter }}. <strong>Sección:</strong> {{ seccion_data.seccion.nombre }}
+    </div>
+    <div class="card-body">
+        <div class="progress-bar-background">
+            <div style="width: {{ seccion_data.porcentaje_progreso }}%;" class="progress-bar"></div>
+        </div>
+        <div class="percentage-badge">{{ seccion_data.porcentaje_progreso|floatformat:2 }}%</div>
+        <div class="progress-meta">{{ seccion_data.prospectos_total }} de {{ seccion_data.meta_total }}</div>
+        <!-- Asegúrate de actualizar la URL a donde debe redirigir "Ver más" -->
+        <a href="#" class="btn btn-primary mt-3">Ver más</a>
+    </div>
+</div>
+{% endfor %}
+
+{% endblock contenido %}
