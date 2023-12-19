@@ -187,11 +187,18 @@ class CalleDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
 
 # ---------------- VER LISTA DE SECCION  -----------------
 
-class SeccionListView(ListView):
+class SeccionListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = Seccion
     template_name = 'estadisticas/secciones.html'  # Especifica la ubicación de tu template
     context_object_name = 'secciones'  # Opcional: este es el nombre del contexto en el template
-    
+    def test_func(self):
+        return self.request.user.groups.filter(
+                    Q(name='Administrador') |
+                    Q(name='Candidato') |
+                    Q(name='Coordinador General') 
+                ).exists() 
+    def handle_no_permission(self):
+        return redirect('templeteDenegado')
     def get_queryset(self):
         queryset = super().get_queryset()
         self.status = self.request.GET.get('status')
