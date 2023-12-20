@@ -246,6 +246,68 @@ class SeccionListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         return context
 # ---------------- FIN LISTA DE SECCION  -----------------
 
+# ---------------- detalles   DE SECCION  -----------------
+
+
+class SeccionDetailView(LoginRequiredMixin,  DetailView):
+
+    model = Seccion
+    template_name = 'estadisticas/detalle_seccion.html'
+    context_object_name = 'secciones' 
+
+
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['navbar'] = 'estadisticas'
+        context['seccion'] = 'seccion-list'
+
+        status = self.kwargs.get('status')
+        if status:
+            context['prospectos'] = prospecto.objects.filter(calle__seccion=self.object, status=status)
+        else:
+            context['prospectos'] = prospecto.objects.filter(calle__seccion=self.object).exclude(status='Rechazado')
+        meta_promovidos_seccion = self.object.calles_catalogos.aggregate(Sum('meta_promovidos'))['meta_promovidos__sum'] or 0
+        context['meta_seccion'] = meta_promovidos_seccion
+        total_promovidos = context['prospectos'].count()
+
+        if meta_promovidos_seccion > 0:
+            context['porcentaje_promovidos_seccion'] = (total_promovidos / meta_promovidos_seccion) * 100
+        else:
+            context['porcentaje_promovidos_seccion'] = 0
+
+        solicitudes_por_tipo = context['prospectos'].values('tipo_solicitud').annotate(total=Count('tipo_solicitud')).order_by('tipo_solicitud')
+        problematicas_por_tipo = context['prospectos'].values('problema_tipo').annotate(total=Count('problema_tipo')).order_by('problema_tipo')
+        context['solicitudes_por_tipo_json'] = json.dumps(list(solicitudes_por_tipo), cls=DjangoJSONEncoder)
+        context['problematicas_por_tipo_json'] = json.dumps(list(problematicas_por_tipo), cls=DjangoJSONEncoder)
+
+        context['status_actual'] = status or 'Todo'
+        context['total_prospectos'] = total_promovidos
+
+
+        total_hombres = context['prospectos'].filter(genero='Hombre').count()
+        total_mujeres = context['prospectos'].filter(genero='Mujer').count()
+
+        context['total_hombres'] = total_hombres
+        context['total_mujeres'] = total_mujeres
+        
+        if total_promovidos > 0:
+            context['porcentaje_hombres'] = (total_hombres / total_promovidos) * 100
+            context['porcentaje_mujeres'] = (total_mujeres / total_promovidos) * 100
+        else:
+            context['porcentaje_hombres'] = 0
+            context['porcentaje_mujeres'] = 0
+
+        total_meta_promovidos = Calle.objects.aggregate(Sum('meta_promovidos'))['meta_promovidos__sum'] or 0
+        context['total_meta_promovidos'] = total_meta_promovidos
+        context['porcentaje_promovidos_todas_seccion'] = (total_promovidos / total_meta_promovidos * 100) if total_meta_promovidos else 0
+
+        return context
+
+# ---------------- FIN  DE SECCION  -----------------
+
+
+
 class EstadisticasGeneralesView(TemplateView):
     template_name = 'estadisticas/estadisticasUsuario.html'
 

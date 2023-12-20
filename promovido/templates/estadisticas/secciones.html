@@ -152,8 +152,8 @@
         </div>
         <div class="percentage-badge">{{ seccion_data.porcentaje_progreso|floatformat:2 }}%</div>
         <div class="progress-meta">{{ seccion_data.prospectos_total }} de {{ seccion_data.meta_total }}</div>
-        <!-- Asegúrate de actualizar la URL a donde debe redirigir "Ver más" -->
-        <a href="#" class="btn btn-primary mt-3">Ver más</a>
+
+        <a href="{% if status_actual %}{% url 'detalle_seccion_con_status' seccion_data.seccion.id status_actual %}{% else %}{% url 'detalle_seccion' seccion_data.seccion.id %}{% endif %}" class="btn btn-primary mt-3">Ver más</a>
     </div>
 </div>
 {% endfor %}
