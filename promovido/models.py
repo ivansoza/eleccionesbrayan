@@ -127,6 +127,9 @@ class prospecto(models.Model):
     fecha_agregado = models.DateTimeField(auto_now_add=True)
     fecha_promovido = models.DateTimeField(blank=True, null=True)
     fecha_verificado = models.DateTimeField(blank=True, null=True)
+    alias = models.CharField(max_length=100, null=True, blank=True)
+    numeroINE = models.CharField(max_length=13, unique=True, null=True, blank=True)
+
 
     def __str__(self):
         return f"{self.nombre} {self.apellido_paterno}"
