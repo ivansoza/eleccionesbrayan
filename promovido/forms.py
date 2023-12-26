@@ -84,7 +84,7 @@ class ProspectoFormNuevoUpdate(forms.ModelForm):
         model = prospecto
         fields = [
             'numeroINE', 'nombre', 'apellido_paterno', 'apellido_materno','alias', 'genero', 'fechaNacimiento', 'calle', 'ocupacion', 'celular', 'telefono', 'email', 'tipo_solicitud', 
-            'detalle_solicitud', 'problema_tipo', 'detalle_problema', 'foto_promovido', 'latitud', 'longitud','numeroCasa'
+            'detalle_solicitud', 'problema_tipo', 'detalle_problema', 'foto_promovido', 'latitud', 'longitud','numeroCasa', 'foto_ine_frontal','foto_ine_reverso', 'votoSeguro',
         ]
         widgets = {
             'numeroINE': forms.TextInput(attrs={'placeholder': 'Numero del INE'}),
@@ -165,7 +165,7 @@ class PromovidoFormNuevo(forms.ModelForm):
         fields = [
            'numeroINE', 'nombre', 'apellido_paterno', 'apellido_materno','alias', 'genero', 'fechaNacimiento', 'calle', 'ocupacion', 'celular', 'telefono', 'email', 'tipo_solicitud', 
             'detalle_solicitud', 'problema_tipo', 'detalle_problema', 'foto_promovido', 
-            'latitud', 'longitud','numeroCasa', 'foto_ine_frontal','foto_ine_reverso'
+            'latitud', 'longitud','numeroCasa', 'foto_ine_frontal','foto_ine_reverso', 'votoSeguro',
         ]
         widgets = {
             'numeroINE': forms.TextInput(attrs={'placeholder': 'Numero del INE'}),

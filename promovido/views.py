@@ -815,3 +815,21 @@ class verificarPromovidos(UpdateView):
         context['seccion'] = 'veri_promovidos'
         return context
 
+class votosSeguros(TemplateView):
+    template_name = 'estadisticas/votoSeguro.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Obtiene la cantidad de registros con votoSeguro=True
+        votos_seguros_count = prospecto.objects.filter(votoSeguro=True).count()
+        tipos_status = ['Promovido', 'Verificado']
+        promovidos = prospecto.objects.filter(status__in=tipos_status).count
+        context['votos_seguros_count'] = votos_seguros_count
+        context['promovidos_count'] = promovidos
+        porcentaje_progreso = (votos_seguros_count / promovidos() * 100) if promovidos() > 0 else 0
+        context['porcentaje_votos_seguros'] = porcentaje_progreso
+        context['navbar'] = 'estadisticas'  
+        context['seccion'] = 'voto'
+
+        return context
+    

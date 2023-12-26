@@ -129,7 +129,7 @@ class prospecto(models.Model):
     fecha_verificado = models.DateTimeField(blank=True, null=True)
     alias = models.CharField(max_length=100, null=True, blank=True)
     numeroINE = models.CharField(max_length=13, unique=True, null=True, blank=True)
-
+    votoSeguro = models.BooleanField(default=False, verbose_name='¿El voto es seguro?')
 
     def __str__(self):
         return f"{self.nombre} {self.apellido_paterno}"

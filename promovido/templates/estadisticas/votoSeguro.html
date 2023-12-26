@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% block titulo %}Lista de Prospectos{% endblock titulo %}
+{% block dashboard %}
+<a class="btn btn-sm btn-icon1 " href="{% url "menu" %}">
+  <i class="fas fa-arrow-left"></i>
+</a>
+{% endblock dashboard %}
+{% block contenido %}
+<style>
+    .progress-container {
+        margin-bottom: 10px;
+        padding: 5px;
+        position: relative; /* Posicionamiento para la etiqueta de porcentaje */
+    }
+    
+    .progress-title {
+        font-family: 'Arial', sans-serif; /* Replace with any font you prefer */
+        font-size: 1em; /* Adjust the size as needed */
+        color: #2c3e50; /* A deep, muted blue color */
+        letter-spacing: 0.05em; /* Spacing out letters for better readability */
+        text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1); /* A light shadow for depth */
+        text-transform: uppercase; /* Makes all the letters uppercase */
+        margin-bottom: 10px; /* Space between title and progress bar */
+    }
+    
+    .progress-bar-background {
+        width: 100%;
+        background-color: #eee;
+        border-radius: 10px;
+        position: relative; /* Relativo para la barra de progreso y la etiqueta de porcentaje */
+    }
+    
+    .progress-bar {
+        height: 25px;
+        border-radius: 10px;
+        background-color: #4CAF50;
+        transition: width 2s;
+        /* Eliminar la posición relativa si no es necesario */
+    }
+    
+    .progress-meta {
+        text-align: left; /* Alinear el texto a la izquierda */
+        margin-top: 5px; /* Espacio arriba de los números */
+    }
+    
+    .percentage-badge {
+        position: absolute;
+        top: 50%; /* Centrar verticalmente */
+        left: 50%; /* Centrar horizontalmente */
+        transform: translate(-50%, -50%); /* Ajustes para centrar exactamente el texto */
+        background-color: #e54d4d;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 10px;
+        font-size: 0.9em;
+        white-space: nowrap;
+    }
+    
+    </style>
+
+<div class="dashboard-header">
+    <h1 class="dashboard-title">Voto Seguro</h1>
+</div>
+<div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-body text-center">
+            <p class="card-text" style='font-size: 30px;'>Actualmente tienes</p>
+            <p class="card-text" style='font-size: 100px; color: rgb(6, 182, 6);'>{{ votos_seguros_count }}</p>
+            <p class="card-text" style='font-size: 30px;'>votos seguros.</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-body text-center">
+            <p class="card-text" style='font-size: 30px;'>Tienes</p>
+            <p class="card-text" style='font-size: 100px; color: rgb(6, 182, 6);'>{{ promovidos_count }}</p>
+            <p class="card-text" style='font-size: 30px;'>Promovidos y Verificados.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card progress-container">
+    <div class="card-header">
+       <strong> % de votos seguros base al numero de simpatizantes promovidos y verificados</strong> 
+    </div>
+    <div class="card-body">
+        <div class="progress-bar-background">
+          <div style="width: {{ porcentaje_votos_seguros }}%;" class="progress-bar"></div>
+        </div>
+        <div class="percentage-badge">{{ porcentaje_votos_seguros|floatformat:2 }}% Votos Seguros</div>
+
+    </div>
+  </div>
+{% endblock contenido %}

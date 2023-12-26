@@ -3,7 +3,7 @@ from django.urls import path, include
 from .views import CreatePromovidoNuevo, ListaPromovidosNuevo, estadisticasGenerales,CreateProspectoNuevo,ListaProspectosNuevo,MapaProspectosPromovidosView
 from .views import   EstadisticasGeneralesView, EstadisticasSoliView
 from .views import ProspectoUpdateView, ListCumple, Felicitar, PromovidosLista, verificarPromovidos, CalleListView
-from .views import verificar_numero_ine,obtener_calles, CalleDetailView,SeccionListView,SeccionDetailView
+from .views import verificar_numero_ine,obtener_calles, CalleDetailView,SeccionListView,SeccionDetailView, votosSeguros
 
 urlpatterns = [
     path("crearPromovidos/", CreatePromovidoNuevo.as_view(), name='crearPromovidos'),
@@ -36,6 +36,7 @@ urlpatterns = [
     
     path('estadisticas/detalle/seccion/<int:pk>/<str:status>/', SeccionDetailView.as_view(), name='detalle_seccion_con_status'),
     path('estadisticas/detalle/seccion/<int:pk>/', SeccionDetailView.as_view(), name='detalle_seccion'),
+    path('estadisticas/voto_seguro/', votosSeguros.as_view(), name='voto_seguro'),
 
 
 ]  
