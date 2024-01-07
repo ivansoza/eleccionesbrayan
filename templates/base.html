@@ -177,77 +177,77 @@
           </li>
 
           {% if 'Administrador' in user_groups or 'Candidato' in user_groups  %}
-          <li class="nav-item {% if navbar == 'gestion_user' %}menu-is-opening menu-open{% endif %}">
-            <a href="#" class="nav-link {% if navbar == 'gestion_user' %}active first-li{% endif %}">
-              <i class="nav-icon fas fa-users"></i>
-              <p>
-                Gestión de Usuarios
-                <i class="right fas fa-angle-left"></i>
-              </p>
-            </a>
-            <ul class="nav nav-treeview">
-              <li class="nav-item">
-                <a href="{% url "users_list" %}" class="nav-link {% if seccion == 'ver_usuarios' %}active {% endif %}">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>Ver Administradores</p>
+              <li class="nav-item {% if navbar == 'gestion_user' %}menu-is-opening menu-open{% endif %}">
+                <a href="#" class="nav-link {% if navbar == 'gestion_user' %}active first-li{% endif %}">
+                  <i class="nav-icon fas fa-users"></i>
+                  <p>
+                    Gestión de Usuarios
+                    <i class="right fas fa-angle-left"></i>
+                  </p>
                 </a>
-              </li>
-              <li class="nav-item">
-                <a href="{% url "users_list_cordi_gene" %}" class="nav-link {% if seccion == 'ver_coordinadores' %}active {% endif %}">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>Ver Coordinadores Generales</p>
-                </a>
-              </li>
-            </ul>
-          </li>
-
-
-          <li class="nav-item {% if navbar == 'consulta_users' %}menu-is-opening menu-open{% endif %}">
-            <a href="#" class="nav-link {% if navbar == 'consulta_users' %}active first-li{% endif %}">
-              <i class="nav-icon fas fa-search"></i> 
-              <p>
-                Consulta de Usuarios
-                <i class="right fas fa-angle-left"></i>
-              </p>
-            </a>
-            <ul class="nav nav-treeview">
- 
-
-              <li class="nav-item">
-                <a href="{% url "UserListViewCordiPromo"  %}" class="nav-link {% if seccion == 'ver_promotores' %}active {% endif %}">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>Ver Promotores</p>
-                </a>
-              </li>
-            </ul>
-          </li>
-
-          <li class="nav-item {% if navbar == 'seccion' %}menu-is-opening menu-open{% endif %}">
-            <a href="#" class="nav-link {% if navbar == 'seccion' %}active first-li{% endif %}">
-              <i class="nav-icon fas fa-map-marker-alt"></i>
-              <p>
-                Secciones
-                <i class="fas fa-angle-left right"></i>
-              </p>
-            </a>
-            <ul class="nav nav-treeview">
-              <li class="nav-item">
-                <a href="{% url "seccion_list" %}" class="nav-link {% if seccion == 'secciones' %}active {% endif %}">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>Ver Secciones</p>
-                </a>
+                <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                    <a href="{% url "users_list" %}" class="nav-link {% if seccion == 'ver_usuarios' %}active {% endif %}">
+                      <i class="far fa-circle nav-icon"></i>
+                      <p>Ver Administradores</p>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url "users_list_cordi_gene" %}" class="nav-link {% if seccion == 'ver_coordinadores' %}active {% endif %}">
+                      <i class="far fa-circle nav-icon"></i>
+                      <p>Ver Coordinadores Generales</p>
+                    </a>
+                  </li>
+                </ul>
               </li>
 
-              <li class="nav-item">
-                <a href="{% url "calle_list" %}" class="nav-link {% if seccion == 'calle' %}active {% endif %}">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>Ver Calles</p>
+
+              <li class="nav-item {% if navbar == 'consulta_users' %}menu-is-opening menu-open{% endif %}">
+                <a href="#" class="nav-link {% if navbar == 'consulta_users' %}active first-li{% endif %}">
+                  <i class="nav-icon fas fa-search"></i> 
+                  <p>
+                    Consulta de Usuarios
+                    <i class="right fas fa-angle-left"></i>
+                  </p>
                 </a>
+                <ul class="nav nav-treeview">
+    
+
+                  <li class="nav-item">
+                    <a href="{% url "UserListViewCordiPromo"  %}" class="nav-link {% if seccion == 'ver_promotores' %}active {% endif %}">
+                      <i class="far fa-circle nav-icon"></i>
+                      <p>Ver Promotores</p>
+                    </a>
+                  </li>
+                </ul>
               </li>
-           
-            </ul>
-           
-          </li>
+
+              <li class="nav-item {% if navbar == 'seccion' %}menu-is-opening menu-open{% endif %}">
+                <a href="#" class="nav-link {% if navbar == 'seccion' %}active first-li{% endif %}">
+                  <i class="nav-icon fas fa-map-marker-alt"></i>
+                  <p>
+                    Secciones
+                    <i class="fas fa-angle-left right"></i>
+                  </p>
+                </a>
+                <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                    <a href="{% url "seccion_list" %}" class="nav-link {% if seccion == 'secciones' %}active {% endif %}">
+                      <i class="far fa-circle nav-icon"></i>
+                      <p>Ver Secciones</p>
+                    </a>
+                  </li>
+
+                  <li class="nav-item">
+                    <a href="{% url "calle_list" %}" class="nav-link {% if seccion == 'calle' %}active {% endif %}">
+                      <i class="far fa-circle nav-icon"></i>
+                      <p>Ver Calles</p>
+                    </a>
+                  </li>
+              
+                </ul>
+              
+              </li>
 
           <li class="nav-item {% if navbar == 'estadisticas' %}menu-is-opening menu-open{% endif %}">
           <a href="#" class="nav-link {% if navbar == 'estadisticas' %}active first-li{% endif %}">
@@ -394,7 +394,68 @@
 
           {% endif %}
 
+          <li class="nav-item {% if navbar == 'promovidos' %}menu-is-opening menu-open{% endif %}">
+            <a href="#" class="nav-link {% if navbar == 'promovidos' %}active first-li{% endif %}">
+              <i class="nav-icon fas fa-user-tie"></i>
+              <p>
+                Gestión de Aspirantes
+                <i class="fas fa-angle-left right"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
 
+              <li class="nav-item">
+                <a href="{% url "lista_prospectos" %}" class="nav-link {% if seccion == 'ver_prospectos' %}active {% endif %}">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Prospectos</p>
+                </a>
+              </li>
+
+              <li class="nav-item">
+                <a href="{% url "lista_promovidos" %}" class="nav-link {% if seccion == 'ver_promovidos' %}active {% endif %}">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Promovidos</p>
+                </a>
+              </li>
+
+
+              <li class="nav-item">
+                <a href="{% url "lista_promovidos" %}" class="nav-link {% if seccion == 'ver_promovidos' %}active {% endif %}">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Votos Seguros</p>
+                </a>
+              </li>
+
+              <li class="nav-item">
+                <a href="{% url "lista-promovidos-verificar" %}" class="nav-link {% if seccion == 'veri_promovidos' %}active {% endif %}">
+                  <i class="far fa-circle nav-icon"></i>
+                  {% if  es_administrador or  es_coordinador_area or es_coordinador_general%}
+                  <p>Verificados</p>
+
+                  {% else %}
+                  <p>Verificados</p>
+
+                  {% endif %}
+                </a>
+              </li>
+            </ul>
+
+
+
+          
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="{% url "mapa" %}" class="nav-link {% if seccion == 'mapa_promovidos' %}active {% endif %}">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Mapa Promovidos</p>
+                </a>
+              </li>
+           
+            </ul>
+    
+          </li>
+
+          
           
 
 
