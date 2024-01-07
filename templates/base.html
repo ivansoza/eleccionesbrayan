@@ -439,77 +439,8 @@
                 </a>
               </li>
             </ul>
-
-
-
-          
-            <ul class="nav nav-treeview">
-              <li class="nav-item">
-                <a href="{% url "mapa" %}" class="nav-link {% if seccion == 'mapa_promovidos' %}active {% endif %}">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>Mapa Promovidos</p>
-                </a>
-              </li>
-           
-            </ul>
-    
           </li>
 
-          
-          
-
-
-          <li class="nav-item {% if navbar == 'promovidos' %}menu-is-opening menu-open{% endif %}">
-            <a href="#" class="nav-link {% if navbar == 'promovidos' %}active first-li{% endif %}">
-              <i class="nav-icon fas fa-table"></i>
-              <p>
-                Promovidos
-                <i class="fas fa-angle-left right"></i>
-              </p>
-            </a>
-            <ul class="nav nav-treeview">
-              <li class="nav-item">
-                <a href="{% url "lista_promovidos" %}" class="nav-link {% if seccion == 'ver_promovidos' %}active {% endif %}">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>Lista Promovidos</p>
-                </a>
-              </li>
-           
-            </ul>
-            <ul class="nav nav-treeview">
-              <li class="nav-item">
-                <a href="{% url "lista_prospectos" %}" class="nav-link {% if seccion == 'ver_prospectos' %}active {% endif %}">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>Lista Prospectos</p>
-                </a>
-              </li>
-           
-            </ul>
-            <ul class="nav nav-treeview">
-              <li class="nav-item">
-                <a href="{% url "mapa" %}" class="nav-link {% if seccion == 'mapa_promovidos' %}active {% endif %}">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>Mapa Promovidos</p>
-                </a>
-              </li>
-           
-            </ul>
-            <ul class="nav nav-treeview">
-              <li class="nav-item">
-                <a href="{% url "lista-promovidos-verificar" %}" class="nav-link {% if seccion == 'veri_promovidos' %}active {% endif %}">
-                  <i class="far fa-circle nav-icon"></i>
-                  {% if  es_administrador or  es_coordinador_area or es_coordinador_general%}
-                  <p>Verificar Promovidos</p>
-
-                  {% else %}
-                  <p>Ver Verificación</p>
-
-                  {% endif %}
-                </a>
-              </li>
-           
-            </ul>
-          </li>
 
           <li class="nav-item {% if navbar == 'votos' %}menu-is-opening menu-open{% endif %}">
             <a href="#" class="nav-link {% if navbar == 'votos' %}active first-li{% endif %}">
