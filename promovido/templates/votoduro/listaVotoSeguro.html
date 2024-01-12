@@ -1,0 +1,235 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block titulo %}Lista de Votos Seguros{% endblock titulo %}
+{% block link%}
+    <link rel="stylesheet" href="{% static "plugins/datatables-bs4/css/dataTables.bootstrap4.min.css" %}">
+    <link rel="stylesheet" href="{% static "plugins/datatables-responsive/css/responsive.bootstrap4.min.css" %}">
+    <link rel="stylesheet" href="{% static "plugins/datatables-buttons/css/buttons.bootstrap4.min.css" %}">
+{% endblock link %}
+
+{% block dashboard %}
+<a class="btn btn-sm btn-icon1 " href="{% url "menu" %}">
+  <i class="fas fa-arrow-left"></i>
+</a>
+{% endblock dashboard %}
+{% block contenido %}
+<div class="dashboard-header">
+    <h1 class="dashboard-title">Lista de Votos Seguros</h1>
+</div>
+<style>
+    .btn-custom{
+        background-color: rgb(17, 87, 157);
+    }
+
+    .dataTables_wrapper .dataTables_paginate {
+        margin-top: 60px; /* Ajusta este valor según tus necesidades */
+      }
+    </style>
+</style>
+
+<div class="row">
+    <div class="col-lg-4 col-6">
+      <div class="small-box bg-info">
+        <div class="inner">
+          <h3>{{ contador_global }}</h3>
+
+          <p>Promovidos</p>
+        </div>
+        <div class="icon">
+            <i class="fas fa-users"></i>
+        </div>
+      </div>
+    </div>
+    <!-- ./col -->
+    <div class="col-lg-4 col-6">
+      <!-- small box -->
+      <div class="small-box bg-success">
+        <div class="inner">
+          <h3>{{num_hombres}}<sup style="font-size: 20px"></sup></h3>
+
+          <p>Hombres</p>
+        </div>
+        <div class="icon">
+          <i class="fas fa-male"></i>
+        </div>
+      </div>
+    </div>
+    <!-- ./col -->
+    <div class="col-lg-4 col-12">
+      <!-- small box -->
+      <div class="small-box bg-warning">
+        <div class="inner">
+          <h3>{{num_mujeres}}</h3>
+
+          <p>Mujeres</p>
+        </div>
+        <div class="icon">
+          <i class="fas fa-female"></i>
+        </div>
+      </div>
+    </div>
+    <!-- ./col -->
+
+    <!-- ./col -->
+  </div>
+
+
+  <div class="card">
+    <div class="card-header">
+        <h3 class="card-title"><i class="fa fa-users"></i> Promovidos</h3>
+    </div>
+    <!-- /.card-header -->
+
+    <div class="card-body">
+        <table id="example1" class="table table-striped table-bordered display responsive nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Apellido(s)</th>
+                    <th>Genero</th>
+                    <th>Fecha de Nacimiento</th>
+                    <th>Calle</th>
+                    <th>Celular</th>
+                    <th>Telefono</th>
+                    <th>Email</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for extranjero in promovidos %}
+                <tr>
+                    <td>{{ extranjero.nombre }}</td>
+                    <td>{{ extranjero.apellido_paterno }} {{ extranjero.apellido_materno }}</td>
+                    <td>{{ extranjero.genero }}</td>
+                    <td>{{ extranjero.fechaNacimiento }}</td>
+                    <td>{{ extranjero.calle }}</td>
+                    <td>{{ extranjero.celular }}</td>
+                    <td>{{ extranjero.telefono }}</td>
+                    <td>{{ extranjero.email }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Apellido(s)</th>
+                    <th>Genero</th>
+                    <th>Fecha de Nacimiento</th>
+                    <th>Calle</th>
+                    <th>Celular</th>
+                    <th>Telefono</th>
+                    <th>Email</th>
+                    <!-- <th>Puesta</th> -->
+                    <!-- <th style="width: 5%;">Opciones</th> -->
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    <!-- /.card-body -->
+  </div>
+
+
+
+{% endblock contenido%}
+
+{% block script1 %}
+<script src="{% static "plugins/jquery/jquery.min.js" %}"></script>
+<script src="{% static "plugins/bootstrap/js/bootstrap.bundle.min.js" %}"></script>
+<script src="{% static "dist/js/adminlte.min.js" %}"></script>
+<script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+
+
+<script src="{% static 'plugins/datatables/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'plugins/datatables-bs4/js/dataTables.bootstrap4.min.js' %}"></script>
+<script src="{% static 'plugins/datatables-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'plugins/datatables-responsive/js/responsive.bootstrap4.min.js' %}"></script>
+<script src="{% static 'plugins/datatables-buttons/js/dataTables.buttons.min.js' %}"></script>
+<script src="{% static 'plugins/datatables-buttons/js/buttons.bootstrap4.min.js' %}"></script>
+<script src="{% static 'plugins/jszip/jszip.min.js' %}"></script>
+<script src="{% static 'plugins/pdfmake/pdfmake.min.js' %}"></script>
+<script src="{% static 'plugins/pdfmake/vfs_fonts.js' %}"></script>
+<script src="{% static 'plugins/pdfmake/vfs_fonts.js' %}"></script>
+<script src="{% static 'plugins/datatables-buttons/js/buttons.html5.min.js' %}"></script>
+<script src="{% static 'plugins/datatables-buttons/js/buttons.print.min.js' %}"></script>
+<script src="{% static 'plugins/datatables-buttons/js/buttons.colVis.min.js' %}"></script>
+
+<script>
+  $(document).ready(function() {
+    // Define la configuración de DataTables dentro de la función ready para asegurarte de que el DOM está cargado.
+    $("#example1").DataTable({
+      {% block filtro %}
+      // Aquí podrías incluir cualquier filtro personalizado si es necesario.
+      {% endblock filtro %}
+      paging: true,
+      responsive: true,
+      lengthMenu: [5, 10, 25, 50, 100],
+      pageLength: 5,
+      lengthChange: false,
+      autoWidth: false,
+      searching: true,
+      bInfo: true,
+      bSort: true,
+      {% block dom %}
+      // La 'f' delante de 'B' asegura que el buscador se coloque primero.
+      dom: 'fBrtlip',
+      {% endblock dom %}
+      buttons: [
+        {
+          text: 'Crear Promovido',
+          className: 'btn btn-custom1 mr-2',
+          action: function (e, dt, node, config) {
+            window.location.href = '{% url "crearPromovidos" %}';
+          }
+        },
+        {
+          text: '<i class="fas fa-map"></i>', // Ícono de mapa de FontAwesome
+          className: 'btn btn-custom1 mr-2',
+          action: function (e, dt, node, config) {
+
+            window.location.href = '{% url "mapa" %}';
+          }
+        },
+        // Botones por defecto
+        {extend: 'copy', text: '<i class="fas fa-clone"></i>', class: 'btn btn-secondary', titleAttr: 'Copiar a Documento', exportOptions: {  columns: ':visible'  }},
+        {extend: 'excel', text: '<i class="fas fa-file-excel"></i>', class: 'btn btn-secondary', titleAttr: 'Exportar a Excel', exportOptions: {  columns: ':visible' }},
+        {extend: 'print', text: '<i class="fas fa-print"></i>', class: 'btn btn-secondary', titleAttr: 'Imprimir', exportOptions: {  columns: ':visible'  }},
+        {extend: 'colvis', text: '<i class="fas fa-switch"></i>', class: 'btn btn-secondary', titleAttr: 'Imprimir', exportOptions: { columns: ':visible'  }},
+        {% block datatable %}
+        // Aquí puedes definir botones personalizados si es necesario.
+        {% endblock datatable %}
+        {% block datatable2 %}
+        // Estos son los botones por defecto que se añadirán al DataTables.
+        {% endblock datatable2 %}
+      ],
+      "language": {
+        "sProcessing": "Procesando...",
+        "sLengthMenu": "Mostrar _MENU_ registros",
+        "sZeroRecords": "No se encontraron resultados",
+        "sEmptyTable": "Ningún dato disponible en esta tabla",
+        "sInfo": "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+        "sInfoEmpty": "Mostrando registros del 0 al 0 de un total de 0 registros",
+        "sInfoFiltered": "(filtrado de un total de _MAX_ registros)",
+        "sSearch": "Buscar:",
+        "sInfoThousands": ",",
+        "sLoadingRecords": "Cargando...",
+        "oPaginate": {
+            "sFirst": "Primero",
+            "sLast": "Último",
+            "sNext": "Siguiente",
+            "sPrevious": "Anterior"
+        },
+        "oAria": {
+            "sSortAscending": ": Activar para ordenar la columna de manera ascendente",
+            "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+        },
+        "buttons": {
+            "copy": "Copiar",
+            "colvis": "Visibilidad"
+        }
+      }
+    });
+    $("#example1_wrapper .btn").css("margin-bottom", "40px"); // Ajusta el margen según tus necesidades
+  });
+</script>
+
+{% endblock script1 %}

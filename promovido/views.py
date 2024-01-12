@@ -491,6 +491,35 @@ class ListaPromovidosNuevo(LoginRequiredMixin, ListView):
         return context
 
 # FIN  DE PROMOVIDOS NUEVO 
+    
+
+# INICIO DE VOTO SEGURO
+class ListaVotoSeguro(LoginRequiredMixin, ListView):
+    template_name='votoduro/listaVotoSeguro.html'
+    context_object_name = 'promovidos'
+    model = prospecto
+    def get_queryset(self):
+        user = self.request.user
+        if user.groups.filter(name__in=['Administrador', 'Coordinador General', 'Candidato']).exists():
+            return prospecto.objects.filter(status='Promovido', votoSeguro=True)
+        elif user.groups.filter(name__in=['Coordinador de Area', 'Coordinador Sección']).exists():
+            secciones_usuario = user.seccion.all()
+            return prospecto.objects.filter(calle__seccion__in=secciones_usuario, status='Promovido')
+        elif user.groups.filter(name='Promotor').exists():
+            return prospecto.objects.filter(Q(usuario=user) | Q(usuario_promovido=user), status='Promovido', votoSeguro=True)
+        else:
+            return prospecto.objects.none()
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        queryset = self.get_queryset()
+        context['num_hombres'] = queryset.filter(genero='Hombre').count()
+        context['num_mujeres'] = queryset.filter(genero='Mujer').count()
+        context['contador_global'] = queryset.count()
+        context['navbar'] = 'promovidos'  
+        context['seccion'] = 'ver_promovidos' 
+        return context
+
+#FIN DE VOTO SEGURO
 
 
 class MapaProspectosPromovidosView(LoginRequiredMixin,ListView):
