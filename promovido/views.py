@@ -516,7 +516,7 @@ class ListaVotoSeguro(LoginRequiredMixin, ListView):
         context['num_mujeres'] = queryset.filter(genero='Mujer').count()
         context['contador_global'] = queryset.count()
         context['navbar'] = 'promovidos'  
-        context['seccion'] = 'ver_promovidos' 
+        context['seccion'] = 'ver_votos_seguro' 
         return context
 
 #FIN DE VOTO SEGURO
@@ -564,8 +564,111 @@ class MapaProspectosPromovidosView(LoginRequiredMixin,ListView):
         else:
             calles = Calle.objects.none()
 
-        context['navbar'] = 'promovidos'
-        context['seccion'] = 'mapa_promovidos'
+        context['navbar'] = 'mapa'
+        context['seccion'] = 'mapa_promo'
+        queryset = self.get_queryset()
+        context['num_hombres'] = queryset.filter(genero='Hombre').count()
+        context['num_mujeres'] = queryset.filter(genero='Mujer').count()
+        context['calles'] = calles
+        context['contador_global'] = queryset.count()
+        return context
+    
+class MapaVotosSegurosView(LoginRequiredMixin,ListView):
+    template_name = 'mapa/mapaVotosSeguros.html'
+    context_object_name = 'prospectos'
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.groups.filter(name__in=['Administrador', 'Coordinador General', 'Candidato']).exists():
+            queryset = prospecto.objects.filter(votoSeguro=True)
+        elif user.groups.filter(name__in=['Coordinador de Area', 'Coordinador Sección']).exists():
+            secciones_usuario = user.seccion.all()
+            queryset = prospecto.objects.filter(calle__seccion__in=secciones_usuario, votoSeguro=True)
+        elif user.groups.filter(name='Promotor').exists():
+            queryset = prospecto.objects.filter(usuario=user, votoSeguro=True)
+        else:
+            return prospecto.objects.none()
+
+        # Aplica filtros adicionales si están presentes
+        calle_filtro = self.request.GET.get('calle')
+        genero_filtro = self.request.GET.get('genero')
+
+        if calle_filtro:
+            queryset = queryset.filter(calle_id=calle_filtro)
+        if genero_filtro:
+            queryset = queryset.filter(genero=genero_filtro)
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+
+        if user.groups.filter(name__in=['Administrador', 'Coordinador General', 'Candidato']).exists():
+            calles = Calle.objects.all()
+        elif user.groups.filter(name__in=['Coordinador de Area', 'Coordinador Sección']).exists():
+            secciones_usuario = user.seccion.all()
+            calles = Calle.objects.filter(seccion__in=secciones_usuario)
+        elif user.groups.filter(name='Promotor').exists():
+            # Si un Promotor solo debería ver las calles relacionadas con los prospectos que ha agregado, ajusta esta consulta
+            calles = Calle.objects.filter(prospectos__usuario=user).distinct()
+        else:
+            calles = Calle.objects.none()
+
+        context['navbar'] = 'mapa'
+        context['seccion'] = 'mapa_segu'
+        queryset = self.get_queryset()
+        context['num_hombres'] = queryset.filter(genero='Hombre').count()
+        context['num_mujeres'] = queryset.filter(genero='Mujer').count()
+        context['calles'] = calles
+        context['contador_global'] = queryset.count()
+        return context
+    
+
+class MapaVerificadosView(LoginRequiredMixin,ListView):
+    template_name = 'mapa/mapaVerificados.html'
+    context_object_name = 'prospectos'
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.groups.filter(name__in=['Administrador', 'Coordinador General', 'Candidato']).exists():
+            queryset = prospecto.objects.filter(status='Verificado')
+        elif user.groups.filter(name__in=['Coordinador de Area', 'Coordinador Sección']).exists():
+            secciones_usuario = user.seccion.all()
+            queryset = prospecto.objects.filter(calle__seccion__in=secciones_usuario, status='Verificado')
+        elif user.groups.filter(name='Promotor').exists():
+            queryset = prospecto.objects.filter(usuario=user, status='Verificado')
+        else:
+            return prospecto.objects.none()
+
+        # Aplica filtros adicionales si están presentes
+        calle_filtro = self.request.GET.get('calle')
+        genero_filtro = self.request.GET.get('genero')
+
+        if calle_filtro:
+            queryset = queryset.filter(calle_id=calle_filtro)
+        if genero_filtro:
+            queryset = queryset.filter(genero=genero_filtro)
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+
+        if user.groups.filter(name__in=['Administrador', 'Coordinador General', 'Candidato']).exists():
+            calles = Calle.objects.all()
+        elif user.groups.filter(name__in=['Coordinador de Area', 'Coordinador Sección']).exists():
+            secciones_usuario = user.seccion.all()
+            calles = Calle.objects.filter(seccion__in=secciones_usuario)
+        elif user.groups.filter(name='Promotor').exists():
+            # Si un Promotor solo debería ver las calles relacionadas con los prospectos que ha agregado, ajusta esta consulta
+            calles = Calle.objects.filter(prospectos__usuario=user).distinct()
+        else:
+            calles = Calle.objects.none()
+
+        context['navbar'] = 'mapa'
+        context['seccion'] = 'mapa_verifi'
         queryset = self.get_queryset()
         context['num_hombres'] = queryset.filter(genero='Hombre').count()
         context['num_mujeres'] = queryset.filter(genero='Mujer').count()

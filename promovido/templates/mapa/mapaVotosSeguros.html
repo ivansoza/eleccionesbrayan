@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
-{% block titulo %}Mapa de Promovidos{% endblock titulo %}
+{% block titulo %}Mapa de Votos Seguros{% endblock titulo %}
 {% block dashboard %}
 <a class="btn btn-sm btn-icon1 " href="{% url "menu" %}">
   <i class="fas fa-arrow-left"></i>
@@ -9,7 +9,7 @@
 {% block contenido %}
 
 <div class="dashboard-header">
-    <h1 class="dashboard-title">Mapa de Promovidos</h1>
+    <h1 class="dashboard-title">Mapa de Votos Seguros</h1>
 </div>    
 
 <div class="card">
@@ -47,7 +47,7 @@
         <div class="inner">
           <h3>{{ contador_global }}</h3>
 
-          <p>Promovidos</p>
+          <p>Votos Seguro</p>
         </div>
         <div class="icon">
             <i class="fas fa-users"></i>

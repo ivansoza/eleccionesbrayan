@@ -396,7 +396,7 @@
 
           <li class="nav-item {% if navbar == 'promovidos' %}menu-is-opening menu-open{% endif %}">
             <a href="#" class="nav-link {% if navbar == 'promovidos' %}active first-li{% endif %}">
-              <i class="nav-icon fas fa-user-tie"></i>
+              <i class="nav-icon fas fa-id-card"></i>
               <p>
                 Gestión de Aspirantes
                 <i class="fas fa-angle-left right"></i>
@@ -418,9 +418,8 @@
                 </a>
               </li>
 
-
               <li class="nav-item">
-                <a href="{% url "lista_votos_seguros" %}" class="nav-link {% if seccion == 'ver_promovidos' %}active {% endif %}">
+                <a href="{% url "lista_votos_seguros" %}" class="nav-link {% if seccion == 'ver_votos_seguro' %}active {% endif %}">
                   <i class="far fa-circle nav-icon"></i>
                   <p>Votos Seguros</p>
                 </a>
@@ -440,6 +439,46 @@
               </li>
             </ul>
           </li>
+
+
+          <li class="nav-item {% if navbar == 'mapa' %}menu-is-opening menu-open{% endif %}">
+            <a href="#" class="nav-link {% if navbar == 'mapa' %}active first-li{% endif %}">
+              <i class="nav-icon fas fa-map-marked-alt"></i>
+              <p>
+                Mapa
+                <i class="fas fa-angle-left right"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+
+              <li class="nav-item">
+                <a href="{% url "mapa" %}" class="nav-link {% if seccion == 'mapa_promo' %}active {% endif %}">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Promovidos</p>
+                </a>
+              </li>
+
+              <li class="nav-item">
+                <a href="{% url "mapa-voto-seguro" %}" class="nav-link {% if seccion == 'mapa_segu' %}active {% endif %}">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Votos seguros</p>
+                </a>
+              </li>
+
+              <li class="nav-item">
+                <a href="{% url "MapaVerificadosView" %}" class="nav-link {% if seccion == 'mapa_verifi' %}active {% endif %}">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Verificados</p>
+                </a>
+              </li>
+
+
+
+
+            </ul>
+          </li>
+
+
 
 
           <li class="nav-item {% if navbar == 'votos' %}menu-is-opening menu-open{% endif %}">
