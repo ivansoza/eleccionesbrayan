@@ -88,11 +88,14 @@
     </div>
     
     <div class="mb-3">
-        <a href="{% url 'mapapublicidad' %}" class="btn btn-custom1 {% if not request.GET.tipo %}active{% endif %} mx-2">Todos</a>
-        <a href="?tipo=Lona" class="btn btn-custom1 {% if request.GET.tipo == 'Lona' %}active{% endif %} mx-2">Lonas</a>
-        <a href="?tipo=Pared" class="btn btn-custom1 {% if request.GET.tipo == 'Pared' %}active{% endif %} mx-2">Paredes</a>
-        <a href="?tipo=Poste" class="btn btn-custom1 {% if request.GET.tipo == 'Poste' %}active{% endif %} mx-2">Postes</a>
+        {% with calle=request.GET.calle tipo=request.GET.tipo %}
+        <a href="?{% if calle %}calle={{ calle }}&{% endif %}tipo=" class="btn btn-custom1 {% if not tipo %}active{% endif %} mx-2">Todos</a>
+        <a href="?{% if calle %}calle={{ calle }}&{% endif %}tipo=Lona" class="btn btn-custom1 {% if tipo == 'Lona' %}active{% endif %} mx-2">Lonas</a>
+        <a href="?{% if calle %}calle={{ calle }}&{% endif %}tipo=Pared" class="btn btn-custom1 {% if tipo == 'Pared' %}active{% endif %} mx-2">Paredes</a>
+        <a href="?{% if calle %}calle={{ calle }}&{% endif %}tipo=Poste" class="btn btn-custom1 {% if tipo == 'Poste' %}active{% endif %} mx-2">Postes</a>
+        {% endwith %}
     </div>
+    
 
 
     <div id="map" style="height: 450px;"></div>
@@ -152,5 +155,4 @@
 
 
 
-{{publicidad.count}}
 {% endblock contenido %}

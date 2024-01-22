@@ -43,30 +43,30 @@ class mapaPublicidad(TemplateView):
     def get_queryset(self):
         user = self.request.user
         if user.groups.filter(name__in=['Administrador', 'Coordinador General', 'Candidato']).exists():
-            queryset=Publicidad.objects.all()
-
+            queryset = Publicidad.objects.all()
         elif user.groups.filter(name__in=['Coordinador de Area', 'Coordinador Sección']).exists():
-            queryset=Publicidad.objects.filter(usuario=user)
-
+            queryset = Publicidad.objects.filter(usuario=user)
         elif user.groups.filter(name='Promotor').exists():
-            queryset=Publicidad.objects.filter(usuario=user)
-
+            queryset = Publicidad.objects.filter(usuario=user)
         else:
-            queryset=Publicidad.objects.none()
+            return Publicidad.objects.none()
 
         calle_filtro = self.request.GET.get('calle')
-        if calle_filtro:
+        tipo_filtro = self.request.GET.get('tipo')
+
+        if calle_filtro and tipo_filtro:
+            queryset = queryset.filter(calle_id=calle_filtro, tipo=tipo_filtro)
+        elif calle_filtro:
             queryset = queryset.filter(calle_id=calle_filtro)
+        elif tipo_filtro:
+            queryset = queryset.filter(tipo=tipo_filtro)
 
         return queryset
-
 
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         usuario_actual = self.request.user
-
-        # Filtrar calles según el grupo de usuarios
         if usuario_actual.groups.filter(name__in=['Administrador', 'Coordinador General', 'Candidato']).exists():
             calles = Calle.objects.all()
         elif usuario_actual.groups.filter(name__in=['Coordinador de Area', 'Coordinador Sección']).exists():
@@ -75,23 +75,47 @@ class mapaPublicidad(TemplateView):
             calles = Calle.objects.filter(publicidad__usuario=usuario_actual).distinct()
         else:
             calles = Calle.objects.none()
+        # Obtener queryset base sin filtro de tipo
+        if usuario_actual.groups.filter(name__in=['Administrador', 'Coordinador General', 'Candidato']).exists():
+            base_queryset = Publicidad.objects.all()
+        elif usuario_actual.groups.filter(name__in=['Coordinador de Area', 'Coordinador Sección']).exists():
+            base_queryset = Publicidad.objects.filter(usuario=user)
+        elif usuario_actual.groups.filter(name='Promotor').exists():
+            base_queryset = Publicidad.objects.filter(usuario=user)
+        else:
+            base_queryset = Publicidad.objects.none()
 
-        ubicaciones = self.get_queryset()
-        num_cordi_area = ubicaciones.filter(tipo='Lona').count()
-        num_hombres = ubicaciones.filter(tipo='Pared').count()
-        num_mujeres = ubicaciones.filter(tipo='Poste').count()
+        # Aplicar solo el filtro de calle si está presente
+        calle_filtro = self.request.GET.get('calle')
+        if calle_filtro:
+            base_queryset = base_queryset.filter(calle_id=calle_filtro)
+
+        # Contadores por tipo de publicidad
+        num_cordi_area = base_queryset.filter(tipo='Lona').count()
+        num_hombres = base_queryset.filter(tipo='Pared').count()
+        num_mujeres = base_queryset.filter(tipo='Poste').count()
+
+        # Obtener el queryset con todos los filtros para la vista
+        tipo_filtro = self.request.GET.get('tipo')
+        if tipo_filtro:
+            ubicaciones = base_queryset.filter(tipo=tipo_filtro)
+        else:
+            ubicaciones = base_queryset
+
         num_total = ubicaciones.count()
+
         context.update({
             'ubicaciones': ubicaciones,
             'num_cordi_area': num_cordi_area,
-
             'num_hombres': num_hombres,
-            'calles': calles,
+            'num_mujeres': num_mujeres,
+            'num_total': num_total,
             'navbar': 'publicidad',
             'seccion': 'ver_publicidad',
-            'num_mujeres': num_mujeres,
-            'num_total': num_total,        })
+            'calles': calles,
+        })
         return context
+
 
 from django_postalcodes_mexico.models import PostalCode
 from django.shortcuts import render
