@@ -151,13 +151,13 @@
 
                     <td>
                         {% if extranjero.status == 'Verificado' %}
-                        <button class="boton-estado verificado">Verificado</button>
+                        <button class="boton-estado verificado" onclick="confirmarIrALista('verificado')">Verificado</button>
                         {% elif extranjero.status == 'Prospecto' %}
-                        <button class="boton-estado prospecto">Prospecto</button>
+                        <button class="boton-estado prospecto" onclick="confirmarIrALista('prospecto')">Prospecto</button>
                         {% elif extranjero.status == 'Promovido' %}
-                        <button class="boton-estado promovido">Promovido</button>
+                        <button class="boton-estado promovido" onclick="confirmarIrALista('promovido')">Promovido</button>
                         {% else %}
-                        <button class="boton-estado otro">Contrincante</button>
+                        <button class="boton-estado otro" onclick="confirmarIrALista('contrincante')">Contrincante</button>
                         {% endif %}
                     </td>
 
@@ -321,6 +321,46 @@
     }
 </script>
 
+<script>
+    function confirmarIrALista(status) {
+        let mensaje = '';
+        let urlDestino = '';
+    
+        switch (status) {
+            case 'verificado':
+                mensaje = '¿Deseas ir a la lista de verificados?';
+                urlDestino = "{% url 'lista-promovidos-verificar' %}";
+                break;
+            case 'prospecto':
+                mensaje = '¿Deseas ir a la lista de prospectos?';
+                urlDestino = "{% url 'lista_prospectos' %}";
+                break;
+            case 'promovido':
+                mensaje = '¿Deseas ir a la lista de promovidos?';
+                urlDestino = "{% url 'lista_promovidos' %}";
+                break;
+            case 'contrincante':
+                mensaje = '¿Deseas ir a la lista de contrincantes?';
+                urlDestino = "{% url 'lista-promovidos-verificar' %}";
+                break;
+        }
+    
+        Swal.fire({
+            title: 'Confirmación',
+            text: mensaje,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, ir a la lista',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = urlDestino;
+            }
+        });
+    }
+    </script>
     
 
 {% endblock script1 %}
