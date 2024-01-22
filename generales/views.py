@@ -49,7 +49,7 @@ class MenuView(LoginRequiredMixin, ListView):
 
         # Añadir contadores y otros datos al contexto
         context['prospectos_promovidos'] = prospectos_filtrados.filter(status="Promovido").count()
-        context['total_prospectos'] = prospectos_filtrados.count()
+        context['total_prospectos'] = prospectos_filtrados.filter(status="Prospecto").count()
         if user.groups.filter(name__in=['Administrador', 'Coordinador General', 'Candidato']).exists():
             # Contar todas las secciones y calles para usuarios con acceso especial
             context['total_secciones'] = Seccion.objects.all().count()
