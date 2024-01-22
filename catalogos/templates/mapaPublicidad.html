@@ -15,16 +15,16 @@
 <!-- Card conteniendo el formulario de filtro -->
 <div class="card">
     <div class="card-header">
-        Filtro de Sección
+        Filtro por Calle
     </div>
     <div class="card-body">
         <!-- Formulario de filtro por sección -->
         <form method="get" class="form-inline mb-4">
-            <label for="seccionFilter" class="mr-2">Filtrar por Sección:</label>
-            <select name="seccion" id="seccionFilter" class="custom-select mr-2">
-                <option value="">Todas las Secciones</option>
-                {% for seccion in secciones %}
-                <option value="{{ seccion.pk }}" {% if request.GET.seccion == seccion.pk|stringformat:"s" %}selected{% endif %}>{{ seccion.nombre }}</option>
+            <label for="calleFilter" class="mr-2">Filtrar por Calles:</label>
+            <select name="calle" id="calleFilter" class="custom-select mr-2">
+                <option value="">Todas las Calles</option>
+                {% for calle in calles %}
+                <option value="{{ calle.pk }}" {% if request.GET.calle == calle.pk|stringformat:"s" %}selected{% endif %}>{{ calle.nombre }}</option>
                 {% endfor %}
             </select>
             <button type="submit" class="btn btn-primary">Filtrar</button>
@@ -149,4 +149,8 @@
     initMap();
 </script>
 
+
+
+
+{{publicidad.count}}
 {% endblock contenido %}

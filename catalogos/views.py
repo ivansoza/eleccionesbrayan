@@ -26,48 +26,71 @@ class crearPublicidad(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        calles = Calle.objects.select_related('seccion').all()
+        context['secciones_coords'] = {
+            calle.id: {'lat': calle.seccion.latitud, 'lng': calle.seccion.longitud, 'ruta': calle.ruta}
+            for calle in calles if calle.seccion
+        }        
         context['navbar'] = 'publicidad'  # Cambia esto según la página activa
         context['seccion'] = 'ver_publicidad'
         return context
 
 class mapaPublicidad(TemplateView):
     template_name = 'mapaPublicidad.html'
+    context_object_name = 'publicidad'
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.groups.filter(name__in=['Administrador', 'Coordinador General', 'Candidato']).exists():
+            queryset=Publicidad.objects.all()
+
+        elif user.groups.filter(name__in=['Coordinador de Area', 'Coordinador Sección']).exists():
+            queryset=Publicidad.objects.filter(usuario=user)
+
+        elif user.groups.filter(name='Promotor').exists():
+            queryset=Publicidad.objects.filter(usuario=user)
+
+        else:
+            queryset=Publicidad.objects.none()
+
+        calle_filtro = self.request.GET.get('calle')
+        if calle_filtro:
+            queryset = queryset.filter(calle_id=calle_filtro)
+
+        return queryset
+
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         usuario_actual = self.request.user
-        es_administrador = usuario_actual.groups.filter(name='Administrador').exists()
 
-        # Obtener el queryset base
-        if es_administrador:
-            ubicaciones = Publicidad.objects.all()
+        # Filtrar calles según el grupo de usuarios
+        if usuario_actual.groups.filter(name__in=['Administrador', 'Coordinador General', 'Candidato']).exists():
+            calles = Calle.objects.all()
+        elif usuario_actual.groups.filter(name__in=['Coordinador de Area', 'Coordinador Sección']).exists():
+            calles = Calle.objects.filter(seccion__usuario=usuario_actual)
+        elif usuario_actual.groups.filter(name='Promotor').exists():
+            calles = Calle.objects.filter(publicidad__usuario=usuario_actual).distinct()
         else:
-            ubicaciones = Publicidad.objects.filter(usuario=usuario_actual)
+            calles = Calle.objects.none()
 
-        # Aplicar filtros adicionales si existen
-        seccion_filtro = self.request.GET.get('seccion')
-        tipo_filtro = self.request.GET.get('tipo')
-        if seccion_filtro:
-            ubicaciones = ubicaciones.filter(seccion_id=seccion_filtro)
-        if tipo_filtro:
-            ubicaciones = ubicaciones.filter(tipo=tipo_filtro)
-
-        # Contadores de tipos de publicidad
+        ubicaciones = self.get_queryset()
         num_cordi_area = ubicaciones.filter(tipo='Lona').count()
         num_hombres = ubicaciones.filter(tipo='Pared').count()
         num_mujeres = ubicaciones.filter(tipo='Poste').count()
         num_total = ubicaciones.count()
-
         context.update({
-            'num_cordi_area': num_cordi_area,
-            'num_hombres': num_hombres,
-            'num_mujeres': num_mujeres,
-            'num_total': num_total,
             'ubicaciones': ubicaciones,
-            'secciones': Seccion.objects.all(),
+            'num_cordi_area': num_cordi_area,
+
+            'num_hombres': num_hombres,
+            'calles': calles,
             'navbar': 'publicidad',
             'seccion': 'ver_publicidad',
-        })
+            'num_mujeres': num_mujeres,
+            'num_total': num_total,        })
         return context
 
 from django_postalcodes_mexico.models import PostalCode
