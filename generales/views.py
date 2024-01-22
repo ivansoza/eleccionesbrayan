@@ -87,7 +87,14 @@ class CustomLoginView(LoginView):
         # Asegúrate de que siempre devuelve una respuesta renderizada
         return render(self.request, self.template_name, {'form': form, 'mostrarAlerta': mostrarAlerta})
 
+class BuscadorView(TemplateView):
+    template_name = 'buscador.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['navbar'] = 'buscador'
+        context['seccion'] = 'buscador'
+        return context
 
 def exit(request):
     logout(request)
