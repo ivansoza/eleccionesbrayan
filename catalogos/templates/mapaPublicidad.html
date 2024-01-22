@@ -12,13 +12,12 @@
     <h1 class="dashboard-title">Mapa de Publicidad</h1>
 </div>   
 
-<!-- Card conteniendo el formulario de filtro -->
 <div class="card">
     <div class="card-header">
         Filtro por Calle
     </div>
     <div class="card-body">
-        <!-- Formulario de filtro por sección -->
+        <!-- Formulario de filtro por calle -->
         <form method="get" class="form-inline mb-4">
             <label for="calleFilter" class="mr-2">Filtrar por Calles:</label>
             <select name="calle" id="calleFilter" class="custom-select mr-2">
@@ -27,6 +26,12 @@
                 <option value="{{ calle.pk }}" {% if request.GET.calle == calle.pk|stringformat:"s" %}selected{% endif %}>{{ calle.nombre }}</option>
                 {% endfor %}
             </select>
+
+            <!-- Mantener el filtro de tipo si ya está seleccionado -->
+            {% if request.GET.tipo %}
+            <input type="hidden" name="tipo" value="{{ request.GET.tipo }}">
+            {% endif %}
+
             <button type="submit" class="btn btn-primary">Filtrar</button>
         </form>
     </div>
