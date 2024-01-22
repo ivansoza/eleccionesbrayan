@@ -96,6 +96,42 @@ class BuscadorView(TemplateView):
         context['seccion'] = 'buscador'
         return context
 
+
+
+class ListaTodos(LoginRequiredMixin,ListView):
+    template_name = 'buscador.html'
+    context_object_name = 'prospectos'
+    model = prospecto
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.groups.filter(name__in=['Administrador', 'Coordinador General', 'Candidato']).exists():
+            # Usuarios con roles especiales, muestran todos los prospectos con status 'Promovido'
+            return prospecto.objects.exclude(status='Rechazado')
+        elif user.groups.filter(name__in=['Coordinador de Area', 'Coordinador Sección']).exists():
+            # Usuarios Coordinadores de Área y Sección, filtran por sección a través de la calle
+            secciones_usuario = user.seccion.all()
+            return prospecto.objects.filter(calle__seccion__in=secciones_usuario).exclude(status='Rechazado')
+        elif user.groups.filter(name='Promotor').exists():
+            # Usuarios Promotores, filtran por los usuarios que han agregado
+            return prospecto.objects.filter(usuario=user).exclude(status='Rechazado')
+        else:
+            # Para otros usuarios, puedes definir un comportamiento por defecto
+            return prospecto.objects.none()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        queryset = self.get_queryset()
+        context['num_hombres'] = queryset.filter(genero='Hombre').count()
+        context['num_mujeres'] = queryset.filter(genero='Mujer').count()
+        context['contador_global'] = queryset.count()       
+        context['navbar'] = 'buscador'
+        context['seccion'] = 'buscador'
+        return context
+    
+
+
+
 def exit(request):
     logout(request)
     return redirect('home')

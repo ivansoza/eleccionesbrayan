@@ -157,15 +157,7 @@
           
             <!-- Add icons to the links using the .nav-icon class
                with font-awesome or any other icon font library -->
-               <li class="nav-item">
-                <a href="{% url 'buscador' %}" class="nav-link {% if navbar == 'buscador' %}active first-li{% endif %} ">
-                  <i class="nav-icon fas fa-search"></i>
-                  <p>
-                    Buscador Global
-                    <!-- <span class="right badge badge-danger">New</span> -->
-                  </p>
-                </a>
-              </li>
+
     
           
           <!-- Add icons to the links using the .nav-icon class
@@ -175,6 +167,16 @@
               <i class="nav-icon fas fa-th"></i>
               <p>
                 Menú
+                <!-- <span class="right badge badge-danger">New</span> -->
+              </p>
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a href="{% url 'buscador' %}" class="nav-link {% if navbar == 'buscador' %}active first-li{% endif %} ">
+              <i class="nav-icon fas fa-search"></i>
+              <p>
+                Buscador Global
                 <!-- <span class="right badge badge-danger">New</span> -->
               </p>
             </a>
