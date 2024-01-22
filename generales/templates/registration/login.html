@@ -20,6 +20,11 @@
     background-color: #6CB655; 
     border-color: #6CB655; 
 	}
+
+#user {
+	text-transform: none;
+}
+	
 </style>
 <body class="my-login-page">
 
@@ -38,7 +43,7 @@
                                 {% csrf_token %}
 								<div class="form-group">
 									<label for="user">Nombre Usuario</label>
-									<input id="user" type="text" class="form-control" name="username" value="" required autofocus>
+									<input id="user" type="text" class="form-control" name="username" value="" required autofocus autocapitalize="none">
 									<div class="invalid-feedback">
 										Usuario es Invalido
 									</div>

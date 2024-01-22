@@ -478,40 +478,6 @@
             </ul>
           </li>
 
-
-
-
-          <li class="nav-item {% if navbar == 'votos' %}menu-is-opening menu-open{% endif %}">
-            <a href="#" class="nav-link {% if navbar == 'votos' %}active first-li{% endif %}">
-              <i class="nav-icon fa-solid fa-check-to-slot"></i>
-              <p>
-                Votación
-                <i class="fas fa-angle-left right"></i>
-              </p>
-            </a>
-            <ul class="nav nav-treeview">
-              <li class="nav-item">
-                <a href="" class="nav-link {% if seccion == 'estadisticasvoto' %}active {% endif %}">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>Estadisticas</p>
-                </a>
-              </li>
-           
-            </ul>
-
-            <ul class="nav nav-treeview">
-              <li class="nav-item">
-                <a href=" {% url "lista-votos" %}" class="nav-link {% if seccion == 'listvotantes' %}active {% endif %}">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>Lista de Votantes</p>
-                </a>
-              </li>
-           
-            </ul>
-            
-          </li>
-
-       
           <li class="nav-item {% if navbar == 'publicidad' %}menu-is-opening menu-open{% endif %}">
             <a href="#" class="nav-link {% if navbar == 'publicidad' %}active first-li{% endif %}">
               <i class="nav-icon fa-solid fa-paper-plane"></i>              <p>
@@ -530,15 +496,26 @@
             </ul>
           </li>
 
-         
-          <li class="nav-item {% if navbar == 'agenda' %}menu-is-opening menu-open{% endif %}">
-            <a href="#" class="nav-link {% if navbar == 'agenda' %}active first-li{% endif %}">
-              <i class="nav-icon fa-solid fas fa-calendar-alt"></i>              <p>
-                Agenda
-                <i class="fas fa-angle-left right"></i>
+          <li class="nav-item {% if navbar == 'votos' %}menu-is-opening menu-open{% endif %}">
+            <a href="#" class="nav-link {% if navbar == 'votos' %}active first-li{% endif %}" onclick="mostrarAlertaActualizacion();">
+              <i class="nav-icon fa-solid fa-check-to-slot"></i>
+              <p>
+                Votación
+                <span class="right badge badge-danger">Proximamente</span>
+
               </p>
             </a>
-            <ul class="nav nav-treeview">
+
+            
+          </li>
+          <li class="nav-item {% if navbar == 'agenda' %}menu-is-opening menu-open{% endif %}">
+            <a href="#" class="nav-link {% if navbar == 'agenda' %}active first-li{% endif %}" onclick="mostrarAlertaActualizacion();">
+              <i class="nav-icon fa-solid fas fa-calendar-alt"></i>              <p>
+                Agenda
+                <span class="right badge badge-danger">Proximamente</span>
+              </p>
+            </a>
+            {% comment %} <ul class="nav nav-treeview">
               <li class="nav-item">
                 <a href="{% url "calendarapp:calendar" %}" class="nav-link {% if seccion == 'miAgenda' %}active {% endif %}">
                   <i class="far fa-circle nav-icon"></i>
@@ -546,7 +523,7 @@
                 </a>
               </li>
            
-            </ul>
+            </ul> {% endcomment %}
           </li>
 
           {% if 'Candidato' in user_groups   %}
@@ -849,6 +826,15 @@
 
     resetTimeout();  // Iniciar el temporizador cuando la página se carga
   });
+
+  function mostrarAlertaActualizacion() {
+    Swal.fire({
+        title: 'En Desarrollo',
+        text: 'Estamos trabajando en esta actualización.',
+        icon: 'info',
+        confirmButtonText: 'Entendido'
+    });
+}
 </script>
 
 </body>
