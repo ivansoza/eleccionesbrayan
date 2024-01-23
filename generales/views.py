@@ -16,8 +16,6 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from configuracion.models import CandidatoConfig
 # Create your views here.
 from django.http import HttpResponse
-import boto3
-from botocore.exceptions import NoCredentialsError, ClientError
 
 def home(request):
     return render(request,'home.html')
@@ -201,35 +199,3 @@ def ubicacion_primera_seccion(request):
 
 
 
-def send_sms_view(request):
-    # La región debería coincidir con la configuración de tu cuenta SNS
-    sns_client = boto3.client('sns', region_name='us-east-1')
-    
-    # Lista de números en formato E.164
-    phone_numbers = ['+522461229984', '+522462087165']  # Agrega los números aquí
-    message = 'Hola, feliz cumplaeaños mi estimado Antonio sois, espero que te la pases fantastico!'
-    
-    # Guardar los resultados de cada intento de envío en un diccionario
-    results = {}
-
-    for number in phone_numbers:
-        try:
-            response = sns_client.publish(
-                PhoneNumber=number,
-                Message=message,
-                MessageAttributes={
-                    'AWS.SNS.SMS.SMSType': {
-                        'DataType': 'String',
-                        'StringValue': 'Transactional'  # O 'Promotional' dependiendo del uso
-                    }
-                }
-            )
-            # Guardar el MessageId en el diccionario de resultados
-            results[number] = f"Mensaje enviado exitosamente! ID: {response['MessageId']}"
-        except NoCredentialsError:
-            results[number] = "Error: No se encontraron credenciales de AWS."
-        except ClientError as e:
-            results[number] = f"Error al enviar mensaje: {e}"
-
-    # Devolver una respuesta JSON con los resultados de cada número
-    return JsonResponse(results)
