@@ -1,5 +1,5 @@
 from django.urls import path, include
-from .views import   ListaTodos, home, CustomLoginView, exit, datos_promovidos,templeteDenegado,ubicacion_primera_seccion,MenuView,send_sms_view
+from .views import   ListaTodos, home, CustomLoginView, exit, datos_promovidos,templeteDenegado,ubicacion_primera_seccion,MenuView
 
 from django.contrib.auth.views import LoginView
 
@@ -16,7 +16,6 @@ urlpatterns = [
     path('ubicacion-primera-seccion/', ubicacion_primera_seccion, name='primera-seccion'),
 
     path('denegado/', templeteDenegado.as_view(), name='templeteDenegado'),
-    path('send_sms/', send_sms_view, name='send_sms'),
     path('buscador/', ListaTodos.as_view(), name='buscador'),
 
 
