@@ -195,7 +195,7 @@ class UserListViewCordiPromo(LoginRequiredMixin, UserPassesTestMixin,ListView):
             context['seccion'] = 'ver_promotores'  
 
         elif self.request.user.groups.filter(name='Administrador').exists():
-            context['navbar'] = 'consulta_users'  
+            context['navbar'] = 'gestion_user'  
             context['seccion'] = 'ver_promotores'
         elif self.request.user.groups.filter(name='Coordinador de Area').exists():
             context['navbar'] = 'consulta_users'  

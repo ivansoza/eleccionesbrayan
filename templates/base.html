@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>  
     {% block titulo %}
-    Brayan 
+    Gestión electoral
     {% endblock titulo %}
 </title>
 
@@ -204,20 +204,6 @@
                       <p>Ver Coordinadores Generales</p>
                     </a>
                   </li>
-                </ul>
-              </li>
-
-
-              <li class="nav-item {% if navbar == 'consulta_users' %}menu-is-opening menu-open{% endif %}">
-                <a href="#" class="nav-link {% if navbar == 'consulta_users' %}active first-li{% endif %}">
-                  <i class="nav-icon fas fa-search"></i> 
-                  <p>
-                    Consulta de Usuarios
-                    <i class="right fas fa-angle-left"></i>
-                  </p>
-                </a>
-                <ul class="nav nav-treeview">
-    
 
                   <li class="nav-item">
                     <a href="{% url "UserListViewCordiPromo"  %}" class="nav-link {% if seccion == 'ver_promotores' %}active {% endif %}">
@@ -225,8 +211,12 @@
                       <p>Ver Promotores</p>
                     </a>
                   </li>
+
                 </ul>
               </li>
+
+
+
 
               <li class="nav-item {% if navbar == 'seccion' %}menu-is-opening menu-open{% endif %}">
                 <a href="#" class="nav-link {% if navbar == 'seccion' %}active first-li{% endif %}">
