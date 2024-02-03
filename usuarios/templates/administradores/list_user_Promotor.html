@@ -1,8 +1,14 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block titulo %}
 Lista de Usuarios
 {% endblock titulo %}
 
+{% block link%}
+    <link rel="stylesheet" href="{% static "plugins/datatables-bs4/css/dataTables.bootstrap4.min.css" %}">
+    <link rel="stylesheet" href="{% static "plugins/datatables-responsive/css/responsive.bootstrap4.min.css" %}">
+    <link rel="stylesheet" href="{% static "plugins/datatables-buttons/css/buttons.bootstrap4.min.css" %}">
+{% endblock link %}
 
 {% block dashboard %}
 <a class="btn btn-sm btn-icon1 " href="{% url "menu" %}">
@@ -10,6 +16,50 @@ Lista de Usuarios
 </a>
 {% endblock dashboard %}
 {% block contenido %}
+
+
+<style>
+  .btn-custom{
+      background-color: rgb(17, 87, 157);
+  }
+
+  .btn-custom{
+    background-color: rgb(17, 87, 157);
+  }
+
+  .dataTables_wrapper .dataTables_paginate {
+    margin-top: 60px; /* Ajusta este valor según tus necesidades */
+  }
+
+  .botonNuevo {
+    padding: 8px 17px;
+    border: 0;
+    border-radius: 20px; /* Bordes más redondeados */
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    outline: none; /* Elimina el borde al hacer clic en los botones */
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* Sombra suave para dar profundidad */
+  }
+  
+  .estado-activo {
+    background-color: #4CAF50; /* Verde */
+    color: white;
+  }
+  
+  .estado-inactivo {
+    background-color: #f44336; /* Rojo */
+    color: white;
+  }
+  
+  .botonNuevo:hover {
+    opacity: 0.8;
+    transform: scale(1.05); /* Efecto de crecimiento al pasar el cursor */
+  }
+  
+</style>
+
 
 <div class="dashboard-header">
     <h1 class="dashboard-title">Lista de Promotores</h1>
@@ -61,106 +111,164 @@ Lista de Usuarios
   </div>
  
 
- <div class="table-responsive">
-    
+  <div class="card">
+    <div class="card-header">
+        <h3 class="card-title"><i class="fa fa-users"></i> Promotores</h3>
+    </div>
 
-    <table id="tabla" class="table table-striped table-bordered display responsive nowrap" style="width:100%">
-        
-        <thead>
-    
-            <tr>
+    <div class="card-body">
+        <table id="example1" class="table table-striped table-bordered display responsive nowrap" style="width:100%">
+            <thead>
+                <tr>
+                  <th>Nombre de Usuario</th>
+                  <th>Nombre</th>
+                  <th>Apellido</th>
+                  <th>Email</th>
+  
+                  <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+              {% for user in users %}
+              <tr>
+                  <td>{{ user.username}}</td>
+                  <td>{{ user.first_name }}</td>
+                  <td>{{ user.last_name }} </td>
+                  <td>{{ user.email }}</td>
+                  <td>
+                  {% if es_coordinador_seccion or es_administrador or es_candidato or es_coordinador_general%}
+                    <form action="{% url 'update_user_status_promotor' user.pk %}" method="post">
+                      {% csrf_token %}
+                      <input type="hidden" name="is_active" value="{{ user.is_active|yesno:'False,True' }}">
+                      <button type="submit" class="botonNuevo {{ user.is_active|yesno:'estado-inactivo,estado-activo' }}">
+                        {{ user.is_active|yesno:'Desactivar,Activar' }}
+                      </button>
+                    </form>
+                  {% else %}
+                    <span class="badge {{ user.is_active|yesno:'badge-success,badge-danger' }}">
+                      {{ user.is_active|yesno:'Activo,Inactivo' }}
+                    </span>
+                  {% endif %}
+                </td>
+              
+              </tr>
+              {% endfor %}
+      
+            </tbody>
+            <tfoot>
+              <tr>
                 <th>Nombre de Usuario</th>
                 <th>Nombre</th>
                 <th>Apellido</th>
                 <th>Email</th>
-                <th>Secciones</th>
 
                 <th>Status</th>
-
-                {% comment %} <th style="width: 5%;">Opciones</th> {% endcomment %}
-            </tr>
-        </thead>
-        <tbody>
-            {% for user in users %}
-            <tr>
-                <td>{{ user.username}}</td>
-                <td>{{ user.first_name }}</td>
-                <td>{{ user.last_name }} </td>
-                <td>{{ user.email }}</td>
-
-                     <td>      
-                    
-                    {% for seccion in user.seccion.all %}
-                      {{ seccion.nombre }}{% if not forloop.last %}, {% endif %}
-                    {% empty %}
-                    Sin secciones asignadas
-                    {% endfor %}
-                    </td>
-                <td>
-                {% if es_coordinador_seccion or es_administrador or es_candidato%}
-                  <form action="{% url 'update_user_status_promotor' user.pk %}" method="post">
-                    {% csrf_token %}
-                    <input type="hidden" name="is_active" value="{{ user.is_active|yesno:'False,True' }}">
-                    <button type="submit" class="btn btn-sm {{ user.is_active|yesno:'btn-danger,btn-success' }}">
-                      {{ user.is_active|yesno:'Desactivar,Activar' }}
-                    </button>
-                  </form>
-                {% else %}
-                  <span class="badge {{ user.is_active|yesno:'badge-success,badge-danger' }}">
-                    {{ user.is_active|yesno:'Activo,Inactivo' }}
-                  </span>
-                {% endif %}
-              </td>
-              
-                {% comment %} <td>
-                    <a class="btn btn-sm btn-icon1 tooltip-link" href="#" data-title="Agregar Datos Biométricos">
-                        <i class="fas fa-fingerprint"></i>
-                    </a>
-                        
-                </td> {% endcomment %}
-            </tr>
-            {% endfor %}
-    
-            <tfoot>
-                <tr>
-                    <th>Nombre de Usuario</th>
-                    <th>Nombre</th>
-                    <th>Apellido</th>
-                    <th>Email</th>
-                    <th>Secciones</th>
-
-                    <th>Status</th>
-
-                    {% comment %} <th style="width: 5%;">Opciones</th> {% endcomment %}
-                </tr>
+              </tr>
             </tfoot>
-    
-        </tbody>
-    </table>
-</div>
+        </table>
+    </div>
+  </div>
+
+
 
 {% endblock contenido %}
-{% block datatable %}
-{% if es_administrador or  es_coordinador_general or es_candidato%}
+
+
+
+  
+
+
+{% block script1 %}
+<script src="{% static "plugins/jquery/jquery.min.js" %}"></script>
+<script src="{% static "plugins/bootstrap/js/bootstrap.bundle.min.js" %}"></script>
+<script src="{% static "dist/js/adminlte.min.js" %}"></script>
+<script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+
+
+<script src="{% static 'plugins/datatables/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'plugins/datatables-bs4/js/dataTables.bootstrap4.min.js' %}"></script>
+<script src="{% static 'plugins/datatables-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'plugins/datatables-responsive/js/responsive.bootstrap4.min.js' %}"></script>
+<script src="{% static 'plugins/datatables-buttons/js/dataTables.buttons.min.js' %}"></script>
+<script src="{% static 'plugins/datatables-buttons/js/buttons.bootstrap4.min.js' %}"></script>
+<script src="{% static 'plugins/jszip/jszip.min.js' %}"></script>
+<script src="{% static 'plugins/pdfmake/pdfmake.min.js' %}"></script>
+<script src="{% static 'plugins/pdfmake/vfs_fonts.js' %}"></script>
+<script src="{% static 'plugins/pdfmake/vfs_fonts.js' %}"></script>
+<script src="{% static 'plugins/datatables-buttons/js/buttons.html5.min.js' %}"></script>
+<script src="{% static 'plugins/datatables-buttons/js/buttons.print.min.js' %}"></script>
+<script src="{% static 'plugins/datatables-buttons/js/buttons.colVis.min.js' %}"></script>
+
+<script>
+  $(document).ready(function() {
+    // Define la configuración de DataTables dentro de la función ready para asegurarte de que el DOM está cargado.
+    $("#example1").DataTable({
+      {% block filtro %}
+      // Aquí podrías incluir cualquier filtro personalizado si es necesario.
+      {% endblock filtro %}
+      paging: true,
+      responsive: true,
+      lengthMenu: [5, 10, 25, 50, 100],
+      pageLength: 5,
+      lengthChange: false,
+      autoWidth: false,
+      searching: true,
+      bInfo: true,
+      bSort: true,
+      {% block dom %}
+      // La 'f' delante de 'B' asegura que el buscador se coloque primero.
+      dom: 'fBrtlip',
+      {% endblock dom %}
+      buttons: [
         {
           text: 'Crear Promotor',
           className: 'btn btn-custom1 mr-2',
           action: function (e, dt, node, config) {
-            // Redirigir a la URL relativa a la ubicación actual
             window.location.href = '{% url "UserCreateViewPromotor" %}';
-        }
+          }
         },
-{% else %}
-        {
-          text: 'Regresar',
-          className: 'btn btn-custom1 mr-2',
-          action: function (e, dt, node, config) {
-            // Redirigir a la URL relativa a la ubicación actual
-            window.location.href = '{% url "menu" %}';
-        }
+    
+        // Botones por defecto
+        {extend: 'copy', text: '<i class="fas fa-clone"></i>', class: 'btn btn-secondary', titleAttr: 'Copiar a Documento', exportOptions: {  columns: ':visible'  }},
+        {extend: 'excel', text: '<i class="fas fa-file-excel"></i>', class: 'btn btn-secondary', titleAttr: 'Exportar a Excel', exportOptions: {  columns: ':visible' }},
+        {extend: 'print', text: '<i class="fas fa-print"></i>', class: 'btn btn-secondary', titleAttr: 'Imprimir', exportOptions: {  columns: ':visible'  }},
+        {extend: 'colvis', text: '<i class="fas fa-switch"></i>', class: 'btn btn-secondary', titleAttr: 'Imprimir', exportOptions: { columns: ':visible'  }},
+        {% block datatable %}
+        // Aquí puedes definir botones personalizados si es necesario.
+        {% endblock datatable %}
+        {% block datatable2 %}
+        // Estos son los botones por defecto que se añadirán al DataTables.
+        {% endblock datatable2 %}
+      ],
+      "language": {
+        "sProcessing": "Procesando...",
+        "sLengthMenu": "Mostrar _MENU_ registros",
+        "sZeroRecords": "No se encontraron resultados",
+        "sEmptyTable": "Ningún dato disponible en esta tabla",
+        "sInfo": "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+        "sInfoEmpty": "Mostrando registros del 0 al 0 de un total de 0 registros",
+        "sInfoFiltered": "(filtrado de un total de _MAX_ registros)",
+        "sSearch": "Buscar:",
+        "sInfoThousands": ",",
+        "sLoadingRecords": "Cargando...",
+        "oPaginate": {
+            "sFirst": "Primero",
+            "sLast": "Último",
+            "sNext": "Siguiente",
+            "sPrevious": "Anterior"
         },
-{% endif %}
+        "oAria": {
+            "sSortAscending": ": Activar para ordenar la columna de manera ascendente",
+            "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+        },
+        "buttons": {
+            "copy": "Copiar",
+            "colvis": "Visibilidad"
+        }
+      }
+    });
+    $("#example1_wrapper .btn").css("margin-bottom", "40px"); // Ajusta el margen según tus necesidades
+  });
+</script>
 
-
-  
-{% endblock datatable %}
+{% endblock script1 %}

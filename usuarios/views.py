@@ -130,7 +130,7 @@ class UserCreateViewPromotor(LoginRequiredMixin,UserPassesTestMixin,CreateView):
         context = super().get_context_data(**kwargs)
         if self.request.user.groups.filter(name='Coordinador General').exists():
             context['navbar'] = 'gestion_user' 
-            context['seccion'] = 'ver_coordinadores_area1'  
+            context['seccion'] = 'ver_promotores'  
 
         elif self.request.user.groups.filter(name='Administrador').exists():
             context['navbar'] = 'consulta_users'  # Cambia esto según la página activa
@@ -191,7 +191,7 @@ class UserListViewCordiPromo(LoginRequiredMixin, UserPassesTestMixin,ListView):
         context['num_mujeres'] = queryset.filter(sexo='F').count()
         
         if self.request.user.groups.filter(name='Coordinador General').exists():
-            context['navbar'] = 'consulta_users' 
+            context['navbar'] = 'gestion_user' 
             context['seccion'] = 'ver_promotores'  
 
         elif self.request.user.groups.filter(name='Administrador').exists():
@@ -234,7 +234,6 @@ class UserListView(LoginRequiredMixin,UserPassesTestMixin, ListView):
         return context
     
     def handle_no_permission(self):
-        # Redirigir a alguna página de error o inicio si el usuario no cumple el test
         return redirect('templeteDenegado')
 
 class UserListViewCordiGen(LoginRequiredMixin, ListView):

@@ -79,9 +79,9 @@ class mapaPublicidad(TemplateView):
         if usuario_actual.groups.filter(name__in=['Administrador', 'Coordinador General', 'Candidato']).exists():
             base_queryset = Publicidad.objects.all()
         elif usuario_actual.groups.filter(name__in=['Coordinador de Area', 'Coordinador Sección']).exists():
-            base_queryset = Publicidad.objects.filter(usuario=user)
+            base_queryset = Publicidad.objects.filter(usuario=usuario_actual)
         elif usuario_actual.groups.filter(name='Promotor').exists():
-            base_queryset = Publicidad.objects.filter(usuario=user)
+            base_queryset = Publicidad.objects.filter(usuario=usuario_actual)
         else:
             base_queryset = Publicidad.objects.none()
 
