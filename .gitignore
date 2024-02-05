@@ -51,3 +51,7 @@ pame/settings.py
 
 # Ignorar archivos de caché
 *.cache
+
+
+static_collected/
+staticfiles/
