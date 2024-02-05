@@ -7,7 +7,7 @@ from django.contrib.auth.views import LoginView
 from django.conf.urls.static import static
 from django.conf import settings
 urlpatterns = [
-    path('', MenuView.as_view(), name="home"),
+    path('', home, name="home"),
     path('menu/', MenuView.as_view(), name='menu'),
     path('logout/', exit, name="exit"),
     path('login/', CustomLoginView.as_view(), name='login'),
