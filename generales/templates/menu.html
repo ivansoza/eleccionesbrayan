@@ -67,6 +67,15 @@
   border: 2px solid #587F45; /* Color de línea similar al título principal */
 }
 
+
+.custom-card-link {
+  text-decoration: none; /* Elimina el subrayado de los enlaces */
+  color: inherit; /* Mantiene el color del texto igual al del contenido del card */
+  display: block; /* Hace que el enlace abarque todo el contenido del card */
+  /* Añade aquí más estilos si es necesario */
+}
+
+
 </style>
 
 
@@ -75,64 +84,59 @@
     <button type="submit">Enviar SMS</button>
 </form> {% endcomment %}
 
-
-
 <div class="row">
+  <!-- Prospectos -->
   <div class="col-md-3 col-sm-6 col-12">
-    <div class="info-box shadow-sm">
-      <span class="info-box-icon bg-info"><i class="fas fa-users"></i></span>
-
-      <div class="info-box-content">
-        <span class="info-box-text">Prospectos</span>
-        <span class="info-box-number">{{total_prospectos}}</span>
+    <a href="{% url 'lista_prospectos' %}" class="custom-card-link">
+      <div class="info-box shadow-sm">
+        <span class="info-box-icon bg-info"><i class="fas fa-users"></i></span>
+        <div class="info-box-content">
+          <span class="info-box-text">Prospectos</span>
+          <span class="info-box-number">{{total_prospectos}}</span>
+        </div>
       </div>
-      <!-- /.info-box-content -->
-    </div>
-    <!-- /.info-box -->
+    </a>
   </div>
-  <!-- /.col -->
+  <!-- Promovidos -->
   <div class="col-md-3 col-sm-6 col-12">
-    <div class="info-box shadow-sm">
-      <span class="info-box-icon bg-success"><i class="fas fa-star"></i></span>
-
-      <div class="info-box-content">
-        <span class="info-box-text">Promovidos</span>
-        <span class="info-box-number">{{prospectos_promovidos}}</span>
+    <a href="{% url 'lista_promovidos' %}" class="custom-card-link">
+      <div class="info-box shadow-sm">
+        <span class="info-box-icon bg-success"><i class="fas fa-star"></i></span>
+        <div class="info-box-content">
+          <span class="info-box-text">Promovidos</span>
+          <span class="info-box-number">{{prospectos_promovidos}}</span>
+        </div>
       </div>
-      <!-- /.info-box-content -->
-    </div>
-    <!-- /.info-box -->
+    </a>
   </div>
-  <!-- /.col -->
+  <!-- Secciones -->
   <div class="col-md-3 col-sm-6 col-12">
-    <div class="info-box shadow">
-      <span class="info-box-icon bg-warning"><i class="fas fa-map-marker-alt"></i></span>
-
-      <div class="info-box-content">
-        <span class="info-box-text">Secciones</span>
-        <span class="info-box-number">{{total_secciones}}</span>
+    <a href="{% url 'seccion-list' %}" class="custom-card-link">
+      <div class="info-box shadow">
+        <span class="info-box-icon bg-warning"><i class="fas fa-map-marker-alt"></i></span>
+        <div class="info-box-content">
+          <span class="info-box-text">Secciones</span>
+          <span class="info-box-number">{{total_secciones}}</span>
+        </div>
       </div>
-      <!-- /.info-box-content -->
-    </div>
-    <!-- /.info-box -->
+    </a>
   </div>
-
+  <!-- Calles -->
   <div class="col-md-3 col-sm-6 col-12">
-    <div class="info-box shadow">
-      <span class="info-box-icon bg-danger"><i class="fas fa-road"></i></span>
-
-      <div class="info-box-content">
-        <span class="info-box-text">Calles</span>
-        <span class="info-box-number">{{total_calles}}</span>
+    <a href="{% url 'calle_list' %}" class="custom-card-link">
+      <div class="info-box shadow">
+        <span class="info-box-icon bg-danger"><i class="fas fa-road"></i></span>
+        <div class="info-box-content">
+          <span class="info-box-text">Calles</span>
+          <span class="info-box-number">{{total_calles}}</span>
+        </div>
       </div>
-      <!-- /.info-box-content -->
-    </div>
-    <!-- /.info-box -->
+    </a>
   </div>
-  <!-- /.col -->
- 
-  <!-- /.col -->
 </div>
+
+
+
 
 
 
