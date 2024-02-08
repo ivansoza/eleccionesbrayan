@@ -206,6 +206,9 @@
             </div>
             
             <div class="modal-footer">
+                <button id="btnObtenerUbicacion" class="btn btn-info">Obtener Ubicación Actual</button>
+
+
                 <button type="button" onclick="recargarMapa()" class="btn btn-secondary">Recargar Mapa</button>
                 <button type="button" class="btn btn-primary" data-dismiss="modal">Aceptar</button>
 
@@ -371,6 +374,8 @@ var marker;
     }
 
 
+    
+
         function configurarMapa() {
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '© OpenStreetMap contributors'
@@ -384,6 +389,31 @@ var marker;
                 document.getElementById('id_latitud').value = e.latlng.lat;
                 document.getElementById('id_longitud').value = e.latlng.lng;
             });
+        }
+
+        document.getElementById('btnObtenerUbicacion').addEventListener('click', obtenerUbicacionActual);
+
+        function obtenerUbicacionActual() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    var latitud = position.coords.latitude;
+                    var longitud = position.coords.longitude;
+                    // Coloca el marcador en la ubicación actual
+                    if (marker) {
+                        mapModal.removeLayer(marker);
+                    }
+                    marker = L.marker([latitud, longitud]).addTo(mapModal);
+                    mapModal.setView([latitud, longitud], 16);
+        
+                    // Actualiza los campos de latitud y longitud con la ubicación actual
+                    document.getElementById('id_latitud').value = latitud;
+                    document.getElementById('id_longitud').value = longitud;
+                }, function() {
+                    alert('Error al obtener la ubicación');
+                });
+            } else {
+                alert('Tu navegador no soporta Geolocalización');
+            }
         }
 
         function cargarGeoJson() {
@@ -451,7 +481,17 @@ var marker;
     }).addTo(mapModal);
 }
     });
+
+
+
+
+    
+
+
+    
 </script>
+
+
 
 <script>
     jQuery(document).ready(function() {
