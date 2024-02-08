@@ -1,0 +1,63 @@
+
+{% load static %}
+
+
+<style>
+    .custom-header {
+        background-color: #587F45; /* Color de fondo del encabezado */
+        color: white; /* Color del texto del encabezado */
+    }
+    .custom-close-button {
+        color: white; /* Color del botón de cierre */
+        opacity: 1; /* Hace que el botón de cierre sea totalmente opaco */
+    }
+    .custom-icon {
+        color: #587F45; /* Color del ícono de la papelera */
+        margin-top: 2rem; /* Espacio superior para el ícono */
+        margin-bottom: 2rem; /* Espacio inferior para el ícono */
+    }
+    .custom-footer {
+        border-top: none; /* Elimina la línea divisoria del pie de página */
+    }
+    .btn-custom {
+        background-color: #6c757d; /* Color de fondo para el botón de cerrar */
+        color: white; /* Color del texto para el botón de cerrar */
+    }
+    .btn-custom:hover {
+        background-color: #5a6268; /* Color de fondo al pasar el mouse sobre el botón de cerrar */
+    }
+    .btn-confirm {
+        background-color: #dc3545; /* Color de fondo para el botón de confirmar */
+        color: white; /* Color del texto para el botón de confirmar */
+    }
+    .btn-confirm:hover {
+        background-color: #c82333; /* Color de fondo al pasar el mouse sobre el botón de confirmar */
+    }
+</style>
+
+<div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header custom-header">
+            <h2 class="modal-title">Confirmar eliminación</h2>
+            <button class="close custom-close-button" type="button" data-bs-dismiss="modal" aria-label="close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div style="text-align: center;">
+            <i class="fas fa-trash-alt fa-7x mt-5" style="color: #587F45;"></i>
+        </div>
+
+        <form action="{% url 'eliminar_promovido' pk=object.id%}" method="POST">
+            {% csrf_token %}
+            <div class="modal-body">
+                <h2>¿Estás seguro de que deseas eliminar al siguiente extranjero?</h2>
+                <br>
+      
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-custom" data-bs-dismiss="modal">Cerrar</button>
+                <button type="submit" class="btn btn-custom2">Confirmar</button>
+            </div>
+        </form>
+    </div>
+</div>

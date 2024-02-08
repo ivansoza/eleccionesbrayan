@@ -76,7 +76,7 @@
 
   <div class="card">
     <div class="card-header">
-        <h3 class="card-title"><i class="fa fa-users"></i> Promovidos</h3>
+        <h3 class="card-title"><i class="fa fa-users"></i> Votos Seguros</h3>
     </div>
     <!-- /.card-header -->
 
@@ -173,13 +173,7 @@
       dom: 'fBrtlip',
       {% endblock dom %}
       buttons: [
-        {
-          text: 'Crear Promovido',
-          className: 'btn btn-custom1 mr-2',
-          action: function (e, dt, node, config) {
-            window.location.href = '{% url "crearPromovidos" %}';
-          }
-        },
+    
         {
           text: '<i class="fas fa-map"></i>', // Ícono de mapa de FontAwesome
           className: 'btn btn-custom1 mr-2',

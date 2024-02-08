@@ -33,6 +33,7 @@ from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth import get_user_model
 
+from django.views.generic.edit import DeleteView
 
 
 
@@ -710,6 +711,50 @@ class CreatePromovidoNuevo(LoginRequiredMixin,CreateView):
         context['seccion'] = 'ver_promovidos' 
         return context
     
+
+class UpdatePromovidoNuevo(LoginRequiredMixin, UpdateView):
+    template_name = 'prospecto/crearPromovido.html'
+    form_class = PromovidoFormNuevo
+    model = prospecto  # Asegúrate de que el nombre del modelo esté correctamente capitalizado
+
+    def form_invalid(self, form):
+        # Maneja el caso de formulario no válido
+        return super().form_invalid(form)
+
+    def get_success_url(self):
+        messages.success(self.request, 'Promovido actualizado con éxito.')
+        return reverse('lista_promovidos')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Asume que Calle y las relaciones están definidas similar a la CreateView
+        calles = Calle.objects.select_related('seccion').all()
+        context['secciones_coords'] = {
+            calle.id: {'lat': calle.seccion.latitud, 'lng': calle.seccion.longitud, 'ruta': calle.ruta}
+            for calle in calles if calle.seccion
+        }
+        context['navbar'] = 'promovidos'  # Esto se mantiene igual
+        context['seccion'] = 'ver_promovidos'  # Esto también se mantiene igual
+        return context
+    
+class EliminarPromovido(LoginRequiredMixin, DeleteView):
+    model = prospecto
+    template_name = 'modals/confirmar_eliminacion.html'
+    def get_success_url(self):
+        extranjero_id = self.object.id  # Obtén el ID del extranjero del objeto biometrico
+        extranjero = prospecto.objects.get(id=extranjero_id)
+        messages.success(self.request, 'Promovido Eliminado con Éxito.')
+        return reverse_lazy('lista_promovidos')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        promovido_id = self.kwargs.get('pk')  # Cambia 'extranjero_id' a 'pk'
+        promovido = prospecto.objects.get(id=promovido_id)
+
+
+        return context
+
 @csrf_exempt
 def verificar_numero_ine(request):
     if request.method == 'POST':
