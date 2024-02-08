@@ -232,6 +232,12 @@ class CalleCreateView(CreateView):
         context = super().get_context_data(**kwargs)
         context['navbar'] = 'seccion'
         context['seccion'] = 'calle'
+
+        calles = Calle.objects.all()
+        context['calles_rutas'] = [{
+            'nombre': calle.nombre, 
+            'ruta': json.loads(calle.ruta) if calle.ruta else None
+        } for calle in calles if calle.ruta]
         return context
 
 class CalleUpdateView(UpdateView):

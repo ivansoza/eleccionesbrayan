@@ -2,7 +2,7 @@
 
 {% load static %}
 {% load crispy_forms_tags %}
-{% block titulo %}Agregar Publicidad{% endblock titulo %}
+{% block titulo %}Agregar Calle{% endblock titulo %}
 {% block link %}
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css" />
 <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
@@ -57,39 +57,33 @@
     <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
     <script>
         var map = L.map('map').setView([19.310249, -98.2040785], 18);
-
+    
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
-
+    
         var waypoints = [];
         var routingControl = L.Routing.control({
             routeWhileDragging: true,
             fitSelectedRoutes: false,
             showAlternatives: false
         }).addTo(map);
-
+    
         map.on('click', function(e) {
             if (waypoints.length < 2) {
                 waypoints.push(L.latLng(e.latlng.lat, e.latlng.lng));
                 routingControl.setWaypoints(waypoints);
     
                 if (waypoints.length === 2) {
-                    // Escuchar cuando se encuentra una ruta
                     routingControl.on('routesfound', function(e) {
                         var routes = e.routes;
-                        var summary = routes[0].summary;
-                        // Aquí se puede mejorar la lógica para elegir la mejor ruta si hay varias
-                        // Convertir la ruta en una cadena de texto JSON para almacenarla en el campo del formulario
                         var rutaJson = JSON.stringify(routes[0].coordinates);
-                        // Suponiendo que tienes un campo oculto en tu formulario con el id 'id_ruta'
                         document.getElementById('id_ruta').value = rutaJson;
-    
-
                     });
                 }
             }
         });
+    
         var geojsonData = {
             "type": "FeatureCollection",
             "features": [
@@ -105,26 +99,54 @@
                 }
             ]
         };
-        // Añadir la línea al mapa usando L.geoJSON
+    
         var geojsonLayer = L.geoJSON(geojsonData, {
             style: function(feature) {
                 return { color: 'blue' }; // Estilo de la línea
             }
         }).addTo(map);
-
-        // Centrar el mapa en la línea
+    
         map.fitBounds(geojsonLayer.getBounds());
-
-
-    document.addEventListener('DOMContentLoaded', function () {
-        var nombreInput = document.querySelector('[name="nombre"]'); // Asegúrate de que este selector coincida con tu campo de nombre
-        if (nombreInput) {
-            nombreInput.addEventListener('input', function() {
-                this.value = this.value.toUpperCase();
-            });
-        }
-    });
+    
+        // Aquí se añadirían las rutas del modelo Calle
+        var callesRutas = {{ calles_rutas|safe }};
+        callesRutas.forEach(function(calle) {
+            var rutaGeoJSON = {
+                "type": "Feature",
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": calle.ruta.map(punto => [punto.lng, punto.lat])
+                },
+                "properties": {
+                    "name": calle.nombre // Ahora cada ruta incluye su nombre
+                }
+            };
+        
+            L.geoJSON(rutaGeoJSON, {
+                style: feature => ({
+                    color: '#ff7800', // Color naranja
+                    weight: 5,
+                    opacity: 0.65
+                }),
+                onEachFeature: (feature, layer) => {
+                    // Usar el nombre de la calle para el popup y el tooltip
+                    var popupContent = 'Ruta: ' + feature.properties.name;
+                    layer.bindPopup(popupContent);
+                    layer.bindTooltip(popupContent, {permanent: false, direction: "auto"});
+                }
+            }).addTo(map);
+        });
+        
+    
+        document.addEventListener('DOMContentLoaded', function () {
+            var nombreInput = document.querySelector('[name="nombre"]');
+            if (nombreInput) {
+                nombreInput.addEventListener('input', function() {
+                    this.value = this.value.toUpperCase();
+                });
+            }
+        });
     </script>
-
+    
 
 {% endblock script1%}
