@@ -16,6 +16,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from configuracion.models import CandidatoConfig
 # Create your views here.
 from django.http import HttpResponse
+from django.db.models import Sum
 
 def home(request):
     return render(request,'home.html')
@@ -44,10 +45,14 @@ class MenuView(LoginRequiredMixin, ListView):
         user = self.request.user
         prospectos_filtrados = self.get_queryset()
 
+        context['total_prospectos_no_verificado'] = prospectos_filtrados.exclude(status="Rechazado").count()
 
         # Añadir contadores y otros datos al contexto
         context['prospectos_promovidos'] = prospectos_filtrados.filter(status="Promovido").count()
         context['total_prospectos'] = prospectos_filtrados.filter(status="Prospecto").count()
+        context['total_prospectos_verificado'] = prospectos_filtrados.filter(status="Verificado").count()
+        context['total_prospectos_seguros'] = prospectos_filtrados.filter(votoSeguro=True).count()
+
         if user.groups.filter(name__in=['Administrador', 'Coordinador General', 'Candidato']).exists():
             # Contar todas las secciones y calles para usuarios con acceso especial
             context['total_secciones'] = Seccion.objects.all().count()
@@ -63,8 +68,23 @@ class MenuView(LoginRequiredMixin, ListView):
             context['meta_promovidos'] = config.meta_promovidos if config else 0
         except CandidatoConfig.DoesNotExist:
             context['meta_promovidos'] = 0
+            
+        total_meta_promovidos = Calle.objects.aggregate(Sum('meta_promovidos'))['meta_promovidos__sum'] or 0
+        context['total_meta_promovidos'] = total_meta_promovidos
+        context['porcentaje_alcanzado'] = (context['prospectos_promovidos'] / total_meta_promovidos * 100) if total_meta_promovidos else 0
+        context['porcentaje_alcanzado'] = min(context['porcentaje_alcanzado'], 100)  # Asegurar que no exceda el 100%
+        context['porcentaje_total'] = (context['total_prospectos_no_verificado'] / total_meta_promovidos * 100) if total_meta_promovidos else 0
+        context['porcentaje_total'] = min(context['porcentaje_total'], 100)  # Asegurar que no exceda el 100%
+        
+        context['porcentaje_prospecto'] = (context['total_prospectos'] / total_meta_promovidos * 100) if total_meta_promovidos else 0
+        context['porcentaje_prospecto'] = min(context['porcentaje_prospecto'], 100)  # Asegurar que no exceda el 100%
 
-        context['porcentaje_alcanzado'] = min((context['prospectos_promovidos'] / context['meta_promovidos'] * 100) if context['meta_promovidos'] else 0, 100)
+        context['porcentaje_verificado'] = (context['total_prospectos_verificado'] / total_meta_promovidos * 100) if total_meta_promovidos else 0
+        context['porcentaje_verificado'] = min(context['porcentaje_verificado'], 100)  # Asegurar que no exceda el 100%
+
+        context['porcentaje_seguro'] = (context['total_prospectos_seguros'] / total_meta_promovidos * 100) if total_meta_promovidos else 0
+        context['porcentaje_seguro'] = min(context['porcentaje_seguro'], 100)  # Asegurar que no exceda el 100%
+
         context['navbar'] = "home"
 
         return context
@@ -120,6 +140,10 @@ class ListaTodos(LoginRequiredMixin,ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         queryset = self.get_queryset()
+        context['prospectos_promovidos'] = queryset.filter(status="Promovido").count()
+        context['total_prospectos_verificado'] = queryset.filter(status="Verificado").count()
+        context['total_prospectos'] = queryset.filter(status="Prospecto").count()
+
         context['num_hombres'] = queryset.filter(genero='Hombre').count()
         context['num_mujeres'] = queryset.filter(genero='Mujer').count()
         context['contador_global'] = queryset.count()       

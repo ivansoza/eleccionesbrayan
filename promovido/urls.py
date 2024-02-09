@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
-from .views import CreatePromovidoNuevo, EliminarPromovido, EliminarProspecto, ListaPromovidosNuevo, UpdatePromovidoNuevo, UpdateProspectoNuevo, estadisticasGenerales,CreateProspectoNuevo,ListaProspectosNuevo,MapaProspectosPromovidosView
+from .views import CreatePromovidoNuevo, EliminarPromovido, EliminarProspecto, EliminarVerificado, ListaPromovidosNuevo, UpdatePromovidoNuevo, UpdateProspectoNuevo, estadisticasGenerales,CreateProspectoNuevo,ListaProspectosNuevo,MapaProspectosPromovidosView
 from .views import   EstadisticasGeneralesView, EstadisticasSoliView
 from .views import ProspectoUpdateView, ListCumple, Felicitar, PromovidosLista, verificarPromovidos, CalleListView
 from .views import verificar_numero_ine,obtener_calles, CalleDetailView,SeccionListView,SeccionDetailView, votosSeguros, ListaVotoSeguro, MapaVotosSegurosView,MapaVerificadosView
@@ -34,6 +34,7 @@ urlpatterns = [
     path('obtener-calles', obtener_calles, name='obtener_calles'),
     path("lista-promovidos-verificar/", PromovidosLista.as_view(), name='lista-promovidos-verificar'),
     path('verificar/<int:pk>/', verificarPromovidos.as_view(), name='verificar'),
+    path('eliminar-verificado/<int:pk>/', EliminarVerificado.as_view(), name='EliminarVerificado'),
 
 
 

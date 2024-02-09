@@ -62,27 +62,76 @@
     .otro {
         background-color: red;
     }
+
+
+    .custom-card-link {
+      text-decoration: none; /* Elimina el subrayado de los enlaces */
+      color: inherit; /* Mantiene el color del texto igual al del contenido del card */
+      display: block; /* Hace que el enlace abarque todo el contenido del card */
+      /* Añade aquí más estilos si es necesario */
+    }
+
 </style>
 <div class="dashboard-header">
     <h1 class="dashboard-title">Lista de todos los participantes</h1>
 </div>    
-
 <div class="row">
-    <div class="col-lg-4 col-6">
-      <!-- small box -->
-      <div class="small-box bg-info">
-        <div class="inner">
-          <h3>{{ contador_global }}</h3>
-
-          <p>Total</p>
-        </div>
-        <div class="icon">
-            <i class="fas fa-users"></i>
+  <!-- Prospectos -->
+  <div class="col-md-3 col-sm-6 col-12">
+    <a href="{% url 'lista_prospectos' %}" class="custom-card-link">
+      <div class="info-box shadow-sm">
+        <span class="info-box-icon bg-info"><i class="fas fa-users"></i></span>
+        <div class="info-box-content">
+          <span class="info-box-text">Prospectos</span>
+          <span class="info-box-number">{{total_prospectos}}</span>
         </div>
       </div>
-    </div>
+    </a>
+  </div>
+  <!-- Promovidos -->
+  <div class="col-md-3 col-sm-6 col-12">
+    <a href="{% url 'lista_promovidos' %}" class="custom-card-link">
+      <div class="info-box shadow-sm">
+        <span class="info-box-icon bg-success"><i class="fas fa-star"></i></span>
+        <div class="info-box-content">
+          <span class="info-box-text">Promovidos</span>
+          <span class="info-box-number">{{prospectos_promovidos}}</span>
+        </div>
+      </div>
+    </a>
+  </div>
+  <!-- Secciones -->
+  <div class="col-md-3 col-sm-6 col-12">
+    <a href="{% url 'lista-promovidos-verificar' %}" class="custom-card-link">
+      <div class="info-box shadow">
+        <span class="info-box-icon bg-warning"><i class="fas fa-map-marker-alt"></i></span>
+        <div class="info-box-content">
+          <span class="info-box-text">Verificados</span>
+          <span class="info-box-number">{{total_prospectos_verificado}}</span>
+        </div>
+      </div>
+    </a>
+  </div>
+  <!-- Calles -->
+  <div class="col-md-3 col-sm-6 col-12">
+    <a href="{% url 'buscador' %}" class="custom-card-link">
+      <div class="info-box shadow">
+        <span class="info-box-icon bg-danger"><i class="fas fa-road"></i></span>
+        <div class="info-box-content">
+          <span class="info-box-text">Total</span>
+          <span class="info-box-number">{{contador_global}}</span>
+        </div>
+      </div>
+    </a>
+  </div>
+</div>
+
+
+
+<div class="row">
+
     <!-- ./col -->
-    <div class="col-lg-4 col-6">
+    <div class="col-lg-6 col-6">
       <!-- small box -->
       <div class="small-box bg-success">
         <div class="inner">
@@ -96,7 +145,7 @@
       </div>
     </div>
     <!-- ./col -->
-    <div class="col-lg-4 col-12">
+    <div class="col-lg-6 col-12">
       <!-- small box -->
       <div class="small-box bg-warning">
         <div class="inner">

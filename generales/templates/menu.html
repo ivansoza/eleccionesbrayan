@@ -84,59 +84,139 @@
     <button type="submit">Enviar SMS</button>
 </form> {% endcomment %}
 
-<div class="row">
-  <!-- Prospectos -->
-  <div class="col-md-3 col-sm-6 col-12">
-    <a href="{% url 'lista_prospectos' %}" class="custom-card-link">
-      <div class="info-box shadow-sm">
-        <span class="info-box-icon bg-info"><i class="fas fa-users"></i></span>
-        <div class="info-box-content">
-          <span class="info-box-text">Prospectos</span>
-          <span class="info-box-number">{{total_prospectos}}</span>
-        </div>
-      </div>
-    </a>
-  </div>
-  <!-- Promovidos -->
-  <div class="col-md-3 col-sm-6 col-12">
-    <a href="{% url 'lista_promovidos' %}" class="custom-card-link">
-      <div class="info-box shadow-sm">
-        <span class="info-box-icon bg-success"><i class="fas fa-star"></i></span>
-        <div class="info-box-content">
-          <span class="info-box-text">Promovidos</span>
-          <span class="info-box-number">{{prospectos_promovidos}}</span>
-        </div>
-      </div>
-    </a>
-  </div>
-  <!-- Secciones -->
-  <div class="col-md-3 col-sm-6 col-12">
-    <a href="{% url 'seccion-list' %}" class="custom-card-link">
-      <div class="info-box shadow">
-        <span class="info-box-icon bg-warning"><i class="fas fa-map-marker-alt"></i></span>
-        <div class="info-box-content">
-          <span class="info-box-text">Secciones</span>
-          <span class="info-box-number">{{total_secciones}}</span>
-        </div>
-      </div>
-    </a>
-  </div>
-  <!-- Calles -->
-  <div class="col-md-3 col-sm-6 col-12">
-    <a href="{% url 'calle_list' %}" class="custom-card-link">
-      <div class="info-box shadow">
-        <span class="info-box-icon bg-danger"><i class="fas fa-road"></i></span>
-        <div class="info-box-content">
-          <span class="info-box-text">Calles</span>
-          <span class="info-box-number">{{total_calles}}</span>
-        </div>
-      </div>
-    </a>
-  </div>
+
+{% if es_administrador  or es_coordinador_general or es_candidato%}
+
+<div class="subtitle-container">
+  <h2 class="subtitle">Metas</h2>
+  <hr class="subtitle-underline">
 </div>
 
 
+<div class="row">
+  <div class="col-md-3 col-sm-6 col-12">
+    <a href="{% url 'lista_prospectos' %}" class="custom-card-link">
 
+    <div class="info-box bg-gradient-info">
+      <span class="info-box-icon"><i class="far fa-user"></i></span>
+
+      <div class="info-box-content">
+        <span class="info-box-text">Prospectos</span>
+        <span class="info-box-number">{{total_prospectos}} de {{total_meta_promovidos}}</span>
+
+        <div class="progress">
+          <div class="progress-bar" style="width: {{porcentaje_prospecto}}%"></div>
+        </div>
+        <span class="progress-description">
+          {{porcentaje_prospecto|floatformat:2}}% de 100%
+        </span>
+      </div>
+      <!-- /.info-box-content -->
+    </div>
+  </a>
+
+
+    <!-- /.info-box -->
+  </div>
+  <!-- /.col -->
+  <div class="col-md-3 col-sm-6 col-12">
+    <a href="{% url 'lista_promovidos' %}" class="custom-card-link">
+
+    <div class="info-box bg-gradient-success">
+      <span class="info-box-icon"><i class="fas fa-user-check"></i></span>
+
+      <div class="info-box-content">
+        <span class="info-box-text">Promovidos</span>
+        <span class="info-box-number">{{prospectos_promovidos}} de {{total_meta_promovidos}}</span>
+
+        <div class="progress">
+          <div class="progress-bar" style="width: {{porcentaje_alcanzado}}%"></div>
+        </div>
+        <span class="progress-description">
+          {{porcentaje_alcanzado|floatformat:2}}% de 100%
+        </span>
+      </div>
+      <!-- /.info-box-content -->
+    </div>
+  </a>
+
+    <!-- /.info-box -->
+  </div>
+  <!-- /.col -->
+  <div class="col-md-3 col-sm-6 col-12">
+    <a href="{% url 'lista-promovidos-verificar' %}" class="custom-card-link">
+
+    <div class="info-box bg-gradient-warning">
+      <span class="info-box-icon"><i class="fas fa-user-shield"></i></span>
+
+      <div class="info-box-content">
+        <span class="info-box-text">Verificados</span>
+        <span class="info-box-number">{{total_prospectos_verificado}} de {{total_meta_promovidos}}</span>
+
+        <div class="progress">
+          <div class="progress-bar" style="width: {{porcentaje_verificado}}%"></div>
+        </div>
+        <span class="progress-description">
+          {{porcentaje_verificado|floatformat:2}}% de 100%
+        </span>
+      </div>
+      <!-- /.info-box-content -->
+    </div>
+  </a>
+
+    <!-- /.info-box -->
+  </div>
+  <!-- /.col -->
+  <div class="col-md-3 col-sm-6 col-12">
+    <a href="{% url 'lista_votos_seguros' %}" class="custom-card-link">
+
+    <div class="info-box bg-gradient-danger">
+      <span class="info-box-icon"><i class="fas fa-shield-alt"></i></span>
+
+      <div class="info-box-content">
+        <span class="info-box-text">Votos Seguros</span>
+        <span class="info-box-number">{{total_prospectos_seguros}} de {{total_meta_promovidos}}</span>
+
+        <div class="progress">
+          <div class="progress-bar" style="width: {{porcentaje_seguro}}%"></div>
+        </div>
+        <span class="progress-description">
+          {{porcentaje_seguro|floatformat:2}}% de 100%
+        </span>
+      </div>
+      <!-- /.info-box-content -->
+    </div>
+  </a>
+
+    <!-- /.info-box -->
+  </div>
+
+  <div class="col-md-12 col-sm-12 col-12">
+    <a href="{% url 'buscador' %}" class="custom-card-link">
+
+    <div class="info-box bg-gradient-info">
+      <span class="info-box-icon"><i class="fas fa-list-ol"></i></span>
+
+      <div class="info-box-content">
+        <span class="info-box-text">Total</span>
+        <span class="info-box-number">{{total_prospectos_no_verificado}} de {{total_meta_promovidos}}</span>
+
+        <div class="progress">
+          <div class="progress-bar" style="width: {{porcentaje_alcanzado}}%"></div>
+        </div>
+        <span class="progress-description">
+          {{ porcentaje_total|floatformat:2 }}% de 100%
+        </span>
+      </div>
+      <!-- /.info-box-content -->
+    </div>
+    </a>
+
+    <!-- /.info-box -->
+  </div>
+  <!-- /.col -->
+</div>
+{% endif %}
 
 
 
@@ -246,7 +326,6 @@
 <div class="subtitle-container">
       <h2 class="subtitle">Accesos Directos</h2>
       <hr class="subtitle-underline">
-    </div>
 </div>
 
 <div class="container mt-10">

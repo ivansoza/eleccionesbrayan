@@ -787,8 +787,6 @@ class EliminarProspecto(LoginRequiredMixin, DeleteView):
         context = super().get_context_data(**kwargs)
         promovido_id = self.kwargs.get('pk')  # Cambia 'extranjero_id' a 'pk'
         promovido = prospecto.objects.get(id=promovido_id)
-
-
         return context
 
 
@@ -1003,6 +1001,21 @@ class PromovidosLista(ListView):
         context['navbar'] = 'promovidos'
         context['seccion'] = 'veri_promovidos'
 
+        return context
+    
+class EliminarVerificado(LoginRequiredMixin, DeleteView):
+    model = prospecto
+    template_name = 'modals/confirmar_eliminacion_veri.html'
+    def get_success_url(self):
+        extranjero_id = self.object.id  # Obtén el ID del extranjero del objeto biometrico
+        extranjero = prospecto.objects.get(id=extranjero_id)
+        messages.success(self.request, 'Aspirante Eliminado con Éxito.')
+        return reverse_lazy('lista-promovidos-verificar')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        promovido_id = self.kwargs.get('pk')  # Cambia 'extranjero_id' a 'pk'
+        promovido = prospecto.objects.get(id=promovido_id)
         return context
 
 class verificarPromovidos(UpdateView):
