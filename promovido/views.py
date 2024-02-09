@@ -713,7 +713,7 @@ class CreatePromovidoNuevo(LoginRequiredMixin,CreateView):
     
 
 class UpdatePromovidoNuevo(LoginRequiredMixin, UpdateView):
-    template_name = 'prospecto/crearPromovido.html'
+    template_name = 'actualizar/updatePromovido.html'
     form_class = PromovidoFormNuevo
     model = prospecto  # Asegúrate de que el nombre del modelo esté correctamente capitalizado
 
@@ -738,6 +738,25 @@ class UpdatePromovidoNuevo(LoginRequiredMixin, UpdateView):
         context['seccion'] = 'ver_promovidos'  # Esto también se mantiene igual
         return context
     
+class UpdateProspectoNuevo(LoginRequiredMixin, UpdateView):
+    template_name = 'actualizar/updateProspecto.html'
+    form_class = ProspectoFormNuevo
+    model = prospecto  # Asegúrate de que el nombre del modelo esté correctamente capitalizado
+
+    def form_invalid(self, form):
+        # Maneja el caso de formulario no válido
+        return super().form_invalid(form)
+
+    def get_success_url(self):
+        messages.success(self.request, 'Prospecto actualizado con éxito.')
+        return reverse('lista_prospectos')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['navbar'] = 'promovidos'
+        context['seccion'] = 'ver_prospectos' # Esto también se mantiene igual
+        return context
+    
 class EliminarPromovido(LoginRequiredMixin, DeleteView):
     model = prospecto
     template_name = 'modals/confirmar_eliminacion.html'
@@ -754,6 +773,24 @@ class EliminarPromovido(LoginRequiredMixin, DeleteView):
 
 
         return context
+    
+class EliminarProspecto(LoginRequiredMixin, DeleteView):
+    model = prospecto
+    template_name = 'modals/confirmar_eliminacionProspecto.html'
+    def get_success_url(self):
+        extranjero_id = self.object.id  # Obtén el ID del extranjero del objeto biometrico
+        extranjero = prospecto.objects.get(id=extranjero_id)
+        messages.success(self.request, 'Prospecto Eliminado con Éxito.')
+        return reverse_lazy('lista_prospectos')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        promovido_id = self.kwargs.get('pk')  # Cambia 'extranjero_id' a 'pk'
+        promovido = prospecto.objects.get(id=promovido_id)
+
+
+        return context
+
 
 @csrf_exempt
 def verificar_numero_ine(request):

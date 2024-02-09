@@ -47,7 +47,7 @@
             <i class="fas fa-trash-alt fa-7x mt-5" style="color: #587F45;"></i>
         </div>
 
-        <form action="{% url 'eliminar_promovido' pk=object.id%}" method="POST">
+        <form action="{% url 'EliminarProspecto' pk=object.id%}" method="POST">
             {% csrf_token %}
             <div class="modal-body">
                 <h2>¿Estás seguro de que deseas eliminar al siguiente registro?</h2>
